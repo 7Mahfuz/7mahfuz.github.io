@@ -471,6 +471,38 @@
         'Implemented dual-language support (Bengali & English) tailored for grassroots farm managers and veterinary professionals.',
         'Deployed on high-availability cloud architecture with automated edge caching on Vercel.'
       ]
+    },
+    'aykorgpt': {
+      title: 'AykorGPT — AI Bangladesh Tax, VAT & Legal Intelligence Advisor',
+      company: 'Personal / Independent Project',
+      client: 'AykorGPT (aykorgpt.vercel.app)',
+      clientClass: 'industrial',
+      clientIcon: 'fas fa-scale-balanced',
+      role: 'Full-Stack AI & LegalTech Developer',
+      tech: ['Next.js 15', 'React', 'Tailwind CSS', 'AI Legal Citation Engine', 'Income Tax Act 2023', 'VAT Act 2012', 'Customs Tariffs', 'Vercel Serverless'],
+      desc: 'AykorGPT (aykorgpt.vercel.app) is an advanced AI-driven Bangladesh taxation and legal advisory platform. Designed to provide instant, hallucination-free answers strictly cited from the Income Tax Act 2023, VAT Act 2012, Customs Act 2023, and over 50,000+ official National Board of Revenue (NBR) statutory regulatory orders (SROs) and gazettes.',
+      highlights: [
+        'Built sub-second (<0.5s) legal citation retrieval engine cross-referencing statutory tax clauses and official NBR circulars.',
+        'Engineered interactive progressive tax calculation engine computing individual assessee and corporate slabs for FY 2026-27.',
+        'Structured domain expertise across Income Tax allowable deductions, 6th Schedule investment rebates, Mushak 9.1 VAT returns, and TDS Section 52 series.',
+        'Constructed high-speed conversational UI with citation export, PDF/Doc memos, and real-time SRO verification.'
+      ]
+    },
+    'cumilla-resort': {
+      title: 'Cumilla Resort — Eco-Luxury Heritage Hospitality Platform',
+      company: 'Personal / Independent Project',
+      client: 'Cumilla Resort (resortmahfuz.netlify.app)',
+      clientClass: 'us',
+      clientIcon: 'fas fa-mountain-sun',
+      role: 'Full-Stack Frontend & UI Engineer',
+      tech: ['Next.js (App Router)', 'React', 'Tailwind CSS', 'Supabase Media Storage', 'Bilingual Localization (EN/বাং)', 'Interactive Booking Engine', 'Netlify Edge'],
+      desc: 'Cumilla Resort (resortmahfuz.netlify.app) is an eco-luxury heritage sanctuary platform representing an estate situated within 45 acres of scenic Lalmai Hills and ancient archaeological ruins of Kotbari, Shalban Vihara, Cumilla. Provides an immersive digital reservation experience blending natural topography with cultural terracotta heritage.',
+      highlights: [
+        'Engineered responsive interactive booking bar with real-time villa availability selector, guest counts, and date ranges.',
+        'Implemented full bilingual localization (English and Bengali) with persistent language state toggle across all sub-pages.',
+        'Curated rich media showcase with video background, high-resolution villa gallery, and historical tour discovery flows (Mainamati Ruins, Lalmai Trek).',
+        'Deployed with edge rendering on Netlify Cloud with automated caching and Supabase media delivery.'
+      ]
     }
   };
 

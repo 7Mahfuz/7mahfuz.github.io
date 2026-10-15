@@ -227,18 +227,26 @@
     /* Projects Grid */
     .proj-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 6px;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 5px;
       margin-bottom: 4px;
     }
 
     .proj-card {
       border: 1px solid #e2e8f0;
       border-radius: 4px;
-      padding: 5px 7px;
+      padding: 4px 6px;
       background: #fafafa;
       page-break-inside: avoid;
       break-inside: avoid;
+    }
+
+    .proj-card.span-2 {
+      grid-column: span 2;
+    }
+
+    .proj-card.span-3 {
+      grid-column: span 3;
     }
 
     .proj-title {
@@ -506,40 +514,64 @@
     <div class="section-title">Personal &amp; Independent Live Projects</div>
     <div class="proj-grid">
       
-      <!-- MapCars UK -->
-      <div class="proj-card">
+      <!-- 1: MapCars UK -->
+      <div class="proj-card span-2">
         <div class="proj-title">
           <span>MapCars UK</span>
           <a href="https://mapcars.uk/" class="proj-link">mapcars.uk ↗</a>
         </div>
         <p class="proj-desc">
-          Modern ride-sharing &amp; passenger mobility ecosystem operating across the South Coast of England (Southampton, Portsmouth, Chichester, Brighton). Engineered cross-platform Flutter apps deployed to Google Play Store &amp; Apple App Store; real-time driver dispatch via Firebase and Google Cloud VMs.
+          Ride-sharing &amp; passenger mobility ecosystem across South Coast UK. Flutter mobile apps on Play Store &amp; App Store; real-time dispatch via Firebase &amp; Google Cloud VMs.
         </p>
-        <div class="proj-stack">Flutter · Android · iOS · Firebase · Google VMs · Play Store · App Store</div>
+        <div class="proj-stack">Flutter · Android · iOS · Firebase · Google VMs · Stores</div>
       </div>
 
-      <!-- Motorshut -->
-      <div class="proj-card">
+      <!-- 2: Motorshut -->
+      <div class="proj-card span-2">
         <div class="proj-title">
           <span>Motorshut</span>
           <a href="https://motorshut.com/" class="proj-link">motorshut.com ↗</a>
         </div>
         <p class="proj-desc">
-          Comprehensive online automotive dealership and verified vehicle marketplace based in Rainham, Essex, UK. Architected full-stack web portal with dynamic vehicle inventory filtering, MOT verification badges, client lead engines, and Schema.org JSON-LD microdata on scalable AWS cloud infrastructure.
+          Automotive used car marketplace in Rainham, Essex, UK. Real-time vehicle inventory filtering, MOT verification, and Schema.org JSON-LD microdata on AWS Cloud.
         </p>
-        <div class="proj-stack">Web Architecture · AWS Cloud · SEO Schema · Automotive ERP · Lead Pipeline</div>
+        <div class="proj-stack">Web Architecture · AWS Cloud · SEO Schema · Lead Pipeline</div>
       </div>
 
-      <!-- VetMart BD -->
-      <div class="proj-card">
+      <!-- 3: AykorGPT -->
+      <div class="proj-card span-2">
+        <div class="proj-title">
+          <span>AykorGPT</span>
+          <a href="https://aykorgpt.vercel.app/" class="proj-link">aykorgpt.vercel.app ↗</a>
+        </div>
+        <p class="proj-desc">
+          AI Bangladesh tax, VAT &amp; legal intelligence advisor. 50k+ NBR SROs indexed, &lt;0.5s statutory citation lookup, progressive tax calculator, and NBR Act 2023 mapping.
+        </p>
+        <div class="proj-stack">Next.js 15 · Tax AI · NBR Act 2023 · Vercel Serverless</div>
+      </div>
+
+      <!-- 4: Cumilla Resort -->
+      <div class="proj-card span-3">
+        <div class="proj-title">
+          <span>Cumilla Resort</span>
+          <a href="https://resortmahfuz.netlify.app/" class="proj-link">resortmahfuz.netlify.app ↗</a>
+        </div>
+        <p class="proj-desc">
+          Eco-luxury heritage sanctuary platform set in Lalmai Hills near Shalban Vihara, Cumilla. Interactive villa booking &amp; availability engine, bilingual (EN/বাং), and Netlify Edge deployment.
+        </p>
+        <div class="proj-stack">Next.js · Booking Engine · Bilingual (EN/বাং) · Netlify Edge</div>
+      </div>
+
+      <!-- 5: VetMart BD -->
+      <div class="proj-card span-3">
         <div class="proj-title">
           <span>VetMart BD</span>
           <a href="https://vetmartbd.vercel.app/" class="proj-link">vetmartbd.vercel.app ↗</a>
         </div>
         <p class="proj-desc">
-          Dedicated agro-veterinary and pharmaceutical e-commerce marketplace in Bangladesh. Features dual-language Bengali localization, multi-species product filtering (Cattle, Poultry, Dairy, Fish), batch tracking, and serverless edge deployment on Vercel Cloud.
+          Agro-veterinary e-commerce marketplace in Bangladesh. Multi-species filtering (Cattle, Poultry, Dairy, Fish), dual-language support, batch tracking, and Vercel edge deployment.
         </p>
-        <div class="proj-stack">Next.js · React · Bengali Localization · Vercel Serverless · E-Commerce Engine</div>
+        <div class="proj-stack">Next.js · React · Bengali Localization · Vercel Cloud</div>
       </div>
 
     </div>
