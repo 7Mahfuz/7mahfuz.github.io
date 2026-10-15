@@ -21,9 +21,6 @@
 
   <!-- Portfolio v2 Stylesheet -->
   <link rel="stylesheet" href="css/v2.css" />
-
-  <!-- 3D Bug Blaster Arcade Stylesheet -->
-  <link rel="stylesheet" href="css/bug-blaster.css" />
 </head>
 <body id="page-top">
 
@@ -45,7 +42,6 @@
           <li><a class="nav-link active" href="#about">About</a></li>
           <li><a class="nav-link" href="#experience">Work Experience</a></li>
           <li><a class="nav-link" href="#personal-projects">Personal Projects</a></li>
-          <li><a class="nav-link" href="#arcade"><i class="fas fa-gamepad"></i> Arcade</a></li>
           <li><a class="nav-link" href="#skills">Skills</a></li>
           <li><a class="nav-link" href="#education">Education</a></li>
           <li><a class="nav-link" href="#contact">Contact</a></li>
@@ -558,90 +554,6 @@
   </section>
 
   <!-- ========================================================================
-       4.5 Interactive Lab: 3D Bug Blaster Mini-Game
-       ======================================================================== -->
-  <section class="arcade-section" id="arcade">
-    <div class="container">
-      <div class="section-header text-center" style="text-align: center; max-width: 680px; margin: 0 auto;">
-        <span class="section-tag" style="background: rgba(37, 99, 235, 0.12); color: #2563eb; border: 1px solid rgba(37, 99, 235, 0.25);">
-          <i class="fas fa-gamepad"></i> Interactive 3D Lab
-        </span>
-        <h2 class="section-title">3D Bug Blaster</h2>
-        <p class="section-desc">Take a quick break: aim and neutralize incoming system bugs in real-time 3D space.</p>
-      </div>
-
-      <div class="arcade-card">
-        <!-- Arcade Top HUD -->
-        <div class="arcade-hud">
-          <div class="hud-group">
-            <div class="hud-item">
-              <span class="hud-label">SCORE</span>
-              <span class="hud-value" id="bb-score">00000</span>
-            </div>
-            <div class="hud-item">
-              <span class="hud-label">STREAK</span>
-              <span class="hud-value streak-pill" id="bb-streak">x1</span>
-            </div>
-          </div>
-          <div class="hud-group">
-            <div class="hud-item">
-              <span class="hud-label">INTEGRITY</span>
-              <div class="integrity-bar">
-                <div class="integrity-fill" id="bb-integrity" style="width: 100%;"></div>
-              </div>
-            </div>
-            <div class="hud-actions">
-              <button type="button" class="arcade-btn" id="bb-mute-btn" title="Toggle Sound" aria-label="Toggle Sound">
-                <i class="fas fa-volume-high"></i>
-              </button>
-              <button type="button" class="arcade-btn" id="bb-pause-btn" title="Pause Game" aria-label="Pause Game">
-                <i class="fas fa-pause"></i>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Canvas Viewport -->
-        <div class="arcade-viewport" id="arcade-viewport">
-          <canvas id="bug-blaster-canvas"></canvas>
-
-          <!-- Custom Reticle -->
-          <div class="arcade-crosshair" id="arcade-crosshair">
-            <div class="reticle-circle"></div>
-            <div class="reticle-dot"></div>
-          </div>
-
-          <!-- Overlays: Start Screen & Game Over -->
-          <div class="arcade-overlay" id="arcade-overlay">
-            <div class="overlay-card">
-              <div class="overlay-icon"><i class="fas fa-shield-virus"></i></div>
-              <h3 class="overlay-title" id="overlay-title">SYSTEM DEFENSE</h3>
-              <p class="overlay-desc" id="overlay-desc">
-                Neutralize incoming memory leaks and null-pointers before they compromise system integrity.
-              </p>
-              <div class="overlay-stats" id="overlay-stats" style="display: none;">
-                <div class="stat-box">
-                  <span class="stat-label">FINAL SCORE</span>
-                  <span class="stat-num" id="final-score">0</span>
-                </div>
-                <div class="stat-box">
-                  <span class="stat-label">MAX STREAK</span>
-                  <span class="stat-num" id="final-streak">x1</span>
-                </div>
-              </div>
-              <button type="button" class="btn-play-arcade" id="bb-play-btn">
-                <i class="fas fa-play"></i>
-                <span id="bb-play-text">START MISSION</span>
-              </button>
-              <span class="overlay-hint">Tip: Click / Tap anywhere to aim & blast. Press Space to Pause.</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ========================================================================
        5. Skills Matrix
        ======================================================================== -->
   <section class="section-padding" id="skills" style="background-color: #ffffff;">
@@ -875,6 +787,11 @@
               <i class="fas fa-paper-plane"></i>
               <span>Send Direct Email</span>
             </a>
+            <a href="arcade.html" class="btn-arcade-footer">
+              <i class="fas fa-gamepad"></i>
+              <span>Play 3D Bug Blaster</span>
+              <span class="arcade-pill-tag">3D Lab</span>
+            </a>
             <div style="color: #94a3b8; font-size: 0.88rem; display: flex; align-items: center; gap: 8px; margin-top: 8px;">
               <i class="fas fa-map-marker-alt"></i>
               <span>House 19, Road 1, Sector 13, Uttara, Dhaka, Bangladesh</span>
@@ -885,6 +802,18 @@
       </div>
     </div>
   </section>
+
+  <!-- ========================================================================
+       Footer Copyright & Arcade Mini-Game Link
+       ======================================================================== -->
+  <footer class="footer-bottom">
+    <div class="container" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+      <span>&copy; 2026 Al-Amin Mahfuzur Rahman. All rights reserved.</span>
+      <a href="arcade.html" style="color: var(--primary); text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 8px;">
+        <i class="fas fa-gamepad"></i> Try 3D Bug Blaster Mini-Game &rarr;
+      </a>
+    </div>
+  </footer>
 
   <!-- ========================================================================
        Project Details Modal Dialog
@@ -932,8 +861,5 @@
 
   <!-- Portfolio v2 Controller Script -->
   <script src="js/v2.js"></script>
-
-  <!-- 3D Bug Blaster Arcade Controller Script -->
-  <script src="js/bug-blaster.js"></script>
 </body>
 </html>

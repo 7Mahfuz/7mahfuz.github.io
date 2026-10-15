@@ -1,10 +1,12 @@
 const fs = require('fs');
 
-const html = fs.readFileSync('v2.html', 'utf8');
-const css = fs.readFileSync('css/bug-blaster.css', 'utf8');
-const js = fs.readFileSync('js/bug-blaster.js', 'utf8');
+const v2Html = fs.readFileSync('v2.html', 'utf8');
+const arcadeHtml = fs.readFileSync('arcade.html', 'utf8');
+const v2Css = fs.readFileSync('css/v2.css', 'utf8');
+const bugCss = fs.readFileSync('css/bug-blaster.css', 'utf8');
+const bugJs = fs.readFileSync('js/bug-blaster.js', 'utf8');
 
-const requiredIds = [
+const requiredIdsOnArcadePage = [
   'arcade',
   'arcade-viewport',
   'bug-blaster-canvas',
@@ -26,51 +28,54 @@ const requiredIds = [
 
 let allPassed = true;
 
-console.log('--- Verifying HTML Elements ---');
-requiredIds.forEach(id => {
-  if (html.includes(`id="${id}"`)) {
-    console.log(`[PASS] ID found in HTML: ${id}`);
+console.log('--- 1. Verifying arcade.html Elements ---');
+requiredIdsOnArcadePage.forEach(id => {
+  if (arcadeHtml.includes(`id="${id}"`)) {
+    console.log(`[PASS] ID found on arcade.html: ${id}`);
   } else {
-    console.error(`[FAIL] ID missing in HTML: ${id}`);
+    console.error(`[FAIL] ID missing on arcade.html: ${id}`);
     allPassed = false;
   }
 });
 
-console.log('\n--- Verifying Script Ordering ---');
-const threeIndex = html.indexOf('three.min.js');
-const v2Index = html.indexOf('js/v2.js');
-const bugBlasterIndex = html.indexOf('js/bug-blaster.js');
+console.log('\n--- 2. Verifying arcade.html Script Ordering ---');
+const threeIndex = arcadeHtml.indexOf('three.min.js');
+const bugBlasterIndex = arcadeHtml.indexOf('js/bug-blaster.js');
 
-if (threeIndex !== -1 && v2Index !== -1 && bugBlasterIndex !== -1) {
-  if (threeIndex < bugBlasterIndex) {
-    console.log('[PASS] Three.js is loaded BEFORE bug-blaster.js');
-  } else {
-    console.error('[FAIL] Three.js must be loaded before bug-blaster.js');
-    allPassed = false;
-  }
+if (threeIndex !== -1 && bugBlasterIndex !== -1 && threeIndex < bugBlasterIndex) {
+  console.log('[PASS] Three.js is loaded BEFORE bug-blaster.js on arcade.html');
 } else {
-  console.error('[FAIL] Script tag not found in v2.html');
+  console.error('[FAIL] Three.js must be loaded before bug-blaster.js on arcade.html');
   allPassed = false;
 }
 
-console.log('\n--- Verifying CSS & Stylesheet Inclusion ---');
-if (html.includes('css/bug-blaster.css')) {
-  console.log('[PASS] bug-blaster.css is linked in v2.html');
+console.log('\n--- 3. Verifying v2.html Top Navbar Cleanliness ---');
+const navLinksMatch = v2Html.match(/<ul class="nav-links">[\s\S]*?<\/ul>/);
+if (navLinksMatch && !navLinksMatch[0].includes('href="#arcade"') && !navLinksMatch[0].includes('arcade.html')) {
+  console.log('[PASS] Game menu removed from top navbar on v2.html');
 } else {
-  console.error('[FAIL] bug-blaster.css missing in v2.html');
+  console.error('[FAIL] Game link still found in top navbar on v2.html');
   allPassed = false;
 }
 
-console.log('\n--- Verifying Nav Link ---');
-if (html.includes('href="#arcade"')) {
-  console.log('[PASS] #arcade navigation link is present');
+console.log('\n--- 4. Verifying v2.html Footer Links ---');
+if (v2Html.includes('href="arcade.html"') && v2Html.includes('btn-arcade-footer')) {
+  console.log('[PASS] Footer on v2.html contains link to arcade.html');
 } else {
-  console.error('[FAIL] #arcade nav link missing');
+  console.error('[FAIL] Footer on v2.html missing link to arcade.html');
+  allPassed = false;
+}
+
+console.log('\n--- 5. Verifying arcade.html Back Link to Portfolio ---');
+if (arcadeHtml.includes('href="v2.html"')) {
+  console.log('[PASS] arcade.html links back to v2.html portfolio');
+} else {
+  console.error('[FAIL] arcade.html missing return link to v2.html');
   allPassed = false;
 }
 
 if (!allPassed) {
   process.exit(1);
 } else {
-  console.log('\nAll structural assertions PASSED successfully!');
+  console.log('\nAll updated architectural assertions PASSED successfully!');
 }
