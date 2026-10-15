@@ -1,0 +1,308 @@
+/* ==========================================================================
+   3D Bug Blaster Arcade Mini-Game Stylesheet
+   Portfolio v2 Cyber Glassmorphic Theme
+   ========================================================================== */
+
+.arcade-section {
+  padding: 5rem 0;
+  position: relative;
+  background: radial-gradient(circle at 50% 20%, rgba(37, 99, 235, 0.08) 0%, transparent 70%);
+}
+
+.arcade-card {
+  position: relative;
+  margin-top: 2rem;
+  background: rgba(15, 23, 42, 0.88);
+  border: 1px solid rgba(59, 130, 246, 0.28);
+  border-radius: 1.25rem;
+  overflow: hidden;
+  box-shadow: 0 20px 40px -15px rgba(2, 6, 23, 0.7), 0 0 30px -10px rgba(37, 99, 235, 0.25);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+/* --- HUD Top Bar --- */
+.arcade-hud {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  background: rgba(10, 15, 29, 0.95);
+  border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.875rem;
+  user-select: none;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.hud-group {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.hud-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.hud-label {
+  color: #64748b;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  font-size: 0.75rem;
+}
+
+.hud-value {
+  color: #38bdf8;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+}
+
+.streak-pill {
+  padding: 0.2rem 0.6rem;
+  border-radius: 9999px;
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  color: #f59e0b;
+  text-shadow: 0 0 8px rgba(245, 158, 11, 0.6);
+  font-size: 0.75rem;
+}
+
+.integrity-bar {
+  width: 120px;
+  height: 8px;
+  background: rgba(30, 41, 59, 0.8);
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.integrity-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #10b981, #3b82f6);
+  transition: width 0.3s ease, background 0.3s ease;
+}
+
+.integrity-fill.danger {
+  background: #ef4444;
+  box-shadow: 0 0 10px #ef4444;
+}
+
+.hud-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.arcade-btn {
+  background: rgba(30, 41, 59, 0.7);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  color: #94a3b8;
+  padding: 0.4rem 0.75rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.875rem;
+}
+
+.arcade-btn:hover {
+  color: #f8fafc;
+  background: rgba(59, 130, 246, 0.3);
+  border-color: #3b82f6;
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
+}
+
+/* --- Viewport & Canvas --- */
+.arcade-viewport {
+  position: relative;
+  width: 100%;
+  height: 520px;
+  background: #090d16;
+  overflow: hidden;
+  cursor: crosshair;
+}
+
+#bug-blaster-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  touch-action: none;
+}
+
+/* --- Custom Crosshair --- */
+.arcade-crosshair {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 32px;
+  height: 32px;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  display: none;
+  z-index: 10;
+}
+
+.arcade-viewport:hover .arcade-crosshair {
+  display: block;
+}
+
+.reticle-circle {
+  width: 100%;
+  height: 100%;
+  border: 2px dashed rgba(56, 189, 248, 0.8);
+  border-radius: 50%;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.6);
+  animation: reticleSpin 6s linear infinite;
+}
+
+.reticle-dot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 4px;
+  height: 4px;
+  background: #38bdf8;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 6px #38bdf8;
+}
+
+@keyframes reticleSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* --- Overlays: Start Screen & Game Over --- */
+.arcade-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(9, 13, 22, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 20;
+  transition: opacity 0.3s ease;
+  padding: 1.5rem;
+}
+
+.arcade-overlay.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.overlay-card {
+  max-width: 460px;
+  width: 100%;
+  text-align: center;
+  padding: 2.5rem 2rem;
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid rgba(59, 130, 246, 0.4);
+  border-radius: 1rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 35px rgba(37, 99, 235, 0.3);
+}
+
+.overlay-icon {
+  font-size: 2.75rem;
+  color: #38bdf8;
+  margin-bottom: 1rem;
+  text-shadow: 0 0 20px rgba(56, 189, 248, 0.7);
+}
+
+.overlay-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #f8fafc;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.05em;
+}
+
+.overlay-desc {
+  font-size: 0.9rem;
+  color: #94a3b8;
+  line-height: 1.5;
+  margin-bottom: 1.5rem;
+}
+
+.overlay-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.stat-box {
+  background: rgba(30, 41, 59, 0.6);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.stat-label {
+  display: block;
+  font-size: 0.7rem;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.stat-num {
+  font-size: 1.25rem;
+  color: #38bdf8;
+  font-weight: 700;
+}
+
+.btn-play-arcade {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.85rem 1.5rem;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  border: 1px solid #3b82f6;
+  border-radius: 0.6rem;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 0 20px rgba(37, 99, 235, 0.5);
+}
+
+.btn-play-arcade:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 30px rgba(59, 130, 246, 0.8);
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+}
+
+.overlay-hint {
+  display: block;
+  font-size: 0.75rem;
+  color: #64748b;
+  margin-top: 1rem;
+}
+
+/* --- Mobile Responsiveness --- */
+@media (max-width: 768px) {
+  .arcade-viewport {
+    height: 380px;
+  }
+  .arcade-hud {
+    padding: 0.75rem 1rem;
+    gap: 0.75rem;
+  }
+  .hud-group {
+    gap: 0.75rem;
+  }
+  .integrity-bar {
+    width: 80px;
+  }
+  .overlay-card {
+    padding: 1.75rem 1.25rem;
+  }
+}
