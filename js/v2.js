@@ -290,6 +290,36 @@
      4. Project Details Modal Controller
      -------------------------------------------------------------------------- */
   const PROJECTS_DATA = {
+    'altios-goglobal': {
+      title: 'Altios — GoGlobal International Expansion Platform',
+      company: 'Bizzntek Ltd.',
+      client: 'Altios (GoGlobal)',
+      clientClass: 'us',
+      clientIcon: 'fas fa-earth-americas',
+      role: 'Senior Software Engineer',
+      tech: ['C#', 'ASP.NET Core', 'Dynamics 365 Business Central', 'AL Language', 'RESTful APIs', 'MS SQL Server', 'Multi-Region Compliance'],
+      desc: 'Enterprise platform engineering for Altios (altios.ai / altios.com) and their GoGlobal international expansion services. Facilitating global market entry, international corporate entity setup, cross-border compliance tracking, and ERP data harmonization for multinational enterprises expanding across worldwide markets.',
+      highlights: [
+        'Architected scalable backend APIs and business logic supporting multi-country compliance frameworks and global entity onboarding.',
+        'Engineered seamless ERP synchronization workflows between Microsoft Business Central and web services.',
+        'Collaborated directly with international stakeholders on cross-border data security and system localization.'
+      ]
+    },
+    'western-digital': {
+      title: 'Western Digital — Enterprise System Integration & Data Solutions',
+      company: 'Bizzntek Ltd.',
+      client: 'Western Digital',
+      clientClass: 'us',
+      clientIcon: 'fas fa-hard-drive',
+      role: 'Senior Software Engineer',
+      tech: ['C#', 'ASP.NET Core', 'MS SQL Server', 'Enterprise Integration', 'High-Volume Data Processing', 'Architecture Refactoring'],
+      desc: 'Engineered mission-critical software modules and enterprise data integration workflows for Western Digital, a Fortune 500 global leader in digital storage and memory technology. Focused on transaction reliability, system integration pipelines, and high-performance database processing.',
+      highlights: [
+        'Designed high-throughput backend modules tailored for mission-critical enterprise operations and strict transaction consistency.',
+        'Engineered secure API interfaces and automated data pipelines connecting internal enterprise systems.',
+        'Led architectural code refactoring sessions and performance optimizations to eliminate processing latency.'
+      ]
+    },
     'bc-localization': {
       title: 'Microsoft Dynamics 365 Business Central Localization',
       company: 'Bizzntek Ltd.',
