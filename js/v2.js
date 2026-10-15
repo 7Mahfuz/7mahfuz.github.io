@@ -432,10 +432,11 @@
       clientClass: 'us',
       clientIcon: 'fas fa-car-side',
       role: 'Full-Stack Web Architect',
-      tech: ['Web Platform Architecture', 'SEO & Structured JSON-LD', 'Vehicle Filtering System', 'Lead Engine', 'Responsive UI'],
+      tech: ['Web Platform Architecture', 'AWS (EC2 & S3)', 'Google Cloud VMs', 'SEO & Structured JSON-LD', 'Vehicle Filtering System', 'Lead Engine', 'Responsive UI'],
       desc: 'Motors Hut Ltd (motorshut.com) is a comprehensive online UK automotive dealership and verified vehicle marketplace based in Rainham, Essex, England. The platform provides car buyers with complete transparent inspection histories, MOT verification, clear service records, dynamic vehicle filtering, and integrated customer consultation booking.',
       highlights: [
         'Engineered complete vehicle inventory catalog with high-resolution image galleries and granular technical specifications.',
+        'Architected cloud hosting on AWS and Google Cloud VMs with automated backups, SSL/TLS security, and high uptime.',
         'Built full SEO architecture with AutoDealer Schema.org JSON-LD microdata for premier Google visibility.',
         'Implemented streamlined buyer inquiry pipelines, WhatsApp direct connect, and mobile-friendly test-drive scheduling.'
       ]
@@ -446,12 +447,13 @@
       client: 'MapCars Ltd (Chichester, South Coast UK)',
       clientClass: 'us',
       clientIcon: 'fas fa-taxi',
-      role: 'Full-Stack Developer',
-      tech: ['Next.js', 'React', 'TypeScript', 'Tailwind CSS', 'Interactive Geolocation & Route Maps', 'Fare Algorithm', 'Turbopack'],
-      desc: 'Next-generation passenger ride-sharing web platform and mobile application ecosystem (mapcars.uk) operating across the South Coast of England (Southampton, Portsmouth, Chichester, Brighton, and Worthing). Delivers upfront guaranteed fares, real-time vehicle dispatch tracking, digital wallet balances, and streamlined driver onboarding.',
+      role: 'Full-Stack & Mobile Developer',
+      tech: ['Flutter (Android & iOS)', 'Google Play Store Release', 'Apple App Store Deployment', 'Firebase (Auth & FCM)', 'Google Cloud VMs', 'Next.js', 'Interactive Geolocation Maps'],
+      desc: 'Next-generation passenger mobility and ride-sharing ecosystem (mapcars.uk) operating across the South Coast of England (Southampton, Portsmouth, Chichester, Brighton, and Worthing). Combines cross-platform mobile apps for passengers and drivers with real-time dispatch, upfront fare calculations, and cloud-hosted infrastructure.',
       highlights: [
-        'Architected modern, responsive frontend with interactive vehicle category previews and booking flows.',
-        'Engineered real-time route visualization with pickup/drop-off estimation across coastal UK transportation hubs.',
+        'Engineered cross-platform mobile apps using Flutter deployed directly to Google Play Store (Android) and Apple App Store (iOS).',
+        'Integrated Firebase real-time database, Firebase Authentication, and Cloud Messaging (FCM) for instant ride matching and push notifications.',
+        'Configured Google Cloud VMs for high-availability backend API hosting, traffic handling, and database persistence.',
         'Constructed driver partner registration portal with automated commission calculations and credential audits.'
       ]
     },
