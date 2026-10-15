@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Al-Amin Mahfuzur Rahman - Senior Software Engineer CV</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 10mm 12mm 10mm 12mm;
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    body {
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
+      font-size: 8.8pt;
+      line-height: 1.38;
+      color: #1e293b;
+      background: #ffffff;
+    }
+
+    /* Top Header */
+    .header {
+      border-bottom: 2px solid #2563eb;
+      padding-bottom: 8px;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .header-main {
+      flex: 1;
+    }
+
+    .name {
+      font-size: 19pt;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      margin-bottom: 3px;
+    }
+
+    .title-row {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+
+    .title {
+      font-size: 10.5pt;
+      font-weight: 700;
+      color: #2563eb;
+    }
+
+    .subtitle {
+      font-size: 9pt;
+      font-weight: 600;
+      color: #475569;
+    }
+
+    .contact-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 14px;
+      font-size: 8pt;
+      color: #475569;
+      font-weight: 500;
+    }
+
+    .contact-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .contact-item a {
+      color: #0f172a;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    /* Section Styling */
+    .section {
+      margin-bottom: 8px;
+    }
+
+    .section-title {
+      font-size: 9.5pt;
+      font-weight: 800;
+      color: #0f172a;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid #cbd5e1;
+      padding-bottom: 2px;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .section-title::before {
+      content: "";
+      display: inline-block;
+      width: 4px;
+      height: 10px;
+      background: #2563eb;
+      border-radius: 1px;
+    }
+
+    .summary-text {
+      font-size: 8.4pt;
+      color: #334155;
+      text-align: justify;
+      line-height: 1.36;
+      margin-bottom: 6px;
+    }
+
+    /* Skills Grid */
+    .skills-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 4px;
+      font-size: 8pt;
+    }
+
+    .skills-table tr {
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    .skills-table td {
+      padding: 3px 0;
+      vertical-align: top;
+    }
+
+    .skill-cat {
+      width: 22%;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    .skill-val {
+      width: 78%;
+      color: #334155;
+    }
+
+    .tag-badge {
+      display: inline-block;
+      background: #f1f5f9;
+      color: #1e293b;
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-size: 7.5pt;
+      font-weight: 600;
+      margin: 1px 2px 1px 0;
+      border: 1px solid #e2e8f0;
+    }
+
+    .tag-badge.primary {
+      background: #eff6ff;
+      color: #1d4ed8;
+      border-color: #bfdbfe;
+    }
+
+    /* Experience Card */
+    .exp-item {
+      margin-bottom: 7px;
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+
+    .exp-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 2px;
+    }
+
+    .exp-role-company {
+      font-size: 9pt;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    .exp-role-company .company-name {
+      color: #2563eb;
+    }
+
+    .exp-location-date {
+      font-size: 8pt;
+      font-weight: 600;
+      color: #64748b;
+    }
+
+    .exp-subrow {
+      font-size: 7.8pt;
+      color: #64748b;
+      margin-bottom: 3px;
+      font-style: italic;
+    }
+
+    .exp-bullets {
+      list-style-type: disc;
+      padding-left: 14px;
+      font-size: 8.2pt;
+      color: #334155;
+    }
+
+    .exp-bullets li {
+      margin-bottom: 2.5px;
+      line-height: 1.34;
+    }
+
+    .project-highlight {
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    /* Projects Grid */
+    .proj-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+
+    .proj-card {
+      border: 1px solid #e2e8f0;
+      border-radius: 4px;
+      padding: 5px 7px;
+      background: #fafafa;
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+
+    .proj-title {
+      font-size: 8.3pt;
+      font-weight: 700;
+      color: #0f172a;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 2px;
+    }
+
+    .proj-link {
+      font-size: 7.2pt;
+      color: #2563eb;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .proj-desc {
+      font-size: 7.8pt;
+      color: #475569;
+      line-height: 1.3;
+      margin-bottom: 3px;
+    }
+
+    .proj-stack {
+      font-size: 7.2pt;
+      color: #2563eb;
+      font-weight: 600;
+    }
+
+    /* Tables: Education & Details */
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 8pt;
+      margin-bottom: 4px;
+    }
+
+    .data-table th {
+      background: #f8fafc;
+      text-align: left;
+      padding: 3px 6px;
+      font-weight: 700;
+      color: #334155;
+      border-bottom: 1px solid #cbd5e1;
+      font-size: 7.8pt;
+    }
+
+    .data-table td {
+      padding: 3px 6px;
+      border-bottom: 1px solid #f1f5f9;
+      color: #334155;
+    }
+
+    .page-break {
+      page-break-before: always;
+      break-before: page;
+    }
+
+    .contest-list {
+      list-style-type: square;
+      padding-left: 14px;
+      font-size: 8.2pt;
+      color: #334155;
+      margin-bottom: 4px;
+    }
+
+    .contest-list li {
+      margin-bottom: 2px;
+    }
+
+    .footer-note {
+      font-size: 7.5pt;
+      color: #94a3b8;
+      text-align: center;
+      margin-top: 6px;
+      border-top: 1px dashed #e2e8f0;
+      padding-top: 4px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==================== PAGE 1 ==================== -->
+  <div class="header">
+    <div class="header-main">
+      <h1 class="name">Al-Amin Mahfuzur Rahman</h1>
+      <div class="title-row">
+        <span class="title">Senior Software Engineer</span>
+        <span class="subtitle">— Enterprise Software &amp; Mobile Apps (Android &amp; iOS)</span>
+      </div>
+      <div class="contact-grid">
+        <span class="contact-item">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+          Uttara, Dhaka, Bangladesh
+        </span>
+        <span class="contact-item">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+          +88 01625-632942
+        </span>
+        <span class="contact-item">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+          <a href="mailto:7mahfuzur.rahman@gmail.com">7mahfuzur.rahman@gmail.com</a>
+        </span>
+        <span class="contact-item">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
+          <a href="https://github.com/7mahfuz">github.com/7mahfuz</a>
+        </span>
+        <span class="contact-item">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+          <a href="https://7mahfuzur.github.io">7mahfuzur.github.io</a>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Executive Summary -->
+  <div class="section">
+    <div class="section-title">Executive Summary</div>
+    <p class="summary-text">
+      Senior Software Engineer with <strong>6+ years of professional experience</strong> architecting mission-critical enterprise platforms, cross-platform mobile applications for Android &amp; iOS using Flutter, and Microsoft Dynamics 365 Business Central ERP extensions. Proven delivery track record with multinational enterprise clients including <strong>Western Digital</strong> (Fortune 500) and <strong>Altios (GoGlobal)</strong>, and government fiscal tax compliance localization for <strong>Microsoft</strong>. Experienced across cloud infrastructure on <strong>AWS</strong> and <strong>Google Cloud VMs</strong>, real-time <strong>Firebase</strong> integration, and publishing production apps to <strong>Google Play Store</strong> and <strong>Apple App Store</strong>.
+    </p>
+  </div>
+
+  <!-- Technical Competencies -->
+  <div class="section">
+    <div class="section-title">Core Technical Competencies</div>
+    <table class="skills-table">
+      <tr>
+        <td class="skill-cat">Enterprise ERP &amp; Microsoft</td>
+        <td class="skill-val">
+          <span class="tag-badge primary">Dynamics 365 Business Central</span>
+          <span class="tag-badge primary">AL Programming</span>
+          <span class="tag-badge">RDLC Reports</span>
+          <span class="tag-badge">Crystal Reports</span>
+          <span class="tag-badge">National Fiscal Localization (NBR / VAT / Tax)</span>
+        </td>
+      </tr>
+      <tr>
+        <td class="skill-cat">Mobile App Development</td>
+        <td class="skill-val">
+          <span class="tag-badge primary">Flutter</span>
+          <span class="tag-badge primary">Dart</span>
+          <span class="tag-badge primary">Android (SDK)</span>
+          <span class="tag-badge primary">iOS</span>
+          <span class="tag-badge">Cross-Platform Architecture</span>
+          <span class="tag-badge">State Management (Bloc / Provider)</span>
+          <span class="tag-badge">Google Play Console</span>
+          <span class="tag-badge">Apple App Store Connect &amp; TestFlight</span>
+        </td>
+      </tr>
+      <tr>
+        <td class="skill-cat">Cloud, DevOps &amp; Mobile Backend</td>
+        <td class="skill-val">
+          <span class="tag-badge primary">AWS (EC2, S3, RDS)</span>
+          <span class="tag-badge primary">Google Cloud VMs (GCP Compute Engine)</span>
+          <span class="tag-badge primary">Firebase (Auth, Firestore, FCM)</span>
+          <span class="tag-badge">Linux / Ubuntu Server</span>
+          <span class="tag-badge">Nginx Reverse Proxy</span>
+          <span class="tag-badge">CI/CD Pipelines</span>
+          <span class="tag-badge">SSL/TLS Security</span>
+        </td>
+      </tr>
+      <tr>
+        <td class="skill-cat">Languages &amp; Databases</td>
+        <td class="skill-val">
+          <span class="tag-badge primary">C# (.NET Core)</span>
+          <span class="tag-badge primary">MS SQL Server</span>
+          <span class="tag-badge">T-SQL Stored Procedures</span>
+          <span class="tag-badge">Dart</span>
+          <span class="tag-badge">JavaScript (ES6+)</span>
+          <span class="tag-badge">HTML5 &amp; CSS3</span>
+          <span class="tag-badge">C / C++</span>
+        </td>
+      </tr>
+      <tr>
+        <td class="skill-cat">Frameworks &amp; Web</td>
+        <td class="skill-val">
+          <span class="tag-badge primary">ASP.NET Core</span>
+          <span class="tag-badge">ASP.NET MVC 5</span>
+          <span class="tag-badge">Entity Framework (EF Core)</span>
+          <span class="tag-badge">RESTful Web APIs</span>
+          <span class="tag-badge">.NET Web Forms</span>
+          <span class="tag-badge">jQuery &amp; Bootstrap</span>
+        </td>
+      </tr>
+      <tr>
+        <td class="skill-cat">Architecture &amp; Practices</td>
+        <td class="skill-val">
+          <span class="tag-badge">Clean Architecture</span>
+          <span class="tag-badge">N-Tier Architecture</span>
+          <span class="tag-badge">Repository Pattern</span>
+          <span class="tag-badge">Unit of Work</span>
+          <span class="tag-badge">SOLID Principles</span>
+          <span class="tag-badge">Facade Pattern</span>
+          <span class="tag-badge">Unit Testing</span>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- Professional Experience -->
+  <div class="section">
+    <div class="section-title">Professional Experience</div>
+
+    <!-- Bizzntek Ltd. -->
+    <div class="exp-item">
+      <div class="exp-header">
+        <span class="exp-role-company">Senior Software Engineer — <span class="company-name">Bizzntek Ltd.</span> (bizzntek.com)</span>
+        <span class="exp-location-date">Oct 2020 – Present | Uttara, Dhaka, Bangladesh</span>
+      </div>
+      <div class="exp-subrow">Enterprise Software, D365 Business Central Extensions, Cloud &amp; High-Throughput API Backends</div>
+      <ul class="exp-bullets">
+        <li>
+          <span class="project-highlight">Altios (GoGlobal) Enterprise Platform</span> (altios.com): Designed enterprise platform engineering facilitating global market expansion and multinational corporate entity management; implemented cross-border regulatory compliance tracking and ERP harmonization workflows.
+        </li>
+        <li>
+          <span class="project-highlight">Western Digital Enterprise Integration</span> (Fortune 500): Engineered high-throughput backend modules and data integration pipelines connecting internal enterprise systems; refactored critical services for transaction consistency and database query optimization.
+        </li>
+        <li>
+          <span class="project-highlight">Microsoft Dynamics 365 Business Central Bangladesh Localization</span> (Client: Microsoft): Key developer building AL extension modules compliant with Bangladesh National Board of Revenue (NBR) regulatory protocols, automated VAT withholding tax computations, and fiscal audit compliance.
+        </li>
+        <li>
+          <span class="project-highlight">Rent Grid &amp; Hotel Grid (USA)</span>: Architected multi-tenant property and hospitality management systems featuring real-time booking engines, automated tenant invoicing, payment gateway integrations, and financial balance ledgers.
+        </li>
+      </ul>
+    </div>
+
+    <!-- SmartSoft Technology -->
+    <div class="exp-item">
+      <div class="exp-header">
+        <span class="exp-role-company">Software Engineer — <span class="company-name">SmartSoft Technology</span> (smartsofttechnology.com)</span>
+        <span class="exp-location-date">Mar 2019 – Sep 2020 | Mirpur, Dhaka, Bangladesh</span>
+      </div>
+      <div class="exp-subrow">Industrial Manufacturing ERP Systems, POS Platforms &amp; Distributed Database Solutions</div>
+      <ul class="exp-bullets">
+        <li>
+          <span class="project-highlight">Factory Management System</span> (MH Golden Jute Ltd.): Delivered comprehensive industrial manufacturing ERP tracking raw jute intake, processing batch workflows, inventory warehouse allocation, and automated double-entry financial accounting.
+        </li>
+        <li>
+          <span class="project-highlight">Smart Sell POS &amp; Inventory Engine</span> (Kushtia Tech): Engineered complete Point-of-Sale platform featuring role-based field representative order booking, distributed warehouse stock synchronization, and administrative ledger reporting.
+        </li>
+        <li>
+          <span class="project-highlight">Task Management &amp; Workflow Tracking</span> (MH Golden Jute Ltd.): Developed cross-department task assignment system with audit trails, milestone status updates, and automated productivity reporting.
+        </li>
+      </ul>
+    </div>
+
+    <!-- GTRBD -->
+    <div class="exp-item">
+      <div class="exp-header">
+        <span class="exp-role-company">Software Engineer — <span class="company-name">Genuine Technology &amp; Research Ltd. (GTRBD)</span> (gtrbd.com)</span>
+        <span class="exp-location-date">Oct 2018 – Feb 2019 | Uttara, Dhaka, Bangladesh</span>
+      </div>
+      <div class="exp-subrow">Biometric Hardware Integration, Industrial Attendance &amp; Automated Payroll Systems</div>
+      <ul class="exp-bullets">
+        <li>
+          <span class="project-highlight">Garment's HR &amp; Biometric Payroll System</span> (FnF Fashion BD): Interfaced physical ZKT biometric fingerprint punch hardware with backend MS SQL Server; engineered algorithms calculating complex overtime, shift rotations, and automated monthly salary generation for hundreds of factory workers.
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Page Break -->
+  <div class="page-break"></div>
+
+  <!-- ==================== PAGE 2 ==================== -->
+
+  <!-- Personal & Independent Live Projects -->
+  <div class="section">
+    <div class="section-title">Personal &amp; Independent Live Projects</div>
+    <div class="proj-grid">
+      
+      <!-- MapCars UK -->
+      <div class="proj-card">
+        <div class="proj-title">
+          <span>MapCars UK</span>
+          <a href="https://mapcars.uk/" class="proj-link">mapcars.uk ↗</a>
+        </div>
+        <p class="proj-desc">
+          Modern ride-sharing &amp; passenger mobility ecosystem operating across the South Coast of England (Southampton, Portsmouth, Chichester, Brighton). Engineered cross-platform Flutter apps deployed to Google Play Store &amp; Apple App Store; real-time driver dispatch via Firebase and Google Cloud VMs.
+        </p>
+        <div class="proj-stack">Flutter · Android · iOS · Firebase · Google VMs · Play Store · App Store</div>
+      </div>
+
+      <!-- Motorshut -->
+      <div class="proj-card">
+        <div class="proj-title">
+          <span>Motorshut</span>
+          <a href="https://motorshut.com/" class="proj-link">motorshut.com ↗</a>
+        </div>
+        <p class="proj-desc">
+          Comprehensive online automotive dealership and verified vehicle marketplace based in Rainham, Essex, UK. Architected full-stack web portal with dynamic vehicle inventory filtering, MOT verification badges, client lead engines, and Schema.org JSON-LD microdata on scalable AWS cloud infrastructure.
+        </p>
+        <div class="proj-stack">Web Architecture · AWS Cloud · SEO Schema · Automotive ERP · Lead Pipeline</div>
+      </div>
+
+      <!-- VetMart BD -->
+      <div class="proj-card">
+        <div class="proj-title">
+          <span>VetMart BD</span>
+          <a href="https://vetmartbd.vercel.app/" class="proj-link">vetmartbd.vercel.app ↗</a>
+        </div>
+        <p class="proj-desc">
+          Dedicated agro-veterinary and pharmaceutical e-commerce marketplace in Bangladesh. Features dual-language Bengali localization, multi-species product filtering (Cattle, Poultry, Dairy, Fish), batch tracking, and serverless edge deployment on Vercel Cloud.
+        </p>
+        <div class="proj-stack">Next.js · React · Bengali Localization · Vercel Serverless · E-Commerce Engine</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Problem Solving & Competitive Programming -->
+  <div class="section">
+    <div class="section-title">Problem Solving &amp; Competitive Programming</div>
+    <ul class="contest-list">
+      <li><strong>ICPC Dhaka Regional 2016</strong> — Onsite Contestant.</li>
+      <li><strong>National Computer Programming Contest (NCPC) 2016</strong> — Onsite Contestant.</li>
+      <li><strong>Online Judges:</strong> Codeforces: <strong>7Mahfuz</strong> · UVA: <strong>7mahfuz</strong> · HackerRank: <strong>7Mahfuz</strong>. Actively solved algorithmic problems focusing on data structures, dynamic programming, and graph algorithms.</li>
+    </ul>
+  </div>
+
+  <!-- Education Background -->
+  <div class="section">
+    <div class="section-title">Education Background</div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Degree</th>
+          <th>Institution</th>
+          <th>Field of Study</th>
+          <th>Passing Year</th>
+          <th>Result</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>B.Sc. in Computer Science &amp; Engineering</strong></td>
+          <td>Institute of Science, Trade and Technology (ISTT)</td>
+          <td>Computer Science &amp; Engineering</td>
+          <td>2018</td>
+          <td><strong>CGPA: 3.04 / 4.00</strong></td>
+        </tr>
+        <tr>
+          <td><strong>Higher Secondary Certificate (HSC)</strong></td>
+          <td>Cumilla Victoria Government College</td>
+          <td>Science</td>
+          <td>2013</td>
+          <td><strong>GPA: 4.30 / 5.00</strong></td>
+        </tr>
+        <tr>
+          <td><strong>Secondary School Certificate (SSC)</strong></td>
+          <td>Cumilla Zilla School</td>
+          <td>Science</td>
+          <td>2011</td>
+          <td><strong>GPA: 5.00 / 5.00</strong></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Professional Trainings -->
+  <div class="section">
+    <div class="section-title">Professional Trainings &amp; Certifications</div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Training Program</th>
+          <th>Conducting Institution</th>
+          <th>Duration</th>
+          <th>Key Topics Covered</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Full Stack ASP.NET MVC</strong></td>
+          <td>BASIS Institute of Technology &amp; Management (BITM)</td>
+          <td>3 Months (Jun 2018 – Sep 2018)</td>
+          <td>C#, ASP.NET MVC 5, N-Tier Architecture, Repository Pattern, Entity Framework, SQL Server</td>
+        </tr>
+        <tr>
+          <td><strong>Full Stack ASP.NET MVC</strong></td>
+          <td>Devskill Training Academy</td>
+          <td>2 Months (Jul 2017 – Sep 2017)</td>
+          <td>C#, Object-Oriented Programming, MVC Architecture, Database Design &amp; Web Services</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Academic Projects (Preserved from original CV with modern tech alignment) -->
+  <div class="section">
+    <div class="section-title">Foundational Academic &amp; Training Projects</div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th style="width: 28%;">Project</th>
+          <th style="width: 27%;">Technology Stack</th>
+          <th style="width: 45%;">Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Hospital Management System</strong></td>
+          <td>C#, ASP.NET MVC 5, EF, SQL Server, Identity</td>
+          <td>Virtual hospital management system handling patient admissions, doctor assignments, treatment records, and seat vacancy tracking.</td>
+        </tr>
+        <tr>
+          <td><strong>Public Blood Bank Portal</strong></td>
+          <td>C#, ASP.NET MVC 5, Generic Repo &amp; Unit of Work</td>
+          <td>Blood donor registry with blood group geolocation, urgent donation broadcasts, and donor eligibility management.</td>
+        </tr>
+        <tr>
+          <td><strong>University Management System</strong></td>
+          <td>C#, ASP.NET MVC 5, 4-Tier Architecture, EF</td>
+          <td>Comprehensive university administration platform with course allocations, department credits, and automated grade calculations.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Personal Information -->
+  <div class="section">
+    <div class="section-title">Personal Information</div>
+    <table class="data-table">
+      <tbody>
+        <tr>
+          <td style="width: 20%; font-weight: 700;">Father's Name:</td>
+          <td style="width: 30%;">Md Khalilur Rahman</td>
+          <td style="width: 20%; font-weight: 700;">Date of Birth:</td>
+          <td style="width: 30%;">05-July-1995</td>
+        </tr>
+        <tr>
+          <td style="font-weight: 700;">Mother's Name:</td>
+          <td>Nurun Nahar</td>
+          <td style="font-weight: 700;">Nationality:</td>
+          <td>Bangladeshi</td>
+        </tr>
+        <tr>
+          <td style="font-weight: 700;">Permanent Address:</td>
+          <td colspan="3">820/3 "Monir Mohal", Thakurpara, Cumilla City, Cumilla-3600, Bangladesh</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="footer-note">
+    Al-Amin Mahfuzur Rahman · Senior Software Engineer · Verified Curriculum Vitae · Generated October 2026
+  </div>
+
+</body>
+</html>
