@@ -1,6 +1,6 @@
 /**
  * Portfolio v2 - Three.js 3D Wireframe Scene & Interactive UI Controller
- * Al-Amin Mahfuzur Rahman | Enterprise Software Engineer
+ * Al-Amin Mahfuzur Rahman | Senior Software Engineer - Enterprise Software & Mobile Apps
  */
 
 (function () {
