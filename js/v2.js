@@ -394,6 +394,51 @@
         'Engineered automated calculation engine for overtime, late arrivals, unexcused absences, and festival bonuses.',
         'Automated monthly payroll generation and pay-slip printing for hundreds of factory workers.'
       ]
+    },
+    'motorshut': {
+      title: 'Motorshut — UK Quality Used Car Marketplace',
+      company: 'Personal / Independent Project',
+      client: 'Motors Hut Ltd (Rainham, England, UK)',
+      clientClass: 'us',
+      clientIcon: 'fas fa-car-side',
+      role: 'Full-Stack Web Architect',
+      tech: ['Web Platform Architecture', 'SEO & Structured JSON-LD', 'Vehicle Filtering System', 'Lead Engine', 'Responsive UI'],
+      desc: 'Motors Hut Ltd (motorshut.com) is a comprehensive online UK automotive dealership and verified vehicle marketplace based in Rainham, Essex, England. The platform provides car buyers with complete transparent inspection histories, MOT verification, clear service records, dynamic vehicle filtering, and integrated customer consultation booking.',
+      highlights: [
+        'Engineered complete vehicle inventory catalog with high-resolution image galleries and granular technical specifications.',
+        'Built full SEO architecture with AutoDealer Schema.org JSON-LD microdata for premier Google visibility.',
+        'Implemented streamlined buyer inquiry pipelines, WhatsApp direct connect, and mobile-friendly test-drive scheduling.'
+      ]
+    },
+    'mapcars': {
+      title: 'MapCars UK — Ride Sharing & Passenger Mobility Ecosystem',
+      company: 'Personal / Independent Project',
+      client: 'MapCars Ltd (Chichester, South Coast UK)',
+      clientClass: 'us',
+      clientIcon: 'fas fa-taxi',
+      role: 'Full-Stack Developer',
+      tech: ['Next.js', 'React', 'TypeScript', 'Tailwind CSS', 'Interactive Geolocation & Route Maps', 'Fare Algorithm', 'Turbopack'],
+      desc: 'Next-generation passenger ride-sharing web platform and mobile application ecosystem (mapcars.uk) operating across the South Coast of England (Southampton, Portsmouth, Chichester, Brighton, and Worthing). Delivers upfront guaranteed fares, real-time vehicle dispatch tracking, digital wallet balances, and streamlined driver onboarding.',
+      highlights: [
+        'Architected modern, responsive frontend with interactive vehicle category previews and booking flows.',
+        'Engineered real-time route visualization with pickup/drop-off estimation across coastal UK transportation hubs.',
+        'Constructed driver partner registration portal with automated commission calculations and credential audits.'
+      ]
+    },
+    'vetmartbd': {
+      title: 'VetMart BD — Veterinary Healthcare & Farm Products E-Commerce',
+      company: 'Personal / Independent Project',
+      client: 'VetMart Bangladesh',
+      clientClass: 'industrial',
+      clientIcon: 'fas fa-heart-pulse',
+      role: 'Full-Stack E-Commerce Developer',
+      tech: ['Next.js', 'React', 'Tailwind CSS', 'Bengali Localization', 'Vercel Serverless', 'PostgreSQL / Prisma', 'E-Commerce Engine'],
+      desc: 'VetMart BD (vetmartbd.vercel.app) is a dedicated agro-veterinary e-commerce platform serving livestock farm owners, veterinarians, and cattle/poultry breeders across Bangladesh. Solves the supply-chain challenge of accessing verified veterinary medicines, nutritional feed supplements, and agricultural supplies.',
+      highlights: [
+        'Engineered multi-category product catalog with search, species filtering (Cattle, Poultry, Dairy, Fish), and batch tracking.',
+        'Implemented dual-language support (Bengali & English) tailored for grassroots farm managers and veterinary professionals.',
+        'Deployed on high-availability cloud architecture with automated edge caching on Vercel.'
+      ]
     }
   };
 

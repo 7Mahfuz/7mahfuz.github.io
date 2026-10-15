@@ -1421,3 +1421,151 @@ img {
   color: var(--accent-emerald);
   font-weight: 800;
 }
+
+/* --------------------------------------------------------------------------
+   14. Personal & Independent Projects Grid
+   -------------------------------------------------------------------------- */
+.personal-projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 24px;
+}
+
+.personal-card {
+  background: var(--surface);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-xl);
+  padding: 30px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: all var(--transition-normal);
+  position: relative;
+  overflow: hidden;
+}
+
+.personal-card:hover {
+  transform: translateY(-4px);
+  border-color: #cbd5e1;
+  box-shadow: var(--shadow-lg);
+}
+
+.personal-badge-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+  gap: 8px;
+}
+
+.status-live-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  background: var(--accent-emerald-subtle);
+  color: #047857;
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.personal-cat-tag {
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  color: var(--text-light);
+  font-weight: 500;
+}
+
+.personal-title-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.personal-icon-box {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  flex-shrink: 0;
+}
+
+.personal-icon-box.auto-icon {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.personal-icon-box.ride-icon {
+  background: #f0fdfa;
+  color: #0d9488;
+}
+
+.personal-icon-box.vet-icon {
+  background: #fdf2f8;
+  color: #db2777;
+}
+
+.personal-title {
+  font-size: 1.35rem;
+  color: var(--text-main);
+  line-height: 1.2;
+}
+
+.personal-domain-link {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  color: var(--primary);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.personal-domain-link:hover {
+  text-decoration: underline;
+}
+
+.personal-desc {
+  font-size: 0.94rem;
+  line-height: 1.65;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+}
+
+.personal-actions-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-personal-modal {
+  flex: 1;
+  justify-content: center;
+}
+
+.btn-personal-visit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: var(--radius-full);
+  background: var(--text-main);
+  color: #ffffff !important;
+  font-size: 0.84rem;
+  font-weight: 600;
+  transition: all var(--transition-fast);
+}
+
+.btn-personal-visit:hover {
+  background: var(--primary);
+  transform: translateY(-1px);
+}
+
