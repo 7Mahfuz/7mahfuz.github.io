@@ -101,8 +101,8 @@
               <i class="fas fa-cloud-arrow-down"></i>
               <span>Download My CV (PDF)</span>
             </a>
-            <a href="#projects" class="btn-secondary">
-              <span>View Enterprise Projects</span>
+            <a href="#experience" class="btn-secondary">
+              <span>View Projects & Experience</span>
               <i class="fas fa-arrow-down"></i>
             </a>
           </div>
@@ -142,173 +142,15 @@
   </section>
 
   <!-- ========================================================================
-       3. Featured Projects Bento Grid
+       3. Career Experience & Enterprise Projects
        ======================================================================== -->
-  <section class="section-padding" id="projects" style="background-color: #ffffff;">
+  <section class="section-padding" id="experience" style="background-color: #ffffff;">
+    <span id="projects" style="display: block; position: relative; top: -90px; visibility: hidden;"></span>
     <div class="container">
       <div class="section-header">
-        <span class="section-tag"><i class="fas fa-cubes"></i> Portfolio Showcase</span>
-        <h2 class="section-title">Enterprise Projects & Solutions</h2>
-        <p class="section-desc">Key systems, custom business central extensions, and high-load web architectures delivered for international and domestic clients.</p>
-      </div>
-
-      <div class="bento-grid">
-        
-        <!-- Flagship Project: MS Business Central Localization (col-span-8) -->
-        <article class="bento-card flagship col-span-8">
-          <div>
-            <div class="bento-top-bar">
-              <span class="client-pill msft"><i class="fab fa-microsoft"></i> Client: Microsoft (NBR Localization)</span>
-              <span class="project-role-tag">Lead Extension Developer</span>
-            </div>
-            <h3 class="project-title">Microsoft Dynamics 365 Business Central Localization</h3>
-            <p class="project-desc">
-              Pivotal national localization project preparing Microsoft Dynamics 365 Business Central ERP for the Bangladesh market. Engineered custom AL extensions compliant with National Board of Revenue (NBR) tax protocols, fiscal laws, VAT withholding calculations, and regulatory government audit reporting.
-            </p>
-          </div>
-          <div class="project-tech-stack">
-            <span class="tech-tag primary">AL Language</span>
-            <span class="tech-tag primary">Dynamics 365 Business Central</span>
-            <span class="tech-tag">RDLC Reports</span>
-            <span class="tech-tag">NBR Fiscal Rules</span>
-            <span class="tech-tag">ERP Architecture</span>
-          </div>
-        </article>
-
-        <!-- Project 2: Rent Grid USA (col-span-4) -->
-        <article class="bento-card col-span-4">
-          <div>
-            <div class="bento-top-bar">
-              <span class="client-pill us"><i class="fas fa-building"></i> Rent Grid (USA)</span>
-              <span class="project-role-tag">Full-Stack ERP</span>
-            </div>
-            <h3 class="project-title">Rent & Property Management</h3>
-            <p class="project-desc">
-              Comprehensive real estate ERP for US landlords and property managers. Supports unit management, tenant onboarding, automated rent billing, online payment gateway processing, and financial balance sheets.
-            </p>
-          </div>
-          <div class="project-tech-stack">
-            <span class="tech-tag">C#</span>
-            <span class="tech-tag">ASP.NET MVC</span>
-            <span class="tech-tag">MS Business Central</span>
-            <span class="tech-tag">Payment Gateway</span>
-          </div>
-        </article>
-
-        <!-- Project 3: Hotel Grid USA (col-span-4) -->
-        <article class="bento-card col-span-4">
-          <div>
-            <div class="bento-top-bar">
-              <span class="client-pill us"><i class="fas fa-hotel"></i> Hotel Grid (USA)</span>
-              <span class="project-role-tag">Hospitality ERP</span>
-            </div>
-            <h3 class="project-title">Hotel Operations System</h3>
-            <p class="project-desc">
-              End-to-end hotel operations software supporting multi-branch room reservations, guest check-in/check-out lifecycle, automated invoice settlement, and real-time occupancy reporting.
-            </p>
-          </div>
-          <div class="project-tech-stack">
-            <span class="tech-tag">C#</span>
-            <span class="tech-tag">ASP.NET MVC</span>
-            <span class="tech-tag">Business Central</span>
-            <span class="tech-tag">Bootstrap 4</span>
-          </div>
-        </article>
-
-        <!-- Project 4: Garments HR & Payroll (col-span-8) -->
-        <article class="bento-card col-span-8">
-          <div>
-            <div class="bento-top-bar">
-              <span class="client-pill industrial"><i class="fas fa-fingerprint"></i> FnF Fashion BD</span>
-              <span class="project-role-tag">Enterprise Biometric Integration</span>
-            </div>
-            <h3 class="project-title">Garments HR & Biometric Payroll System</h3>
-            <p class="project-desc">
-              Industrial-scale HR system directly communicating with ZKT physical biometric fingerprint devices. Captures large-scale employee shifts, attendance records, overtime computations, and generates automated monthly payroll with accurate deduction matrices.
-            </p>
-          </div>
-          <div class="project-tech-stack">
-            <span class="tech-tag primary">C#</span>
-            <span class="tech-tag primary">ASP.NET MVC 5</span>
-            <span class="tech-tag">MS SQL Server</span>
-            <span class="tech-tag">ZKT Device SDK</span>
-            <span class="tech-tag">Payroll Processing</span>
-          </div>
-        </article>
-
-        <!-- Project 5: Factory Management ERP (col-span-4) -->
-        <article class="bento-card col-span-4">
-          <div>
-            <div class="bento-top-bar">
-              <span class="client-pill industrial"><i class="fas fa-industry"></i> MH Golden Jute Ltd.</span>
-              <span class="project-role-tag">Industrial ERP</span>
-            </div>
-            <h3 class="project-title">Factory Management ERP</h3>
-            <p class="project-desc">
-              ERP system for large-scale manufacturing facilities. Tracks raw materials, processing inventory stages, factory batch tracking, and automatically generates accounting general ledgers.
-            </p>
-          </div>
-          <div class="project-tech-stack">
-            <span class="tech-tag">C#</span>
-            <span class="tech-tag">ASP.NET Web Forms</span>
-            <span class="tech-tag">MS SQL Server</span>
-            <span class="tech-tag">Ledger Engine</span>
-          </div>
-        </article>
-
-        <!-- Project 6: Smart Sell POS (col-span-4) -->
-        <article class="bento-card col-span-4">
-          <div>
-            <div class="bento-top-bar">
-              <span class="client-pill"><i class="fas fa-cash-register"></i> Kushtia Tech</span>
-              <span class="project-role-tag">Commercial POS</span>
-            </div>
-            <h3 class="project-title">Smart Sell POS & Ledger</h3>
-            <p class="project-desc">
-              Point of Sale and field-agent commercial inventory software. Allows sales reps to dispatch orders on the road, track stock in warehouses, and presents accounting audits to administrators.
-            </p>
-          </div>
-          <div class="project-tech-stack">
-            <span class="tech-tag">C#</span>
-            <span class="tech-tag">ASP.NET Web Forms</span>
-            <span class="tech-tag">MS SQL Server</span>
-            <span class="tech-tag">jQuery</span>
-          </div>
-        </article>
-
-        <!-- Project 7: Enterprise Task Management (col-span-4) -->
-        <article class="bento-card col-span-4">
-          <div>
-            <div class="bento-top-bar">
-              <span class="client-pill"><i class="fas fa-list-check"></i> MH Golden Jute Ltd.</span>
-              <span class="project-role-tag">Workflow System</span>
-            </div>
-            <h3 class="project-title">Task Workflow Management</h3>
-            <p class="project-desc">
-              Role-based internal task assignment and tracking workflow application. Enables department leads to assign, monitor, update statuses, and export monthly KPI reports.
-            </p>
-          </div>
-          <div class="project-tech-stack">
-            <span class="tech-tag">C#</span>
-            <span class="tech-tag">ASP.NET Web Forms</span>
-            <span class="tech-tag">MS SQL Server</span>
-            <span class="tech-tag">Reporting</span>
-          </div>
-        </article>
-
-      </div>
-    </div>
-  </section>
-
-  <!-- ========================================================================
-       4. Work Experience Timeline
-       ======================================================================== -->
-  <section class="section-padding" id="experience">
-    <div class="container">
-      <div class="section-header">
-        <span class="section-tag"><i class="fas fa-briefcase"></i> Career Journey</span>
-        <h2 class="section-title">Professional Experience</h2>
-        <p class="section-desc">Hands-on experience developing mission-critical business software, refactoring architectural bottlenecks, and collaborating with cross-functional engineering teams.</p>
+        <span class="section-tag"><i class="fas fa-briefcase"></i> Career Journey & Projects</span>
+        <h2 class="section-title">Professional Experience & Projects</h2>
+        <p class="section-desc">Mission-critical software, Microsoft Dynamics 365 Business Central extensions, and ERP platforms delivered across companies. Click any project pill to view full architectural details.</p>
       </div>
 
       <div class="timeline-container">
@@ -331,6 +173,33 @@
             <p class="role-description">
               Responsible for designing and delivering enterprise web applications and Microsoft Business Central extensions. Architecting backend solutions using C# with ASP.NET MVC/Core, authoring custom Business Central AL modules, collaborating on structural design reviews, and actively eliminating code smells and refactoring technical debt.
             </p>
+
+            <!-- Projects Delivered at Bizzntek -->
+            <div class="company-projects-tray">
+              <div class="company-projects-label">
+                <i class="fas fa-layer-group"></i> Key Projects Delivered (Click to view details):
+              </div>
+              <div class="company-project-pills">
+                <button type="button" class="project-pill" data-project="bc-localization">
+                  <span class="pill-dot"></span>
+                  <span class="pill-title">MS Business Central Localization</span>
+                  <span class="pill-client">Microsoft</span>
+                  <i class="fas fa-arrow-up-right-from-square pill-arrow"></i>
+                </button>
+                <button type="button" class="project-pill" data-project="rent-grid">
+                  <span class="pill-dot"></span>
+                  <span class="pill-title">Rent & Property Management</span>
+                  <span class="pill-client">Rent Grid (USA)</span>
+                  <i class="fas fa-arrow-up-right-from-square pill-arrow"></i>
+                </button>
+                <button type="button" class="project-pill" data-project="hotel-grid">
+                  <span class="pill-dot"></span>
+                  <span class="pill-title">Hotel Operations System</span>
+                  <span class="pill-client">Hotel Grid (USA)</span>
+                  <i class="fas fa-arrow-up-right-from-square pill-arrow"></i>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -352,6 +221,33 @@
             <p class="role-description">
               Contributed to ERP systems, factory management tools, and commercial POS platforms. Authored clean solutions according to technical design specifications, refactored database queries in MS SQL Server, and developed interactive frontends utilizing jQuery and responsive Bootstrap layouts.
             </p>
+
+            <!-- Projects Delivered at SmartSoft -->
+            <div class="company-projects-tray">
+              <div class="company-projects-label">
+                <i class="fas fa-layer-group"></i> Key Projects Delivered (Click to view details):
+              </div>
+              <div class="company-project-pills">
+                <button type="button" class="project-pill" data-project="factory-mgmt">
+                  <span class="pill-dot"></span>
+                  <span class="pill-title">Factory Management ERP</span>
+                  <span class="pill-client">MH Golden Jute Ltd.</span>
+                  <i class="fas fa-arrow-up-right-from-square pill-arrow"></i>
+                </button>
+                <button type="button" class="project-pill" data-project="task-mgmt">
+                  <span class="pill-dot"></span>
+                  <span class="pill-title">Task Workflow Management</span>
+                  <span class="pill-client">MH Golden Jute Ltd.</span>
+                  <i class="fas fa-arrow-up-right-from-square pill-arrow"></i>
+                </button>
+                <button type="button" class="project-pill" data-project="smart-sell">
+                  <span class="pill-dot"></span>
+                  <span class="pill-title">Smart Sell POS & Ledger</span>
+                  <span class="pill-client">Kushtia Tech</span>
+                  <i class="fas fa-arrow-up-right-from-square pill-arrow"></i>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -373,6 +269,21 @@
             <p class="role-description">
               Initial professional software engineering role. Implemented foundational business logic and modules using C#, ASP.NET Web Forms, and MS SQL Server following established enterprise design patterns.
             </p>
+
+            <!-- Projects Delivered at GTRBD -->
+            <div class="company-projects-tray">
+              <div class="company-projects-label">
+                <i class="fas fa-layer-group"></i> Key Projects Delivered (Click to view details):
+              </div>
+              <div class="company-project-pills">
+                <button type="button" class="project-pill" data-project="garments-hr">
+                  <span class="pill-dot"></span>
+                  <span class="pill-title">Garments HR & Biometric Payroll</span>
+                  <span class="pill-client">FnF Fashion BD</span>
+                  <i class="fas fa-arrow-up-right-from-square pill-arrow"></i>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -588,6 +499,41 @@
       </div>
     </div>
   </section>
+
+  <!-- ========================================================================
+       Project Details Modal Dialog
+       ======================================================================== -->
+  <div id="project-modal" class="modal-backdrop" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div>
+          <div class="modal-pretitle">
+            <span id="modal-company" class="modal-company-pill">Company</span>
+            <span id="modal-client" class="client-pill msft"><i class="fas fa-building"></i> Client</span>
+          </div>
+          <h3 id="modal-title" class="modal-title">Project Title</h3>
+        </div>
+        <button type="button" class="modal-close-btn" aria-label="Close project modal">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <div>
+          <h4 class="modal-section-title"><i class="fas fa-microchip"></i> Technology Stack</h4>
+          <div id="modal-tech-stack" class="project-tech-stack" style="border: none; padding-top: 0; margin-top: 0;"></div>
+        </div>
+
+        <div>
+          <h4 class="modal-section-title"><i class="fas fa-file-lines"></i> Project Overview & Architecture</h4>
+          <p id="modal-desc" class="modal-description"></p>
+        </div>
+
+        <div>
+          <h4 class="modal-section-title"><i class="fas fa-check-circle"></i> Key Responsibilities & Highlights</h4>
+          <ul id="modal-highlights" class="modal-highlights-list"></ul>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- Toast Notification for Email Copy -->
   <div id="toast-notice" class="toast-notice" role="alert" aria-live="polite">

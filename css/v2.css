@@ -1171,3 +1171,253 @@ img {
     word-break: break-all;
   }
 }
+
+/* --------------------------------------------------------------------------
+   13. Company Project Pills & Modal Dialog
+   -------------------------------------------------------------------------- */
+.company-projects-tray {
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px dashed var(--surface-border);
+}
+
+.company-projects-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-light);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.company-projects-label i {
+  color: var(--primary);
+}
+
+.company-project-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.project-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: var(--bg-canvas-subtle);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-full);
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-main);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-align: left;
+}
+
+.project-pill:hover {
+  background: var(--surface);
+  border-color: var(--primary);
+  color: var(--primary);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.12);
+}
+
+.pill-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--primary);
+}
+
+.pill-title {
+  font-weight: 600;
+}
+
+.pill-client {
+  font-size: 0.76rem;
+  font-weight: 500;
+  color: var(--text-light);
+  background: var(--surface);
+  border: 1px solid var(--surface-border);
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  transition: color var(--transition-fast);
+}
+
+.project-pill:hover .pill-client {
+  color: var(--primary);
+  border-color: #bfdbfe;
+}
+
+.pill-arrow {
+  font-size: 0.72rem;
+  color: var(--text-light);
+  transition: transform var(--transition-fast);
+}
+
+.project-pill:hover .pill-arrow {
+  color: var(--primary);
+  transform: translate(2px, -2px);
+}
+
+/* Modal Backdrop */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 250ms ease, visibility 250ms ease;
+}
+
+.modal-backdrop.open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+/* Modal Card */
+.modal-card {
+  background: var(--surface);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-xl);
+  max-width: 680px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-xl);
+  transform: scale(0.94) translateY(16px);
+  transition: transform 300ms cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-backdrop.open .modal-card {
+  transform: scale(1) translateY(0);
+}
+
+.modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 28px 32px 20px;
+  border-bottom: 1px solid var(--surface-border);
+  position: sticky;
+  top: 0;
+  background: var(--surface);
+  z-index: 10;
+}
+
+.modal-pretitle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.modal-company-pill {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-canvas-subtle);
+  color: var(--text-muted);
+  border: 1px solid var(--surface-border);
+}
+
+.modal-title {
+  font-size: 1.45rem;
+  color: var(--text-main);
+  line-height: 1.3;
+}
+
+.modal-close-btn {
+  background: var(--bg-canvas-subtle);
+  border: 1px solid var(--surface-border);
+  color: var(--text-muted);
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.modal-close-btn:hover {
+  background: var(--text-main);
+  color: #ffffff;
+  border-color: var(--text-main);
+}
+
+.modal-body {
+  padding: 28px 32px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.modal-section-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-light);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.modal-section-title i {
+  color: var(--primary);
+}
+
+.modal-description {
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--text-muted);
+}
+
+.modal-highlights-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.modal-highlights-list li {
+  position: relative;
+  padding-left: 24px;
+  font-size: 0.94rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+.modal-highlights-list li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: var(--accent-emerald);
+  font-weight: 800;
+}

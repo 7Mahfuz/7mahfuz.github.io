@@ -287,12 +287,186 @@
   }
 
   /* --------------------------------------------------------------------------
+     4. Project Details Modal Controller
+     -------------------------------------------------------------------------- */
+  const PROJECTS_DATA = {
+    'bc-localization': {
+      title: 'Microsoft Dynamics 365 Business Central Localization',
+      company: 'Bizzntek Ltd.',
+      client: 'Microsoft (NBR & Bangladesh Fiscal Localization)',
+      clientClass: 'msft',
+      clientIcon: 'fab fa-microsoft',
+      role: 'Lead Extension Developer',
+      tech: ['AL Language', 'Dynamics 365 Business Central', 'RDLC Reports', 'NBR Fiscal Standards', 'VAT / Tax Accounting', 'ERP Architecture'],
+      desc: 'Pivotal national localization project preparing Microsoft Dynamics 365 Business Central ERP for the Bangladesh enterprise market. Engineered custom AL extensions compliant with National Board of Revenue (NBR) tax protocols, fiscal laws, VAT withholding calculations, and regulatory government audit reporting.',
+      highlights: [
+        'Authored custom Microsoft Business Central extensions using AL language to comply with Bangladesh Government & NBR fiscal requirements.',
+        'Designed complex RDLC reports for official tax withholding, VAT summaries, and statutory audit registers.',
+        'Collaborated closely with enterprise domain architects and government fiscal advisors to ensure 100% regulatory compliance.'
+      ]
+    },
+    'rent-grid': {
+      title: 'Rent & Property Management ERP',
+      company: 'Bizzntek Ltd.',
+      client: 'Rent Grid (USA)',
+      clientClass: 'us',
+      clientIcon: 'fas fa-building',
+      role: 'Full-Stack ERP Developer',
+      tech: ['C#', 'ASP.NET MVC', 'MS Business Central', 'Bootstrap 4', 'Payment Gateway Integration', 'jQuery', 'MS SQL Server'],
+      desc: 'Comprehensive real estate ERP for US landlords and property managers. Supports unit management, tenant onboarding, automated rent billing, online payment gateway processing, and financial balance sheets.',
+      highlights: [
+        'Implemented tenant onboarding workflows, unit lease tracking, and automated scheduled invoicing.',
+        'Integrated secure third-party payment gateways allowing tenants to pay rent online seamlessly.',
+        'Developed financial ledger reporting giving landlords real-time visibility into income, expenses, and security deposits.'
+      ]
+    },
+    'hotel-grid': {
+      title: 'Hotel Operations & Guest Management ERP',
+      company: 'Bizzntek Ltd.',
+      client: 'Hotel Grid (USA)',
+      clientClass: 'us',
+      clientIcon: 'fas fa-hotel',
+      role: 'Full-Stack ERP Developer',
+      tech: ['C#', 'ASP.NET MVC', 'MS Business Central', 'Bootstrap 4', 'RESTful API', 'jQuery', 'MS SQL Server'],
+      desc: 'End-to-end hotel operations software supporting multi-branch room reservations, guest check-in/check-out lifecycle, automated invoice settlement, and real-time occupancy reporting.',
+      highlights: [
+        'Engineered room allocation workflows with live status tracking and housekeeping schedules.',
+        'Created unified guest billing module with consolidated invoices for room charges and amenities.',
+        'Delivered administrative dashboards with occupancy metrics and revenue summaries.'
+      ]
+    },
+    'factory-mgmt': {
+      title: 'Factory Management ERP',
+      company: 'SmartSoft Technology',
+      client: 'MH Golden Jute Ltd. (Bangladesh)',
+      clientClass: 'industrial',
+      clientIcon: 'fas fa-industry',
+      role: 'Full-Stack Engineer',
+      tech: ['C#', 'ASP.NET Web Forms', 'MS SQL Server', 'T-SQL Stored Procedures', 'jQuery', 'Ledger Engine'],
+      desc: 'Classical enterprise industrial ERP system built for MH Golden Jute Ltd. Manages raw material intake, multi-stage jute manufacturing workflows, inventory warehouse tracking, and automated financial accounting.',
+      highlights: [
+        'Built core modules for raw jute batch processing, weight logs, and production tracking.',
+        'Authored optimized MS SQL Server stored procedures for automated ledger calculation and inventory reconciliation.',
+        'Designed reporting dashboards for plant supervisors and enterprise accountants.'
+      ]
+    },
+    'task-mgmt': {
+      title: 'Enterprise Task & Workflow Management',
+      company: 'SmartSoft Technology',
+      client: 'MH Golden Jute Ltd. (Bangladesh)',
+      clientClass: 'industrial',
+      clientIcon: 'fas fa-list-check',
+      role: 'Full-Stack Engineer',
+      tech: ['C#', 'ASP.NET Web Forms', 'MS SQL Server', 'jQuery', 'Role-Based Access Control', 'Reporting Engine'],
+      desc: 'Internal organizational workflow and task delegation platform. Facilitates managerial work distribution across departments, status updating, milestone tracking, and performance reporting.',
+      highlights: [
+        'Developed role-based task delegation system with status pipelines (Pending, In-Progress, Review, Completed).',
+        'Engineered notification alerts and milestone deadline tracking for departmental staff.',
+        'Built exportable performance audit and progress reporting tools.'
+      ]
+    },
+    'smart-sell': {
+      title: 'Smart Sell POS & Inventory Ledger',
+      company: 'SmartSoft Technology',
+      client: 'Kushtia Tech (Bangladesh)',
+      clientClass: '',
+      clientIcon: 'fas fa-cash-register',
+      role: 'Full-Stack Engineer',
+      tech: ['C#', 'ASP.NET Web Forms', 'MS SQL Server', 'jQuery', 'POS Architecture', 'Accounting Ledger'],
+      desc: 'Point of Sale and field-agent commercial inventory software. Allows sales reps to dispatch orders on the road, track stock in warehouses, and presents accounting audits to administrators.',
+      highlights: [
+        'Implemented sales representative access portal for mobile order taking and dispatch logs.',
+        'Constructed warehouse inventory tracking with automated stock replenishment triggers.',
+        'Built double-entry financial ledger and customer billing ledger modules.'
+      ]
+    },
+    'garments-hr': {
+      title: 'Garments HR & Biometric Payroll System',
+      company: 'GTRBD Ltd.',
+      client: 'FnF Fashion BD (Bangladesh)',
+      clientClass: 'industrial',
+      clientIcon: 'fas fa-fingerprint',
+      role: 'Software Engineer',
+      tech: ['C#', 'ASP.NET MVC 5', 'MS SQL Server', 'ZKT Fingerprint Device SDK', 'Bootstrap 3', 'jQuery'],
+      desc: 'Industrial HR and automated biometric payroll software for a large garment manufacturing operation. Direct integration with physical ZKT biometric devices to ingest punch data, record shifts, and compute automated monthly salaries.',
+      highlights: [
+        'Integrated ZKT biometric fingerprint punch hardware with the backend attendance database.',
+        'Engineered automated calculation engine for overtime, late arrivals, unexcused absences, and festival bonuses.',
+        'Automated monthly payroll generation and pay-slip printing for hundreds of factory workers.'
+      ]
+    }
+  };
+
+  function initProjectModals() {
+    const modal = document.getElementById('project-modal');
+    if (!modal) return;
+
+    const modalTitle = document.getElementById('modal-title');
+    const modalCompany = document.getElementById('modal-company');
+    const modalClient = document.getElementById('modal-client');
+    const modalTechStack = document.getElementById('modal-tech-stack');
+    const modalDesc = document.getElementById('modal-desc');
+    const modalHighlights = document.getElementById('modal-highlights');
+    const closeBtn = modal.querySelector('.modal-close-btn');
+
+    function openModal(projectId) {
+      const data = PROJECTS_DATA[projectId];
+      if (!data) return;
+
+      modalTitle.textContent = data.title;
+      modalCompany.textContent = data.company;
+
+      modalClient.className = 'client-pill ' + (data.clientClass || '');
+      modalClient.innerHTML = '<i class="' + data.clientIcon + '"></i> ' + data.client;
+
+      modalTechStack.innerHTML = data.tech.map(t => '<span class="tech-tag primary">' + t + '</span>').join('');
+      modalDesc.textContent = data.desc;
+
+      modalHighlights.innerHTML = data.highlights.map(h => '<li>' + h + '</li>').join('');
+
+      modal.classList.add('open');
+      modal.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+      modal.classList.remove('open');
+      modal.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+    }
+
+    document.querySelectorAll('.project-pill').forEach(pill => {
+      pill.addEventListener('click', () => {
+        const pid = pill.getAttribute('data-project');
+        openModal(pid);
+      });
+    });
+
+    if (closeBtn) {
+      closeBtn.addEventListener('click', closeModal);
+    }
+
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modal.classList.contains('open')) {
+        closeModal();
+      }
+    });
+  }
+
+  /* --------------------------------------------------------------------------
      DOM Ready Bootstrapper
      -------------------------------------------------------------------------- */
   document.addEventListener('DOMContentLoaded', () => {
     initThreeHero();
     initNavigation();
     initEmailCopy();
+    initProjectModals();
   });
 
 })();
