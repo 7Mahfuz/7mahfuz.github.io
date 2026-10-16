@@ -6,7 +6,7 @@
 /* --------------------------------------------------------------------------
    1. Design Tokens & Root Variables
    -------------------------------------------------------------------------- */
-:root {
+:root, [data-theme="light"] {
   /* Color Palette - Executive Light Slate & Enterprise Blue */
   --bg-canvas: #f8fafc;
   --bg-canvas-subtle: #f1f5f9;
@@ -43,6 +43,11 @@
   --shadow-xl: 0 20px 28px -5px rgba(15, 23, 42, 0.09), 0 8px 10px -6px rgba(15, 23, 42, 0.03);
   --shadow-glow: 0 0 25px rgba(37, 99, 235, 0.18);
 
+  /* Navbar & Glass */
+  --nav-bg: rgba(255, 255, 255, 0.85);
+  --nav-border: rgba(226, 232, 240, 0.8);
+  --card-bg-glass: rgba(255, 255, 255, 0.88);
+
   /* Radii */
   --radius-sm: 8px;
   --radius-md: 12px;
@@ -63,6 +68,84 @@
   /* Layout */
   --max-width: 1200px;
   --nav-height: 72px;
+}
+
+/* 2. Midnight Dark Theme */
+[data-theme="dark"] {
+  --bg-canvas: #090d16;
+  --bg-canvas-subtle: #0f172a;
+  --surface: #0f172a;
+  --surface-alt: #162035;
+  --surface-border: rgba(148, 163, 184, 0.16);
+  --surface-border-subtle: rgba(148, 163, 184, 0.09);
+  --surface-hover: #1e293b;
+
+  --primary: #3b82f6;
+  --primary-hover: #60a5fa;
+  --primary-subtle: rgba(59, 130, 246, 0.15);
+  --primary-glow: rgba(59, 130, 246, 0.3);
+
+  --accent-teal: #14b8a6;
+  --accent-teal-subtle: rgba(20, 184, 166, 0.15);
+  --accent-purple: #a855f7;
+  --accent-purple-subtle: rgba(168, 85, 247, 0.15);
+  --accent-emerald: #10b981;
+  --accent-emerald-subtle: rgba(16, 185, 129, 0.15);
+
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --text-light: #64748b;
+  --text-on-primary: #ffffff;
+
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.4);
+  --shadow-sm: 0 2px 4px -1px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 12px 20px -3px rgba(0, 0, 0, 0.7);
+  --shadow-xl: 0 20px 28px -5px rgba(0, 0, 0, 0.8);
+  --shadow-glow: 0 0 30px rgba(59, 130, 246, 0.3);
+
+  --nav-bg: rgba(15, 23, 42, 0.88);
+  --nav-border: rgba(59, 130, 246, 0.25);
+  --card-bg-glass: rgba(15, 23, 42, 0.88);
+}
+
+/* 3. Cyberpunk Neon Theme */
+[data-theme="cyber"] {
+  --bg-canvas: #050811;
+  --bg-canvas-subtle: #080e1e;
+  --surface: rgba(15, 23, 42, 0.92);
+  --surface-alt: #0d1527;
+  --surface-border: rgba(0, 245, 255, 0.35);
+  --surface-border-subtle: rgba(0, 245, 255, 0.18);
+  --surface-hover: #111d35;
+
+  --primary: #00f5ff;
+  --primary-hover: #38bdf8;
+  --primary-subtle: rgba(0, 245, 255, 0.15);
+  --primary-glow: rgba(0, 245, 255, 0.45);
+
+  --accent-teal: #00f5ff;
+  --accent-teal-subtle: rgba(0, 245, 255, 0.15);
+  --accent-purple: #c084fc;
+  --accent-purple-subtle: rgba(192, 132, 252, 0.18);
+  --accent-emerald: #10b981;
+  --accent-emerald-subtle: rgba(16, 185, 129, 0.15);
+
+  --text-main: #ffffff;
+  --text-muted: #94a3b8;
+  --text-light: #64748b;
+  --text-on-primary: #050811;
+
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
+  --shadow-sm: 0 2px 4px -1px rgba(0, 0, 0, 0.6);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.7);
+  --shadow-lg: 0 12px 20px -3px rgba(0, 245, 255, 0.12);
+  --shadow-xl: 0 20px 28px -5px rgba(0, 245, 255, 0.18);
+  --shadow-glow: 0 0 35px rgba(0, 245, 255, 0.4);
+
+  --nav-bg: rgba(9, 14, 28, 0.92);
+  --nav-border: rgba(0, 245, 255, 0.4);
+  --card-bg-glass: rgba(15, 23, 42, 0.92);
 }
 
 /* --------------------------------------------------------------------------
@@ -154,10 +237,10 @@ img {
   align-items: center;
   justify-content: space-between;
   padding: 10px 20px;
-  background: rgba(255, 255, 255, 0.85);
+  background: var(--nav-bg);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(226, 232, 240, 0.8);
+  border: 1px solid var(--nav-border);
   border-radius: var(--radius-full);
   box-shadow: var(--shadow-md);
   transition: all var(--transition-normal);
@@ -245,6 +328,113 @@ img {
   background: var(--primary);
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+}
+
+/* --- Theme Switcher Widget --- */
+.theme-switcher-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.theme-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--surface-alt);
+  border: 1px solid var(--surface-border);
+  color: var(--text-main);
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 7px 12px;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.theme-toggle-btn:hover {
+  background: var(--surface-hover);
+  border-color: var(--primary);
+  box-shadow: 0 0 10px var(--primary-glow);
+  transform: translateY(-1px);
+}
+
+.theme-label-badge {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.theme-arrow {
+  font-size: 0.7rem;
+  color: var(--text-light);
+  transition: transform var(--transition-fast);
+}
+
+.theme-switcher-wrap.open .theme-arrow {
+  transform: rotate(180deg);
+}
+
+.theme-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  background: var(--surface);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-lg);
+  padding: 6px;
+  min-width: 175px;
+  box-shadow: var(--shadow-xl), var(--shadow-glow);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-6px);
+  transition: all var(--transition-fast);
+  z-index: 1000;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.theme-switcher-wrap.open .theme-dropdown-menu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.theme-opt-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 12px;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-md);
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-align: left;
+}
+
+.theme-opt-btn:hover {
+  background: var(--primary-subtle);
+  color: var(--primary);
+}
+
+.theme-opt-btn.active {
+  background: var(--primary-subtle);
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.theme-opt-btn.active::after {
+  content: '✓';
+  margin-left: auto;
+  font-weight: 800;
 }
 
 .nav-toggle-btn {
@@ -540,10 +730,10 @@ img {
   position: relative;
   z-index: 2;
   width: 290px;
-  background: rgba(255, 255, 255, 0.88);
+  background: var(--card-bg-glass);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.9);
+  border: 1px solid var(--surface-border);
   border-radius: var(--radius-xl);
   padding: 14px;
   box-shadow: var(--shadow-xl);
