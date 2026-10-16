@@ -116,6 +116,44 @@
     rimLight.position.set(-4, -4, 3);
     scene.add(rimLight);
 
+    // Dynamic 3D Hero Wireframe Tinting on Theme Switch
+    function updateThemeColors(theme) {
+      if (theme === 'cyber') {
+        outerMesh.material.color.setHex(0x00f5ff);
+        innerMesh.material.color.setHex(0xc084fc);
+        coreMesh.material.color.setHex(0xff007f);
+        particleMat.color.setHex(0xec4899);
+        keyLight.color.setHex(0x00f5ff);
+        rimLight.color.setHex(0xff007f);
+      } else if (theme === 'dark') {
+        outerMesh.material.color.setHex(0x38bdf8);
+        innerMesh.material.color.setHex(0x93c5fd);
+        coreMesh.material.color.setHex(0x0ea5e9);
+        particleMat.color.setHex(0x60a5fa);
+        keyLight.color.setHex(0x38bdf8);
+        rimLight.color.setHex(0x818cf8);
+      } else {
+        // default / executive light
+        outerMesh.material.color.setHex(0x2563eb);
+        innerMesh.material.color.setHex(0x60a5fa);
+        coreMesh.material.color.setHex(0x3b82f6);
+        particleMat.color.setHex(0x1d4ed8);
+        keyLight.color.setHex(0x3b82f6);
+        rimLight.color.setHex(0x60a5fa);
+      }
+    }
+
+    // Set initial colors according to existing theme attribute
+    const initialTheme = document.documentElement.getAttribute('data-theme') || 'light';
+    updateThemeColors(initialTheme);
+
+    // Listen for real-time theme switch events from ThemeManager
+    window.addEventListener('themechange', (e) => {
+      if (e.detail && e.detail.theme) {
+        updateThemeColors(e.detail.theme);
+      }
+    });
+
     // Mouse Interaction Tracking
     let targetX = 0;
     let targetY = 0;
