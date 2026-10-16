@@ -21,6 +21,17 @@
 
   <!-- Portfolio v2 Stylesheet -->
   <link rel="stylesheet" href="css/v2.css" />
+
+  <!-- Inline FOUC Prevention Script for Instant Theme Paint -->
+  <script>
+    (function () {
+      try {
+        var saved = localStorage.getItem('portfolio_theme');
+        var theme = saved || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', theme);
+      } catch (e) {}
+    })();
+  </script>
 </head>
 <body id="page-top">
 
@@ -48,6 +59,29 @@
         </ul>
 
         <div class="nav-actions">
+          <!-- 3-Way Theme Switcher Widget -->
+          <div class="theme-switcher-wrap">
+            <button type="button" class="theme-toggle-btn" id="theme-toggle-btn" aria-label="Toggle visual theme" title="Switch Theme (Light / Dark / Cyber)">
+              <i class="fas fa-sun" id="theme-icon" style="color: #f59e0b;"></i>
+              <span class="theme-label-badge" id="theme-label">Light</span>
+              <i class="fas fa-angle-down theme-arrow"></i>
+            </button>
+            <div class="theme-dropdown-menu" id="theme-menu">
+              <button type="button" class="theme-opt-btn active" data-theme="light">
+                <i class="fas fa-sun" style="color: #f59e0b;"></i>
+                <span>Executive Light</span>
+              </button>
+              <button type="button" class="theme-opt-btn" data-theme="dark">
+                <i class="fas fa-moon" style="color: #60a5fa;"></i>
+                <span>Midnight Dark</span>
+              </button>
+              <button type="button" class="theme-opt-btn" data-theme="cyber">
+                <i class="fas fa-bolt" style="color: #00f5ff;"></i>
+                <span>Cyberpunk Neon</span>
+              </button>
+            </div>
+          </div>
+
           <a class="btn-cv-nav" href="Net_CV_MahfuzurRahman.pdf" download="Net_CV_MahfuzurRahman.pdf" target="_blank">
             <i class="fas fa-file-arrow-down"></i>
             <span>Download CV</span>
@@ -162,7 +196,7 @@
   <!-- ========================================================================
        3. Career Experience & Enterprise Projects
        ======================================================================== -->
-  <section class="section-padding" id="experience" style="background-color: #ffffff;">
+  <section class="section-padding" id="experience" style="background-color: var(--surface);">
     <span id="projects" style="display: block; position: relative; top: -90px; visibility: hidden;"></span>
     <div class="container">
       <div class="section-header">
@@ -556,7 +590,7 @@
   <!-- ========================================================================
        5. Skills Matrix
        ======================================================================== -->
-  <section class="section-padding" id="skills" style="background-color: #ffffff;">
+  <section class="section-padding" id="skills" style="background-color: var(--surface);">
     <div class="container">
       <div class="section-header">
         <span class="section-tag"><i class="fas fa-microchip"></i> Capabilities</span>
@@ -861,5 +895,8 @@
 
   <!-- Portfolio v2 Controller Script -->
   <script src="js/v2.js"></script>
+
+  <!-- Theme Controller Script -->
+  <script src="js/theme.js"></script>
 </body>
 </html>
