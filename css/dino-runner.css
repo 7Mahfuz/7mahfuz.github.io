@@ -1,0 +1,135 @@
+/* ==========================================================================
+   3D Dino Runner & Arcade Tab Switcher Stylesheet
+   ========================================================================== */
+
+/* --- Game Tab Switcher --- */
+.arcade-tabs-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.arcade-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.75rem 1.4rem;
+  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  border-radius: 0.75rem;
+  color: #94a3b8;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  backdrop-filter: blur(10px);
+}
+
+.arcade-tab-btn:hover {
+  color: #f8fafc;
+  border-color: rgba(59, 130, 246, 0.5);
+  background: rgba(30, 41, 59, 0.85);
+  transform: translateY(-1px);
+}
+
+.arcade-tab-btn.active {
+  color: #ffffff;
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.4), rgba(16, 185, 129, 0.3));
+  border-color: #3b82f6;
+  box-shadow: 0 0 20px rgba(37, 99, 235, 0.35);
+}
+
+.tab-badge-new {
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 0.15rem 0.45rem;
+  background: #10b981;
+  color: #ffffff;
+  border-radius: 9999px;
+  letter-spacing: 0.05em;
+}
+
+/* --- Panel Visibility --- */
+.arcade-game-panel {
+  display: block;
+  transition: opacity 0.25s ease;
+}
+
+.arcade-game-panel.hidden {
+  display: none;
+}
+
+/* --- Dino Runner HUD & Viewport --- */
+.dino-card {
+  border-color: rgba(16, 185, 129, 0.28) !important;
+  box-shadow: 0 20px 40px -15px rgba(2, 6, 23, 0.7), 0 0 30px -10px rgba(16, 185, 129, 0.25) !important;
+}
+
+.dino-hud {
+  border-bottom-color: rgba(16, 185, 129, 0.2) !important;
+}
+
+.dino-viewport {
+  position: relative;
+  width: 100%;
+  height: 480px;
+  background: #090d16;
+  overflow: hidden;
+  cursor: pointer;
+  touch-action: none;
+}
+
+#dino-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.hi-score {
+  color: #f59e0b !important;
+  text-shadow: 0 0 8px rgba(245, 158, 11, 0.5) !important;
+}
+
+/* --- Touch Action Bar for Mobile --- */
+.dino-touch-controls {
+  display: none;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: rgba(10, 15, 29, 0.95);
+  border-top: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.btn-dino-touch {
+  padding: 0.85rem;
+  background: rgba(30, 41, 59, 0.9);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  border-radius: 0.5rem;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  user-select: none;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.btn-dino-touch:active {
+  background: rgba(16, 185, 129, 0.3);
+  border-color: #10b981;
+}
+
+@media (max-width: 768px) {
+  .dino-viewport {
+    height: 360px;
+  }
+  .dino-touch-controls {
+    display: grid;
+  }
+}
