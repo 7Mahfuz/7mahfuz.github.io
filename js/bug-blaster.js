@@ -952,9 +952,13 @@
   }
 
   // Self-initialize on DOM ready
+  window.__BugBlasterGame = BugBlasterGame;
+
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => new BugBlasterGame());
+    document.addEventListener('DOMContentLoaded', () => {
+      window.bugBlasterInstance = new BugBlasterGame();
+    });
   } else {
-    new BugBlasterGame();
+    window.bugBlasterInstance = new BugBlasterGame();
   }
 })();

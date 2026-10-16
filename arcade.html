@@ -25,6 +25,9 @@
   <!-- 3D Bug Blaster Arcade Stylesheet -->
   <link rel="stylesheet" href="css/bug-blaster.css" />
 
+  <!-- 3D Dino Runner & Tab Switcher Stylesheet -->
+  <link rel="stylesheet" href="css/dino-runner.css" />
+
   <style>
     body {
       background-color: #060911;
@@ -217,40 +220,129 @@
           <span>Three.js &bull; WebGL &bull; Web Audio API</span>
         </span>
         <h1 style="font-size: clamp(2.2rem, 4vw, 3rem); font-weight: 800; color: #ffffff; letter-spacing: -0.02em; margin-bottom: 0.75rem;">
-          3D Bug Blaster
+          Interactive 3D Arcade Lab
         </h1>
         <p style="color: #94a3b8; font-size: 1.05rem; line-height: 1.6; margin: 0;">
-          A real-time WebGL arcade game. Neutralize incoming null-pointers, memory leaks, and syntax glitches before they breach the defense perimeter.
+          Switch between real-time WebGL games: aim and neutralize incoming cyber bugs in <strong>3D Bug Blaster</strong>, or leap over 3D cacti and duck under pterodactyls in <strong>3D Cyber Dino Runner</strong>.
         </p>
       </div>
 
-      <!-- Arcade Game Container (Targeted by bug-blaster.js) -->
-      <section class="arcade-section" id="arcade" style="padding: 0;">
-        <div class="arcade-card">
-          <!-- Arcade Top HUD -->
-          <div class="arcade-hud">
+      <!-- Arcade Game Switcher Tabs -->
+      <div class="arcade-tabs-wrap">
+        <button type="button" class="arcade-tab-btn active" data-game="blaster" id="tab-blaster">
+          <i class="fas fa-crosshairs"></i>
+          <span>3D Bug Blaster</span>
+        </button>
+        <button type="button" class="arcade-tab-btn" data-game="dino" id="tab-dino">
+          <i class="fas fa-dragon"></i>
+          <span>3D Dino Runner</span>
+          <span class="tab-badge-new">NEW</span>
+        </button>
+      </div>
+
+      <!-- Panel 1: Bug Blaster -->
+      <div class="arcade-game-panel" id="panel-blaster">
+        <section class="arcade-section" id="arcade" style="padding: 0;">
+          <div class="arcade-card">
+            <!-- Arcade Top HUD -->
+            <div class="arcade-hud">
+              <div class="hud-group">
+                <div class="hud-item">
+                  <span class="hud-label">SCORE</span>
+                  <span class="hud-value" id="bb-score">00000</span>
+                </div>
+                <div class="hud-item">
+                  <span class="hud-label">STREAK</span>
+                  <span class="hud-value streak-pill" id="bb-streak">x1</span>
+                </div>
+              </div>
+              <div class="hud-group">
+                <div class="hud-item">
+                  <span class="hud-label">INTEGRITY</span>
+                  <div class="integrity-bar">
+                    <div class="integrity-fill" id="bb-integrity" style="width: 100%;"></div>
+                  </div>
+                </div>
+                <div class="hud-actions">
+                  <button type="button" class="arcade-btn" id="bb-mute-btn" title="Toggle Sound" aria-label="Toggle Sound">
+                    <i class="fas fa-volume-high"></i>
+                  </button>
+                  <button type="button" class="arcade-btn" id="bb-pause-btn" title="Pause Game" aria-label="Pause Game">
+                    <i class="fas fa-pause"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Canvas Viewport -->
+            <div class="arcade-viewport" id="arcade-viewport" style="height: 540px;">
+              <canvas id="bug-blaster-canvas"></canvas>
+
+              <!-- Custom Reticle -->
+              <div class="arcade-crosshair" id="arcade-crosshair">
+                <div class="reticle-circle"></div>
+                <div class="reticle-dot"></div>
+              </div>
+
+              <!-- Overlays: Start Screen & Game Over -->
+              <div class="arcade-overlay" id="arcade-overlay">
+                <div class="overlay-card">
+                  <div class="overlay-icon"><i class="fas fa-shield-virus"></i></div>
+                  <h3 class="overlay-title" id="overlay-title">SYSTEM DEFENSE</h3>
+                  <p class="overlay-desc" id="overlay-desc">
+                    Neutralize incoming memory leaks and null-pointers before they compromise system integrity.
+                  </p>
+                  <div class="overlay-stats" id="overlay-stats" style="display: none;">
+                    <div class="stat-box">
+                      <span class="stat-label">FINAL SCORE</span>
+                      <span class="stat-num" id="final-score">0</span>
+                    </div>
+                    <div class="stat-box">
+                      <span class="stat-label">MAX STREAK</span>
+                      <span class="stat-num" id="final-streak">x1</span>
+                    </div>
+                  </div>
+                  <button type="button" class="btn-play-arcade" id="bb-play-btn">
+                    <i class="fas fa-play"></i>
+                    <span id="bb-play-text">START MISSION</span>
+                  </button>
+                  <span class="overlay-hint">Tip: Click / Tap anywhere to aim & blast. Press Space to Pause.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- Panel 2: 3D Dino Runner -->
+      <div class="arcade-game-panel hidden" id="panel-dino">
+        <div class="arcade-card dino-card">
+          <!-- Dino Top HUD -->
+          <div class="arcade-hud dino-hud">
             <div class="hud-group">
               <div class="hud-item">
-                <span class="hud-label">SCORE</span>
-                <span class="hud-value" id="bb-score">00000</span>
+                <span class="hud-label">GAME</span>
+                <span class="hud-value" style="color: #10b981;">3D DINO RUN</span>
               </div>
               <div class="hud-item">
-                <span class="hud-label">STREAK</span>
-                <span class="hud-value streak-pill" id="bb-streak">x1</span>
+                <span class="hud-label">SPEED</span>
+                <span class="hud-value" id="dino-speed-val">1.0x</span>
               </div>
             </div>
             <div class="hud-group">
               <div class="hud-item">
-                <span class="hud-label">INTEGRITY</span>
-                <div class="integrity-bar">
-                  <div class="integrity-fill" id="bb-integrity" style="width: 100%;"></div>
-                </div>
+                <span class="hud-label">HI</span>
+                <span class="hud-value hi-score" id="dino-hi-score">00000</span>
+              </div>
+              <div class="hud-item">
+                <span class="hud-label">SCORE</span>
+                <span class="hud-value" id="dino-score">00000</span>
               </div>
               <div class="hud-actions">
-                <button type="button" class="arcade-btn" id="bb-mute-btn" title="Toggle Sound" aria-label="Toggle Sound">
+                <button type="button" class="arcade-btn" id="dino-mute-btn" title="Toggle Sound" aria-label="Toggle Sound">
                   <i class="fas fa-volume-high"></i>
                 </button>
-                <button type="button" class="arcade-btn" id="bb-pause-btn" title="Pause Game" aria-label="Pause Game">
+                <button type="button" class="arcade-btn" id="dino-pause-btn" title="Pause Game" aria-label="Pause Game">
                   <i class="fas fa-pause"></i>
                 </button>
               </div>
@@ -258,67 +350,71 @@
           </div>
 
           <!-- Canvas Viewport -->
-          <div class="arcade-viewport" id="arcade-viewport" style="height: 560px;">
-            <canvas id="bug-blaster-canvas"></canvas>
-
-            <!-- Custom Reticle -->
-            <div class="arcade-crosshair" id="arcade-crosshair">
-              <div class="reticle-circle"></div>
-              <div class="reticle-dot"></div>
-            </div>
+          <div class="arcade-viewport dino-viewport" id="dino-viewport" style="height: 540px;">
+            <canvas id="dino-canvas"></canvas>
 
             <!-- Overlays: Start Screen & Game Over -->
-            <div class="arcade-overlay" id="arcade-overlay">
+            <div class="arcade-overlay" id="dino-overlay">
               <div class="overlay-card">
-                <div class="overlay-icon"><i class="fas fa-shield-virus"></i></div>
-                <h3 class="overlay-title" id="overlay-title">SYSTEM DEFENSE</h3>
-                <p class="overlay-desc" id="overlay-desc">
-                  Neutralize incoming memory leaks and null-pointers before they compromise system integrity.
+                <div class="overlay-icon" style="color: #10b981;"><i class="fas fa-dragon"></i></div>
+                <h3 class="overlay-title" id="dino-overlay-title">3D DINO RUNNER</h3>
+                <p class="overlay-desc" id="dino-overlay-desc">
+                  Leap over 3D voxel cacti and duck under flying pterodactyls across an endless cyber desert.
                 </p>
-                <div class="overlay-stats" id="overlay-stats" style="display: none;">
+                <div class="overlay-stats" id="dino-overlay-stats" style="display: none;">
                   <div class="stat-box">
-                    <span class="stat-label">FINAL SCORE</span>
-                    <span class="stat-num" id="final-score">0</span>
+                    <span class="stat-label">DISTANCE</span>
+                    <span class="stat-num" id="dino-final-score">00000</span>
                   </div>
                   <div class="stat-box">
-                    <span class="stat-label">MAX STREAK</span>
-                    <span class="stat-num" id="final-streak">x1</span>
+                    <span class="stat-label">HIGH SCORE</span>
+                    <span class="stat-num" id="dino-final-hi">00000</span>
                   </div>
                 </div>
-                <button type="button" class="btn-play-arcade" id="bb-play-btn">
+                <button type="button" class="btn-play-arcade" id="dino-play-btn" style="background: linear-gradient(135deg, #059669, #10b981); border-color: #10b981; box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);">
                   <i class="fas fa-play"></i>
-                  <span id="bb-play-text">START MISSION</span>
+                  <span id="dino-play-text">START RUN</span>
                 </button>
-                <span class="overlay-hint">Tip: Click / Tap anywhere to aim & blast. Press Space to Pause.</span>
+                <span class="overlay-hint">Controls: Space / Up / Tap to Jump &bull; Down Arrow to Duck</span>
               </div>
             </div>
           </div>
+
+          <!-- Mobile Touch Control Bar -->
+          <div class="dino-touch-controls">
+            <button type="button" class="btn-dino-touch" id="btn-touch-jump">
+              <i class="fas fa-arrow-up"></i> JUMP (TAP)
+            </button>
+            <button type="button" class="btn-dino-touch" id="btn-touch-duck">
+              <i class="fas fa-arrow-down"></i> DUCK (HOLD)
+            </button>
+          </div>
         </div>
-      </section>
+      </div>
 
       <!-- Technical Highlights & Game Intel Grid -->
       <div class="arcade-features-grid">
         <div class="arcade-feat-card">
           <div class="arcade-feat-icon"><i class="fas fa-crosshairs"></i></div>
-          <h3 class="arcade-feat-title">Controls & Targeting</h3>
+          <h3 class="arcade-feat-title">Bug Blaster & Reticle</h3>
           <p class="arcade-feat-desc">
-            Move mouse or drag finger to aim holographic reticle. Left Click or Tap fires dual 3D laser beams via Three.js Raycaster. Press <kbd style="background: rgba(30,41,59,0.9); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(59,130,246,0.3); font-family: monospace;">Space</kbd> to pause anytime.
+            Aim holographic reticle with cursor or finger. Left Click or Tap fires dual 3D laser beams via Three.js Raycaster. Destroy cyan null-pointers, purple memory leaks, and red syntax glitches.
           </p>
         </div>
 
         <div class="arcade-feat-card">
-          <div class="arcade-feat-icon"><i class="fas fa-bug"></i></div>
-          <h3 class="arcade-feat-title">Threat Classification</h3>
+          <div class="arcade-feat-icon" style="color: #10b981;"><i class="fas fa-dragon"></i></div>
+          <h3 class="arcade-feat-title">3D Cyber Dino Runner</h3>
           <p class="arcade-feat-desc">
-            <strong>NullPointer Drones</strong> (Cyan, 1 hit), <strong>MemoryLeak Swarms</strong> (Fast oscillating purple, 1 hit), and armored <strong>Syntax Glitch Cubes</strong> (Crimson, 2 hits). Don't let them breach!
+            Press <kbd style="background: rgba(30,41,59,0.9); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(16,185,129,0.4); font-family: monospace;">Space</kbd> or <kbd style="background: rgba(30,41,59,0.9); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(16,185,129,0.4); font-family: monospace;">&uarr;</kbd> to Jump over 3D cacti. Press <kbd style="background: rgba(30,41,59,0.9); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(16,185,129,0.4); font-family: monospace;">&darr;</kbd> to Duck under low-flying pterodactyls.
           </p>
         </div>
 
         <div class="arcade-feat-card">
           <div class="arcade-feat-icon"><i class="fas fa-microchip"></i></div>
-          <h3 class="arcade-feat-title">Real-Time Synthesis</h3>
+          <h3 class="arcade-feat-title">Procedural WebGL & Audio</h3>
           <p class="arcade-feat-desc">
-            Zero external audio or 3D model downloads. Web Audio API dynamically synthesizes laser frequencies and explosion noise bursts. Volumetric particle shatter runs at a silky 60 FPS.
+            Zero external audio or 3D asset downloads. All voxels, sound synthesis (jump blips, milestone chimes, explosions), and Day/Night cycles run procedurally at silky 60 FPS.
           </p>
         </div>
       </div>
@@ -350,5 +446,56 @@
 
   <!-- 3D Bug Blaster Controller Script -->
   <script src="js/bug-blaster.js"></script>
+
+  <!-- 3D Dino Runner Controller Script -->
+  <script src="js/dino-runner.js"></script>
+
+  <!-- Arcade Tab Switcher Controller -->
+  <script>
+    (function () {
+      const tabBlaster = document.getElementById('tab-blaster');
+      const tabDino = document.getElementById('tab-dino');
+      const panelBlaster = document.getElementById('panel-blaster');
+      const panelDino = document.getElementById('panel-dino');
+
+      function switchGame(target) {
+        if (target === 'blaster') {
+          tabBlaster.classList.add('active');
+          tabDino.classList.remove('active');
+          panelBlaster.classList.remove('hidden');
+          panelDino.classList.add('hidden');
+
+          if (window.dinoGameInstance) {
+            window.dinoGameInstance.isTabActive = false;
+            if (window.dinoGameInstance.isPlaying && !window.dinoGameInstance.isPaused) {
+              window.dinoGameInstance.togglePause();
+            }
+          }
+          if (window.bugBlasterInstance) {
+            window.bugBlasterInstance.isPaused = false;
+            window.bugBlasterInstance.onResize();
+          }
+        } else {
+          tabDino.classList.add('active');
+          tabBlaster.classList.remove('active');
+          panelDino.classList.remove('hidden');
+          panelBlaster.classList.add('hidden');
+
+          if (window.bugBlasterInstance) {
+            window.bugBlasterInstance.isPaused = true;
+          }
+          if (window.dinoGameInstance) {
+            window.dinoGameInstance.isTabActive = true;
+            window.dinoGameInstance.onResize();
+          }
+        }
+      }
+
+      if (tabBlaster && tabDino) {
+        tabBlaster.addEventListener('click', () => switchGame('blaster'));
+        tabDino.addEventListener('click', () => switchGame('dino'));
+      }
+    })();
+  </script>
 </body>
 </html>
