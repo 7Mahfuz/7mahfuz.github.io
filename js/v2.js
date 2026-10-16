@@ -290,34 +290,36 @@
      4. Project Details Modal Controller
      -------------------------------------------------------------------------- */
   const PROJECTS_DATA = {
+    'western-digital': {
+      title: 'Western Digital — CIO Management Application',
+      company: 'Bizzntek Ltd. (Client via Altios)',
+      client: 'Altios &rarr; Western Digital (westerndigital.com)',
+      clientClass: 'us',
+      clientIcon: 'fas fa-hard-drive',
+      role: 'Senior Software Engineer (Active)',
+      tech: ['C#', 'ASP.NET Core', 'MS SQL Server', 'CIO Dashboard Governance', 'Enterprise System Integration', 'High-Volume Data Processing', 'Executive Decision Support'],
+      desc: 'Currently engineering the mission-critical CIO Management Application for Western Digital (westerndigital.com), a Fortune 500 global leader in digital storage and memory technology, delivered as an enterprise client engagement through Altios. Constructing high-throughput enterprise governance tools, IT leadership resource monitoring, automated data aggregation pipelines, and secure API interfaces connecting disparate Western Digital enterprise systems.',
+      highlights: [
+        'Currently actively engineering the core CIO Management Application, delivering executive-level visibility into enterprise IT infrastructure, budget allocation, and operational health.',
+        'Architecting high-throughput, fault-tolerant backend modules for mission-critical enterprise operations and strict transaction consistency.',
+        'Constructed secure API interfaces and automated data aggregation pipelines connecting disparate internal Western Digital enterprise systems.',
+        'Refactored critical database queries and services to ensure sub-second latency for executive decision-makers.'
+      ]
+    },
     'altios-goglobal': {
-      title: 'Altios — GoGlobal International Expansion Platform',
-      company: 'Bizzntek Ltd.',
-      client: 'Altios (GoGlobal)',
+      title: 'GoGlobal — First Version Enterprise Management Platform',
+      company: 'Bizzntek Ltd. (Client via Altios)',
+      client: 'Altios &rarr; GoGlobal (goglobal.com)',
       clientClass: 'us',
       clientIcon: 'fas fa-earth-americas',
       role: 'Senior Software Engineer',
-      tech: ['C#', 'ASP.NET Core', 'Dynamics 365 Business Central', 'AL Language', 'RESTful APIs', 'MS SQL Server', 'Multi-Region Compliance'],
-      desc: 'Enterprise platform engineering for Altios (altios.ai / altios.com) and their GoGlobal international expansion services. Facilitating global market entry, international corporate entity setup, cross-border compliance tracking, and ERP data harmonization for multinational enterprises expanding across worldwide markets.',
+      tech: ['C#', 'ASP.NET Core', 'Dynamics 365 Business Central', 'AL Language', 'RESTful APIs', 'MS SQL Server', 'Global EOR Workforce Management'],
+      desc: 'Architected and engineered the foundational First Version Management Platform for GoGlobal (goglobal.com), a premier international Employer of Record (EOR) and global workforce expansion provider, delivered in partnership with Altios. Facilitating global market entry, international corporate entity setup, cross-border compliance tracking, and ERP data harmonization for multinational enterprises expanding across worldwide markets.',
       highlights: [
-        'Architected scalable backend APIs and business logic supporting multi-country compliance frameworks and global entity onboarding.',
+        'Built the foundational first-version management platform powering global Employer of Record (EOR) workflows across worldwide jurisdictions.',
+        'Architected scalable backend APIs and business logic supporting multi-country compliance frameworks and corporate entity onboarding.',
         'Engineered seamless ERP synchronization workflows between Microsoft Business Central and web services.',
         'Collaborated directly with international stakeholders on cross-border data security and system localization.'
-      ]
-    },
-    'western-digital': {
-      title: 'Western Digital — Enterprise System Integration & Data Solutions',
-      company: 'Bizzntek Ltd.',
-      client: 'Western Digital',
-      clientClass: 'us',
-      clientIcon: 'fas fa-hard-drive',
-      role: 'Senior Software Engineer',
-      tech: ['C#', 'ASP.NET Core', 'MS SQL Server', 'Enterprise Integration', 'High-Volume Data Processing', 'Architecture Refactoring'],
-      desc: 'Engineered mission-critical software modules and enterprise data integration workflows for Western Digital, a Fortune 500 global leader in digital storage and memory technology. Focused on transaction reliability, system integration pipelines, and high-performance database processing.',
-      highlights: [
-        'Designed high-throughput backend modules tailored for mission-critical enterprise operations and strict transaction consistency.',
-        'Engineered secure API interfaces and automated data pipelines connecting internal enterprise systems.',
-        'Led architectural code refactoring sessions and performance optimizations to eliminate processing latency.'
       ]
     },
     'bc-localization': {
