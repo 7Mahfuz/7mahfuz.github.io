@@ -662,7 +662,6 @@
   /* ------------------------------------------------------------------------
      Projects
      ------------------------------------------------------------------------ */
-  var USA = { label: 'USA', lat: 39.5, lon: -98.35 };
   var BANGLADESH = { label: 'Bangladesh', lat: 23.7, lon: 90.4 };
 
   var PROJECTS = {
@@ -714,35 +713,22 @@
       ],
       stack: ['AL', 'Dynamics 365 Business Central', 'RDLC reports', 'NBR fiscal standards', 'VAT & tax accounting']
     },
-    'rent-grid': {
-      client: 'Rent Grid',
-      title: 'Rent & property management ERP',
+    'piramids': {
+      client: 'PIRAMIDS',
+      title: 'Real estate portfolio management suite',
       org: 'Bizzntek Ltd.',
       role: 'Full-stack ERP developer',
-      status: 'Delivered',
-      where: USA,
-      desc: 'Real-estate ERP for US landlords and property managers: unit management, tenant onboarding, automated rent billing, online payments and financial reporting.',
+      status: 'Live',
+      url: 'https://piramids.com/',
+      where: { label: 'Woodland Hills, California, USA · 34.17°N 118.61°W', lat: 34.17, lon: -118.61 },
+      desc: 'Real estate portfolio management software for US owners and operators. Property and rental management, hospitality and financial reporting run in one system: units and leases, tenant onboarding, online rent payments, room bookings, guest billing and the ledgers behind them.',
       highlights: [
-        'Built tenant onboarding, unit lease tracking and scheduled invoicing.',
+        'Built tenant onboarding, unit lease tracking and scheduled rent invoicing.',
         'Integrated third-party payment gateways so tenants can pay rent online.',
-        'Developed ledger reporting for income, expenses and security deposits.'
+        'Built hospitality operations: room allocation with live status, housekeeping schedules and unified guest billing.',
+        'Developed ledger reporting for income, expenses and security deposits, plus occupancy and revenue dashboards.'
       ],
-      stack: ['C#', 'ASP.NET MVC', 'MS Business Central', 'Payment gateways', 'jQuery', 'Bootstrap 4', 'MS SQL Server']
-    },
-    'hotel-grid': {
-      client: 'Hotel Grid',
-      title: 'Hotel operations & guest management',
-      org: 'Bizzntek Ltd.',
-      role: 'Full-stack ERP developer',
-      status: 'Delivered',
-      where: USA,
-      desc: 'Hotel operations software for multi-branch room reservations, the guest check-in and check-out lifecycle, invoice settlement and real-time occupancy reporting.',
-      highlights: [
-        'Built room allocation with live status tracking and housekeeping schedules.',
-        'Created a unified guest billing module covering rooms and amenities.',
-        'Delivered admin dashboards with occupancy and revenue metrics.'
-      ],
-      stack: ['C#', 'ASP.NET MVC', 'MS Business Central', 'REST APIs', 'jQuery', 'Bootstrap 4', 'MS SQL Server']
+      stack: ['C#', 'ASP.NET MVC', 'MS Business Central', 'Payment gateways', 'REST APIs', 'jQuery', 'Bootstrap 4', 'MS SQL Server']
     },
     'factory-mgmt': {
       client: 'MH Golden Jute Ltd.',
@@ -894,7 +880,7 @@
   var STOPS = [
     { project: 'western-digital', to: { lat: 37.34, lon: -121.89 }, tag: 'Western Digital', place: 'San Jose, USA', route: 'Dhaka → USA', title: 'Western Digital', sub: 'CIO Management Application, in progress via Altios' },
     { project: 'bc-localization', to: { lat: 47.67, lon: -122.12 }, tag: 'Microsoft', place: 'Redmond, USA', route: 'Dhaka → USA', title: 'Microsoft', sub: 'Business Central localization for the Bangladesh market' },
-    { project: 'rent-grid', to: USA, tag: 'Rent Grid · Hotel Grid', place: 'USA', route: 'Dhaka → USA', title: 'Rent Grid & Hotel Grid', sub: 'Property and hotel management ERPs' },
+    { project: 'piramids', to: { lat: 34.17, lon: -118.61 }, tag: 'PIRAMIDS', place: 'Woodland Hills, USA', route: 'Dhaka → USA', title: 'PIRAMIDS', sub: 'Real estate portfolio management suite' },
     { project: 'mapcars', to: { lat: 50.84, lon: -0.78 }, tag: 'MapCars', place: 'Chichester, UK', route: 'Dhaka → Chichester, UK', title: 'MapCars UK', sub: 'Ride-hailing apps on Google Play and the App Store' },
     { project: 'motorshut', to: { lat: 51.52, lon: 0.19 }, tag: 'Motorshut', place: 'Rainham, UK', route: 'Dhaka → Rainham, UK', title: 'Motorshut', sub: 'Used-car marketplace' },
     { project: null, to: null, tag: 'Dhaka', route: 'Dhaka → Bangladesh', title: 'Home market', sub: 'VetMart BD, AykorGPT, Cumilla Resort and four enterprise systems' }
