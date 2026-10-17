@@ -169,6 +169,7 @@
     this.fill = opts.fill || 0.36;
     this.labels = !!opts.labels;
     this.dotScale = opts.dotScale || 1;
+    this.labelInset = opts.labelInset || 0;
     this.motion = motionOK();
     this.view = { lon: DHAKA.lon, lat: 20 };
     this.anim = null;
@@ -180,6 +181,7 @@
     this.burst = 0;
     this.showHome = this.style === 'disc';
     this.homeV = vec(DHAKA.lat, DHAKA.lon);
+    this.homeLabel = {};
     this.sx = new Float32Array(DOT_COUNT);
     this.sy = new Float32Array(DOT_COUNT);
     this.sz = new Float32Array(DOT_COUNT);
@@ -488,12 +490,13 @@
       ctx.beginPath();
       ctx.arc(x, y, 3, 0, TAU);
       ctx.fill();
-      if (this.labels && pin === this.focus && pin.label) labels.push([x, y, pin.label]);
+      if (this.labels && pin.label) {
+        labels.push({ src: pin, x: x, y: y, title: pin.label, sub: pin.sub, active: pin === this.focus, depth: p[2] });
+      }
     }
 
     this.drawHome(now, labels);
-    // Labels go last so no pin or ring paints over them.
-    for (i = 0; i < labels.length; i++) this.drawLabel(labels[i][0], labels[i][1], labels[i][2]);
+    if (labels.length) this.drawLabels(labels);
   };
 
   Globe.prototype.drawHome = function (now, labels) {
@@ -521,37 +524,139 @@
     ctx.beginPath();
     ctx.arc(hx, hy, 4.2, 0, TAU);
     ctx.fill();
-    if (this.labels) labels.unshift([hx, hy, 'Dhaka']);
+    if (this.labels) {
+      labels.push({ src: this.homeLabel, x: hx, y: hy, title: 'Dhaka', sub: 'Home base, Bangladesh', active: !!this.burst, home: true, depth: p[2] });
+    }
   };
 
-  Globe.prototype.drawLabel = function (x, y, text) {
+  /* Label layout: every pin gets a chip (client + place). Chips are placed one by
+     one (the highlighted stop first, then Dhaka, then the nearest pins) at the
+     first candidate spot that overlaps nothing already placed. A chip keeps its
+     spot from frame to frame while it still fits, so labels don't jump as the
+     globe turns; when a chip has to sit away from its pin, a leader line joins them. */
+  var LABEL_SPOTS = [
+    [1, -1], [-1, -1], [1, 1], [-1, 1], [1, 0], [-1, 0],
+    [0, -1.6], [0, 1.6], [1, -2.3], [-1, -2.3], [1, 2.3], [-1, 2.3]
+  ];
+
+  function spotRect(x, y, w, h, s) {
+    var gap = 10;
+    var lx = s[0] > 0 ? x + gap : s[0] < 0 ? x - w - gap : x - w / 2;
+    var ly;
+    if (s[1] === 0) ly = y - h / 2;
+    else if (s[1] < 0) ly = y - h - 6 - (Math.abs(s[1]) - 1) * (h + 4);
+    else ly = y + 6 + (Math.abs(s[1]) - 1) * (h + 4);
+    return [lx, ly, w, h];
+  }
+
+  function overlapArea(a, b) {
+    var ox = Math.min(a[0] + a[2], b[0] + b[2]) - Math.max(a[0], b[0]);
+    var oy = Math.min(a[1] + a[3], b[1] + b[3]) - Math.max(a[1], b[1]);
+    return ox > 0 && oy > 0 ? ox * oy : 0;
+  }
+
+  Globe.prototype.drawLabels = function (labels) {
     var ctx = this.ctx;
-    var t = text.toUpperCase();
-    ctx.font = '500 10px "Martian Mono", ui-monospace, monospace';
-    var w = ctx.measureText(t).width + 16, h = 22;
-    // Keep labels over the globe so they never drift into neighbouring content:
-    // prefer the side facing away from the centre, flip inward near the edge.
-    var minX = Math.max(4, this.cx - this.R * 1.1);
-    var maxX = Math.min(this.w - 4, this.cx + this.R * 1.1);
-    var outward = x < this.cx ? x - w - 10 : x + 10;
-    var inward = x < this.cx ? x + 10 : x - w - 10;
-    var lx = outward >= minX && outward + w <= maxX ? outward : inward;
-    var ly = y - h - 8;
-    lx = clamp(lx, minX, maxX - w);
-    ly = clamp(ly, 4, this.h - h - 4);
+    var compact = this.R < 175;              // phone-sized globe: one line for quiet chips
+    // Keep chips inside the visible stage: the hero canvas overhangs its box
+    // (labelInset is the overhang as a fraction of the canvas size).
+    var inset = this.labelInset;
+    var reach = this.R * 1.14;
+    var minX = inset ? this.w * inset + 2 : Math.max(4, this.cx - reach);
+    var maxX = inset ? this.w * (1 - inset) - 2 : Math.min(this.w - 4, this.cx + reach);
+    var minY = inset ? this.h * inset + 2 : Math.max(4, this.cy - reach);
+    var maxY = inset ? this.h * (1 - inset) - 2 : Math.min(this.h - 4, this.cy + reach);
+    var titleFont = '500 ' + (compact ? 9 : 10) + 'px "Martian Mono", ui-monospace, monospace';
+    var subFont = '400 ' + (compact ? 10 : 11) + 'px "Instrument Sans", system-ui, sans-serif';
+    var all = LABEL_SPOTS.map(function (_, n) { return n; });
+    var i, j, q;
 
-    ctx.fillStyle = PAL.labelBg;
-    ctx.strokeStyle = rgba(PAL.ink, 0.16);
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    if (ctx.roundRect) ctx.roundRect(lx, ly, w, h, h / 2);
-    else ctx.rect(lx, ly, w, h);
-    ctx.fill();
-    ctx.stroke();
+    labels.sort(function (a, b) {
+      if (a.active !== b.active) return a.active ? -1 : 1;
+      if (!!a.home !== !!b.home) return a.home ? -1 : 1;
+      return b.depth - a.depth;
+    });
 
-    ctx.fillStyle = PAL.labelText;
-    ctx.textBaseline = 'middle';
-    ctx.fillText(t, lx + 8, ly + h / 2 + 0.5);
+    // Pins are obstacles too, so a chip never hides another pin.
+    var pinBoxes = labels.map(function (l) { return [l.x - 6, l.y - 6, 12, 12]; });
+    // The stage's corner captions ("Dhaka 23.81°N…", "Drag to spin") stay clear.
+    var chips = inset ? [[minX, minY, 185, 16], [maxX - 120, maxY - 16, 120, 16]] : [];
+
+    for (i = 0; i < labels.length; i++) {
+      var l = labels[i];
+      l.two = !!l.sub && (l.active || !compact);
+      l.t = l.title.toUpperCase();
+      ctx.font = titleFont;
+      var w = ctx.measureText(l.t).width;
+      if (l.two) {
+        ctx.font = subFont;
+        w = Math.max(w, ctx.measureText(l.sub).width);
+      }
+      w = Math.ceil(w) + 18;
+      var h = l.two ? (compact ? 32 : 36) : 22;
+
+      var keep = l.src && l.src.slot != null ? l.src.slot : -1;
+      var order = keep >= 0 ? [keep].concat(all.filter(function (n) { return n !== keep; })) : all;
+      var best = null, bestScore = Infinity, bestSlot = 0;
+
+      for (j = 0; j < order.length; j++) {
+        var r = spotRect(l.x, l.y, w, h, LABEL_SPOTS[order[j]]);
+        r[0] = clamp(r[0], minX, maxX - w);
+        r[1] = clamp(r[1], minY, maxY - h);
+        var score = 0;
+        for (q = 0; q < pinBoxes.length; q++) if (q !== i) score += overlapArea(r, pinBoxes[q]);
+        for (q = 0; q < chips.length; q++) score += overlapArea(r, chips[q]);
+        if (score < bestScore) {
+          best = r;
+          bestScore = score;
+          bestSlot = order[j];
+          if (score === 0) break;
+        }
+      }
+      if (l.src) l.src.slot = bestSlot;
+      l.rect = best;
+      chips.push(best);
+    }
+
+    // Leader lines first, then chips on top (highlighted chip drawn last).
+    for (i = 0; i < labels.length; i++) {
+      var a = labels[i], rc = a.rect;
+      var nx = clamp(a.x, rc[0], rc[0] + rc[2]), ny = clamp(a.y, rc[1], rc[1] + rc[3]);
+      if (Math.hypot(nx - a.x, ny - a.y) < 5) continue;
+      ctx.globalAlpha = Math.min(1, (a.depth - 0.02) / 0.18);
+      ctx.strokeStyle = a.active ? PAL.red : rgba(PAL.ink, 0.38);
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(a.x, a.y);
+      ctx.lineTo(nx, ny);
+      ctx.stroke();
+    }
+
+    for (i = labels.length - 1; i >= 0; i--) {
+      var b = labels[i], rr = b.rect;
+      ctx.globalAlpha = Math.min(1, (b.depth - 0.02) / 0.18) * (b.active ? 1 : 0.92);
+      ctx.fillStyle = PAL.labelBg;
+      ctx.strokeStyle = b.active ? PAL.red : rgba(PAL.ink, 0.16);
+      ctx.lineWidth = b.active ? 1.3 : 1;
+      ctx.beginPath();
+      if (ctx.roundRect) ctx.roundRect(rr[0], rr[1], rr[2], rr[3], b.two ? 10 : rr[3] / 2);
+      else ctx.rect(rr[0], rr[1], rr[2], rr[3]);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.textBaseline = 'middle';
+      ctx.font = titleFont;
+      ctx.fillStyle = PAL.labelText;
+      if (b.two) {
+        ctx.fillText(b.t, rr[0] + 9, rr[1] + rr[3] * 0.33);
+        ctx.font = subFont;
+        ctx.fillStyle = rgba(PAL.ink, 0.72);
+        ctx.fillText(b.sub, rr[0] + 9, rr[1] + rr[3] * 0.7);
+      } else {
+        ctx.fillText(b.t, rr[0] + 9, rr[1] + rr[3] / 2 + 0.5);
+      }
+    }
+    ctx.globalAlpha = 1;
   };
 
   /* ------------------------------------------------------------------------
@@ -787,11 +892,11 @@
 
   // Hero tour: one stop per client region, in order of significance.
   var STOPS = [
-    { project: 'western-digital', to: { lat: 37.34, lon: -121.89 }, tag: 'Western Digital', route: 'Dhaka → USA', title: 'Western Digital', sub: 'CIO Management Application, in progress via Altios' },
-    { project: 'bc-localization', to: { lat: 47.67, lon: -122.12 }, tag: 'Microsoft', route: 'Dhaka → USA', title: 'Microsoft', sub: 'Business Central localization for the Bangladesh market' },
-    { project: 'rent-grid', to: USA, tag: 'Rent Grid · Hotel Grid', route: 'Dhaka → USA', title: 'Rent Grid & Hotel Grid', sub: 'Property and hotel management ERPs' },
-    { project: 'mapcars', to: { lat: 50.84, lon: -0.78 }, tag: 'MapCars', route: 'Dhaka → Chichester, UK', title: 'MapCars UK', sub: 'Ride-hailing apps on Google Play and the App Store' },
-    { project: 'motorshut', to: { lat: 51.52, lon: 0.19 }, tag: 'Motorshut', route: 'Dhaka → Rainham, UK', title: 'Motorshut', sub: 'Used-car marketplace' },
+    { project: 'western-digital', to: { lat: 37.34, lon: -121.89 }, tag: 'Western Digital', place: 'San Jose, USA', route: 'Dhaka → USA', title: 'Western Digital', sub: 'CIO Management Application, in progress via Altios' },
+    { project: 'bc-localization', to: { lat: 47.67, lon: -122.12 }, tag: 'Microsoft', place: 'Redmond, USA', route: 'Dhaka → USA', title: 'Microsoft', sub: 'Business Central localization for the Bangladesh market' },
+    { project: 'rent-grid', to: USA, tag: 'Rent Grid · Hotel Grid', place: 'USA', route: 'Dhaka → USA', title: 'Rent Grid & Hotel Grid', sub: 'Property and hotel management ERPs' },
+    { project: 'mapcars', to: { lat: 50.84, lon: -0.78 }, tag: 'MapCars', place: 'Chichester, UK', route: 'Dhaka → Chichester, UK', title: 'MapCars UK', sub: 'Ride-hailing apps on Google Play and the App Store' },
+    { project: 'motorshut', to: { lat: 51.52, lon: 0.19 }, tag: 'Motorshut', place: 'Rainham, UK', route: 'Dhaka → Rainham, UK', title: 'Motorshut', sub: 'Used-car marketplace' },
     { project: null, to: null, tag: 'Dhaka', route: 'Dhaka → Bangladesh', title: 'Home market', sub: 'VetMart BD, AykorGPT, Cumilla Resort and four enterprise systems' }
   ];
 
@@ -803,7 +908,7 @@
     var canvas = document.getElementById('globe');
     if (!stage || !canvas || !canvas.getContext) return;
 
-    var g = new Globe(canvas, { style: 'disc', labels: true, fill: 0.36 });
+    var g = new Globe(canvas, { style: 'disc', labels: true, fill: 0.36, labelInset: 0.18 / 1.36 });
     var ui = {
       text: document.querySelector('[data-tour-text]'),
       route: document.querySelector('[data-tour-route]'),
@@ -822,7 +927,7 @@
       return s.to ? makeArc(DHAKA, s.to, Infinity, 1300) : null;
     });
     var pins = STOPS.map(function (s) {
-      return s.to ? { v: vec(s.to.lat, s.to.lon), t0: Infinity, label: s.tag } : null;
+      return s.to ? { v: vec(s.to.lat, s.to.lon), t0: Infinity, label: s.tag, sub: s.place } : null;
     });
     g.arcs = arcs.filter(Boolean);
     g.pins = pins.filter(Boolean);
