@@ -105,6 +105,16 @@ const waLinks = html.split('href="https://wa.me/8801625632942').length - 1;
 const telLinks = html.split('href="tel:+8801625632942"').length - 1;
 check(waLinks >= 2 && telLinks >= 2, `${waLinks} WhatsApp and ${telLinks} phone links`, "phone/WhatsApp links missing from index.html");
 
+console.log('\n--- 10. Section backdrop (Three.js) ---');
+const backdrop = fs.existsSync('js/v3-backdrop.js') ? fs.readFileSync('js/v3-backdrop.js', 'utf8') : '';
+check(html.includes('<script type="module" src="js/v3-backdrop.js">'), 'backdrop module loaded by index.html', 'index.html does not load js/v3-backdrop.js');
+check(/three@\d+\.\d+\.\d+\//.test(backdrop), 'Three.js pinned to an exact version', 'Three.js URL must pin an exact version');
+check(backdrop.includes('prefers-reduced-motion'), 'backdrop respects reduced motion', 'backdrop ignores prefers-reduced-motion');
+['work', 'live', 'stack', 'education', 'contact'].forEach(id => {
+  const hasForm = new RegExp('\\b' + id + ':\\s*\\{ make:').test(backdrop);
+  check(hasForm && html.includes('id="' + id + '"'), `formation for #${id}`, `no backdrop formation or section for #${id}`);
+});
+
 if (!allPassed) {
   process.exit(1);
 } else {
