@@ -1,0 +1,988 @@
+/* ==========================================================================
+   Arcade (games.html) — builds on css/v3.css tokens, buttons and nav.
+   Game colours are tokens too, so every theme (light, dark, claude) stays
+   calm and readable.
+   ========================================================================== */
+
+:root,
+:root[data-theme="light"] {
+  --board-bg: #dde6df;
+  --cell-bg: rgba(255, 255, 255, 0.55);
+  --tile-ink-high: #ffffff;
+  --tile-red-ink: #ffffff;
+  --key-bg: #dfe6e0;
+
+  --cd-hit: #3f8a5e;
+  --cd-hit-ink: #ffffff;
+  --cd-near: #e0b84f;
+  --cd-near-ink: #1f332c;
+  --cd-miss: #7f8e87;
+  --cd-miss-ink: #ffffff;
+
+  --tower-sky-top: #e3ece5;
+  --tower-sky-bottom: #f8faf7;
+  --tower-sat: 30;
+  --tower-light: 64;
+  --tower-hue: 152;
+  --tower-hue-range: 40;
+  --tower-milestone-hue: 354;
+
+  --rr-road: #cdd6d0;
+  --rr-line: #f6f9f6;
+  --rr-verge: #b8cfbf;
+  --rr-tree: #93bba0;
+  --rr-tree-dark: #7ba489;
+}
+
+:root[data-theme="dark"] {
+  --board-bg: #0f1513;
+  --cell-bg: rgba(255, 255, 255, 0.045);
+  --tile-ink-high: #131a18;
+  --tile-red-ink: #131a18;
+  --key-bg: #26302c;
+
+  --cd-hit: #4f9e70;
+  --cd-hit-ink: #ffffff;
+  --cd-near: #c9a24a;
+  --cd-near-ink: #131a18;
+  --cd-miss: #3a4642;
+  --cd-miss-ink: #e2e8e4;
+
+  --tower-sky-top: #0e1412;
+  --tower-sky-bottom: #1b2622;
+  --tower-sat: 26;
+  --tower-light: 46;
+  --tower-hue: 152;
+  --tower-hue-range: 40;
+  --tower-milestone-hue: 354;
+
+  --rr-road: #262f2c;
+  --rr-line: #56635e;
+  --rr-verge: #18221e;
+  --rr-tree: #2d4a3b;
+  --rr-tree-dark: #223a2e;
+}
+
+/* Claude — ivory boards, clay tiles and sandy roads. */
+:root[data-theme="claude"] {
+  --board-bg: #ece8de;
+  --cell-bg: rgba(255, 255, 255, 0.65);
+  --tile-ink-high: #ffffff;
+  --tile-red-ink: #1f1e1d;
+  --key-bg: #e9e6dd;
+
+  --cd-hit: #4f7f55;
+  --cd-hit-ink: #ffffff;
+  --cd-near: #d9a441;
+  --cd-near-ink: #1f1e1d;
+  --cd-miss: #7d796f;
+  --cd-miss-ink: #ffffff;
+
+  --tower-sky-top: #f1ece2;
+  --tower-sky-bottom: #fbfaf6;
+  --tower-sat: 46;
+  --tower-light: 68;
+  --tower-hue: 22;
+  --tower-hue-range: 12;
+  --tower-milestone-hue: 205;
+
+  --rr-road: #dcd6ca;
+  --rr-line: #fbf9f4;
+  --rr-verge: #e8e0cd;
+  --rr-tree: #bcc49f;
+  --rr-tree-dark: #a5ae87;
+}
+
+/* --------------------------------------------------------------------------
+   Page
+   -------------------------------------------------------------------------- */
+.arcade-page {
+  padding: calc(var(--nav-h) + clamp(2rem, 5vw, 3.5rem)) 0 clamp(4rem, 8vw, 6rem);
+}
+
+.arcade-head {
+  max-width: 760px;
+  margin-bottom: 2rem;
+}
+
+.arcade-title {
+  margin: 1.1rem 0 1rem;
+  font: 680 clamp(2.2rem, 1.2rem + 3.3vw, 4rem)/1.02 var(--f-display);
+  font-variation-settings: "opsz" 96;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+}
+
+.nav-back svg {
+  width: 16px;
+  height: 16px;
+}
+
+.icon-btn .i-sound-off,
+.icon-btn.is-muted .i-sound-on {
+  display: none;
+}
+
+.icon-btn.is-muted .i-sound-off {
+  display: block;
+}
+
+/* --------------------------------------------------------------------------
+   Game picker
+   -------------------------------------------------------------------------- */
+.picker {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-bottom: clamp(1.75rem, 4vw, 2.5rem);
+}
+
+.pick {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.25s, box-shadow 0.25s, transform 0.35s var(--ease);
+}
+
+.pick {
+  min-width: 0;
+}
+
+.pick:hover {
+  border-color: var(--line-strong);
+  transform: translateY(-2px);
+}
+
+.pick[aria-selected="true"] {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent), var(--shadow);
+}
+
+.pick-art {
+  flex: none;
+  width: 44px;
+  height: 44px;
+}
+
+.pick-art * {
+  stroke: none;
+}
+
+.pick-art .a1 { fill: var(--accent); }
+.pick-art .a2 { fill: color-mix(in oklab, var(--accent) 62%, var(--surface)); }
+.pick-art .a3 { fill: color-mix(in oklab, var(--accent) 35%, var(--surface)); }
+.pick-art .a4 { fill: color-mix(in oklab, var(--accent) 16%, var(--surface)); }
+.pick-art .sun { fill: var(--red); }
+.pick-art .lane { stroke: var(--surface); stroke-width: 2; stroke-linecap: round; }
+.pick-art .lane-ink { stroke: var(--line-strong); stroke-width: 1.5; }
+.pick-art .hit { fill: var(--cd-hit); }
+.pick-art .near { fill: var(--cd-near); }
+.pick-art .miss { fill: var(--cd-miss); }
+.pick-art .empty { fill: none; stroke: var(--line-strong); stroke-width: 1.5; }
+
+.pick-text {
+  min-width: 0;
+}
+
+.pick-name {
+  display: block;
+  font: 650 1.05rem/1.2 var(--f-display);
+  letter-spacing: -0.01em;
+}
+
+.pick-meta {
+  display: block;
+  margin-top: 0.25rem;
+  font: 500 0.6rem/1.5 var(--f-mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.pick-meta b {
+  font-weight: 500;
+  color: var(--ink);
+}
+
+/* --------------------------------------------------------------------------
+   Panel layout
+   -------------------------------------------------------------------------- */
+.game-panel[hidden] {
+  display: none;
+}
+
+.game-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 340px);
+  align-items: start;
+  gap: clamp(1.5rem, 4vw, 3.5rem);
+}
+
+.game-stage {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  min-width: 0;
+}
+
+.stage-canvas {
+  position: relative;
+  width: min(100%, 560px, calc((100svh - var(--nav-h) - 2.5rem) * 0.8));
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  background: var(--surface);
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: pointer;
+}
+
+.stage-canvas canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* Dino Jump runs in a wide 2:1 strip, like the original. */
+.stage-canvas.stage-wide {
+  width: min(100%, 900px, calc((100svh - var(--nav-h) - 2.5rem) * 2));
+  aspect-ratio: 2 / 1;
+}
+
+.stage-bell {
+  position: absolute;
+  right: 0.6rem;
+  bottom: 0.6rem;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  opacity: 0.88;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--chip-bg);
+  color: var(--ink);
+  cursor: pointer;
+  transition: border-color 0.25s, color 0.25s;
+}
+
+.stage-bell:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.stage-bell svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Start / pause / game-over card */
+.stage-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: grid;
+  place-items: center;
+  padding: 1.25rem;
+  background: color-mix(in srgb, var(--bg) 58%, transparent);
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+  cursor: default;
+  border-radius: inherit;
+}
+
+.stage-overlay[hidden] {
+  display: none;
+}
+
+.overlay-card {
+  max-width: 320px;
+  padding: 1.5rem 1.4rem 1.4rem;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  text-align: center;
+}
+
+.overlay-kicker {
+  font: 500 0.62rem/1.4 var(--f-mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.overlay-title {
+  margin: 0.45rem 0 0.5rem;
+  font: 680 1.65rem/1.1 var(--f-display);
+  letter-spacing: -0.02em;
+}
+
+.overlay-text {
+  margin-bottom: 1.1rem;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.overlay-card .btn {
+  margin-top: 0.4rem;
+}
+
+/* --------------------------------------------------------------------------
+   Side panel
+   -------------------------------------------------------------------------- */
+.game-name {
+  margin: 0 0 0.6rem;
+  font-size: clamp(1.8rem, 1.3rem + 1.4vw, 2.4rem);
+}
+
+.game-pitch {
+  margin-bottom: 1.5rem;
+  color: var(--muted);
+}
+
+.scoreboard {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem;
+  margin: 0 0 1.25rem;
+}
+
+.scoreboard > div {
+  position: relative;
+  padding: 0.75rem 0.95rem;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+}
+
+.scoreboard dt {
+  font: 500 0.6rem/1.4 var(--f-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+
+.scoreboard dd {
+  margin: 0.15rem 0 0;
+  font: 650 1.6rem/1.1 var(--f-display);
+  font-variant-numeric: tabular-nums;
+}
+
+.scoreboard--4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.scoreboard--4 > div {
+  padding: 0.65rem 0.7rem;
+}
+
+.scoreboard--4 dd {
+  font-size: 1.25rem;
+}
+
+.score-pop {
+  position: absolute;
+  right: 0.85rem;
+  top: 0.55rem;
+  font: 600 0.85rem/1 var(--f-body);
+  color: var(--accent);
+  pointer-events: none;
+  animation: score-pop 0.7s var(--ease) forwards;
+}
+
+@keyframes score-pop {
+  from {
+    opacity: 1;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}
+
+.game-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.game-h {
+  margin: 1.9rem 0 0.8rem;
+  font: 500 0.64rem/1 var(--f-mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.game-help {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.game-help li {
+  position: relative;
+  padding-left: 1.25rem;
+}
+
+.game-help li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.75em;
+  width: 0.6rem;
+  height: 1px;
+  background: var(--accent);
+}
+
+.game-help b {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.ladder {
+  display: grid;
+  gap: 0.3rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ladder li {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.9rem;
+}
+
+.swatch {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 5px;
+}
+
+.ladder-num {
+  margin-left: auto;
+  font: 500 0.6rem/1 var(--f-mono);
+  letter-spacing: 0.04em;
+  color: var(--dim);
+}
+
+/* --------------------------------------------------------------------------
+   Stack 2048
+   -------------------------------------------------------------------------- */
+.g2048 {
+  --gap: clamp(6px, 1.6vw, 12px);
+  position: relative;
+  width: min(100%, 540px, calc(100svh - var(--nav-h) - 3rem));
+  aspect-ratio: 1;
+  padding: var(--gap);
+  border-radius: var(--radius);
+  background: var(--board-bg);
+  container-type: inline-size;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.g2048:focus-visible {
+  outline-offset: 4px;
+}
+
+.g2048-cells {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--gap);
+  width: 100%;
+  height: 100%;
+}
+
+.g2048-cell {
+  border-radius: 10px;
+  background: var(--cell-bg);
+}
+
+.g2048-tiles {
+  position: absolute;
+  inset: var(--gap);
+}
+
+.tile {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.15em;
+  width: calc((100% - 3 * var(--gap)) / 4);
+  height: calc((100% - 3 * var(--gap)) / 4);
+  border-radius: 10px;
+  transform: translate(calc(var(--c) * (100% + var(--gap))), calc(var(--r) * (100% + var(--gap))));
+  transition: transform 0.11s ease-in-out;
+}
+
+.tile.is-leaving {
+  z-index: 0;
+}
+
+.tile-label {
+  font: 700 6.6cqi/1 var(--f-display);
+  letter-spacing: -0.02em;
+}
+
+.tile.is-long .tile-label {
+  font-size: 4.9cqi;
+}
+
+.tile-num {
+  font: 500 max(8.5px, 2.2cqi)/1 var(--f-mono);
+  opacity: 0.7;
+}
+
+.tile.is-new {
+  animation: tile-in 0.2s ease-out 0.08s backwards;
+}
+
+.tile.is-merged {
+  animation: tile-pop 0.22s ease-out;
+}
+
+@keyframes tile-in {
+  from {
+    scale: 0.2;
+    opacity: 0;
+  }
+}
+
+@keyframes tile-pop {
+  50% {
+    scale: 1.12;
+  }
+}
+
+.g2048.is-nudge-left { animation: nudge-x 0.2s; --n: -5px; }
+.g2048.is-nudge-right { animation: nudge-x 0.2s; --n: 5px; }
+.g2048.is-nudge-up { animation: nudge-y 0.2s; --n: -5px; }
+.g2048.is-nudge-down { animation: nudge-y 0.2s; --n: 5px; }
+
+@keyframes nudge-x {
+  40% { translate: var(--n) 0; }
+}
+
+@keyframes nudge-y {
+  40% { translate: 0 var(--n); }
+}
+
+/* Tile ramp: surface → accent, then flag red from Senior (2048) upward. */
+.tile,
+.swatch {
+  background: color-mix(in oklab, var(--accent) var(--mix, 8%), var(--surface));
+  color: var(--ink);
+}
+
+.lv-0 { --mix: 9%; }
+.lv-1 { --mix: 18%; }
+.lv-2 { --mix: 27%; }
+.lv-3 { --mix: 36%; }
+.lv-4 { --mix: 45%; }
+.lv-5 { --mix: 54%; }
+.lv-6 { --mix: 63%; }
+.lv-7 { --mix: 74%; }
+.lv-8 { --mix: 86%; }
+.lv-9 { --mix: 100%; }
+
+.tile.lv-7,
+.tile.lv-8,
+.tile.lv-9 {
+  color: var(--tile-ink-high);
+}
+
+.tile.lv-10,
+.tile.lv-11,
+.tile.lv-12,
+.tile.lv-13,
+.tile.lv-14,
+.swatch.lv-10 {
+  background: var(--red);
+  color: var(--tile-red-ink);
+}
+
+.tile.lv-10 {
+  box-shadow: 0 0 0 3px var(--red-halo), 0 10px 26px -8px var(--red);
+}
+
+.tile.lv-12,
+.tile.lv-13,
+.tile.lv-14 {
+  background: color-mix(in oklab, var(--red) 75%, var(--ink));
+}
+
+/* --------------------------------------------------------------------------
+   Code-dle
+   -------------------------------------------------------------------------- */
+.game-stage--free {
+  display: block;
+}
+
+.codedle {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.1rem;
+  width: min(100%, 480px);
+  margin-inline: auto;
+  border-radius: 14px;
+}
+
+.codedle:focus {
+  outline: none;
+}
+
+.codedle:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 8px;
+}
+
+.cd-msg {
+  position: absolute;
+  top: 0.75rem;
+  left: 50%;
+  z-index: 4;
+  padding: 0.6rem 1rem;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--bg);
+  font-weight: 600;
+  font-size: 0.92rem;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translate(-50%, -6px);
+  pointer-events: none;
+  transition: opacity 0.25s, transform 0.3s var(--ease);
+}
+
+.cd-msg.is-shown {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.cd-board {
+  display: grid;
+  gap: 6px;
+  width: min(100%, 330px);
+}
+
+.cd-row {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+}
+
+.cd-tile {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  border: 2px solid var(--line-strong);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--ink);
+  font: 700 clamp(1.4rem, 5.5vw, 1.9rem)/1 var(--f-display);
+  text-transform: uppercase;
+  user-select: none;
+}
+
+.cd-tile.is-filled {
+  border-color: var(--muted);
+}
+
+.cd-tile.hit,
+.cd-key.hit,
+.key-chip.hit {
+  border-color: var(--cd-hit);
+  background: var(--cd-hit);
+  color: var(--cd-hit-ink);
+}
+
+.cd-tile.near,
+.cd-key.near,
+.key-chip.near {
+  border-color: var(--cd-near);
+  background: var(--cd-near);
+  color: var(--cd-near-ink);
+}
+
+.cd-tile.miss,
+.cd-key.miss,
+.key-chip.miss {
+  border-color: var(--cd-miss);
+  background: var(--cd-miss);
+  color: var(--cd-miss-ink);
+}
+
+.cd-tile.is-pop {
+  animation: cd-pop 0.12s ease-out;
+}
+
+.cd-tile.is-flip {
+  animation: cd-flip 0.45s ease;
+}
+
+.cd-row.is-shake {
+  animation: cd-shake 0.4s;
+}
+
+.cd-row.is-win .cd-tile {
+  animation: cd-bounce 0.55s ease;
+}
+
+.cd-row.is-win .cd-tile:nth-child(2) { animation-delay: 0.08s; }
+.cd-row.is-win .cd-tile:nth-child(3) { animation-delay: 0.16s; }
+.cd-row.is-win .cd-tile:nth-child(4) { animation-delay: 0.24s; }
+.cd-row.is-win .cd-tile:nth-child(5) { animation-delay: 0.32s; }
+
+@keyframes cd-pop {
+  50% { scale: 1.1; }
+}
+
+@keyframes cd-flip {
+  0% { transform: rotateX(90deg); }
+  100% { transform: rotateX(0); }
+}
+
+@keyframes cd-shake {
+  20%, 60% { translate: -6px 0; }
+  40%, 80% { translate: 6px 0; }
+}
+
+@keyframes cd-bounce {
+  40% { translate: 0 -12px; }
+  70% { translate: 0 2px; }
+}
+
+.cd-result {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.cd-result[hidden],
+.cd-result .btn[hidden] {
+  display: none;
+}
+
+.cd-keys {
+  display: grid;
+  gap: 6px;
+  width: 100%;
+}
+
+.cd-keyrow {
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+}
+
+.cd-key {
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: 44px;
+  height: 54px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: var(--key-bg);
+  color: var(--ink);
+  font: 600 0.98rem/1 var(--f-body);
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.cd-key:hover {
+  border-color: var(--line-strong);
+}
+
+.cd-key.is-wide {
+  flex-grow: 1.6;
+  max-width: 72px;
+  font-size: 0.82rem;
+}
+
+.seg {
+  display: inline-flex;
+  margin-bottom: 1.25rem;
+  padding: 3px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--bg-alt);
+}
+
+.seg button {
+  padding: 0.5rem 1.05rem;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  font: 600 0.88rem/1 var(--f-body);
+  cursor: pointer;
+}
+
+.seg button[aria-pressed="true"] {
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: var(--shadow);
+}
+
+.dist {
+  display: grid;
+  gap: 4px;
+}
+
+.dist-row {
+  display: grid;
+  grid-template-columns: 12px minmax(0, 1fr) 26px;
+  align-items: center;
+  gap: 0.5rem;
+  font: 500 0.66rem/1 var(--f-mono);
+  color: var(--muted);
+}
+
+.dist-v {
+  text-align: right;
+}
+
+.dist-bar {
+  height: 10px;
+  border-radius: 6px;
+  background: var(--bg-alt);
+}
+
+.dist-bar > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--dim);
+}
+
+.dist-row.is-today .dist-bar > span {
+  background: var(--cd-hit);
+}
+
+.key-chip {
+  display: inline-block;
+  padding: 0 0.35rem;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+/* --------------------------------------------------------------------------
+   Motion and responsive
+   -------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .tile {
+    transition: none;
+  }
+
+  .pick,
+  .pick:hover {
+    transform: none;
+  }
+}
+
+@media (max-width: 1180px) {
+  .picker {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 960px) {
+  .picker {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .game-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .game-side {
+    max-width: 560px;
+    margin-inline: auto;
+    width: 100%;
+  }
+}
+
+@media (max-width: 720px) {
+  .pick-meta,
+  .overlay-kicker,
+  .scoreboard dt,
+  .game-h,
+  .ladder-num,
+  .dist-row {
+    font-size: 0.7rem;
+  }
+}
+
+@media (max-width: 520px) {
+  .pick {
+    gap: 0.6rem;
+    padding: 0.7rem 0.75rem;
+  }
+
+  .pick-art {
+    width: 34px;
+    height: 34px;
+  }
+
+  .pick-name {
+    font-size: 0.95rem;
+  }
+
+  .pick-cat,
+  .brand-name {
+    display: none;
+  }
+
+  .nav-back {
+    width: 44px;
+    height: 44px;
+    padding: 0;
+  }
+
+  .nav-back span {
+    display: none;
+  }
+
+  .cd-key {
+    height: 50px;
+    font-size: 0.9rem;
+  }
+
+  .scoreboard--4 dd {
+    font-size: 1.1rem;
+  }
+}

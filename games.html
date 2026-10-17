@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Arcade — Al-Amin Mahfuzur Rahman</title>
+  <meta name="description" content="Five small browser games for a short break — Dino Jump, Stack 2048, Deploy Tower, Rickshaw Rush and Code-dle — hand-built in vanilla JavaScript by Al-Amin Mahfuzur Rahman." />
+  <meta name="author" content="Al-Amin Mahfuzur Rahman" />
+  <meta name="theme-color" content="#f2f5f1" />
+  <meta name="color-scheme" content="light dark" />
+  <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=Martian+Mono:wght@400;500&family=Tiro+Bangla&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="css/v3.css" />
+  <link rel="stylesheet" href="css/games.css" />
+  <script>
+    // Apply the saved theme before first paint (light by default). Shared with index.html.
+    (function () {
+      var theme = 'light';
+      try {
+        var saved = localStorage.getItem('v3-theme');
+        if (saved === 'light' || saved === 'dark' || saved === 'claude') theme = saved;
+      } catch (e) {}
+      var root = document.documentElement;
+      root.setAttribute('data-theme', theme);
+      root.classList.add('js');
+    })();
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="nav" data-nav>
+    <div class="wrap nav-inner">
+      <a class="brand" href="index.html" aria-label="Mahfuzur Rahman, back to portfolio">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span class="brand-name">Mahfuzur Rahman</span>
+      </a>
+
+      <div class="nav-actions">
+        <button class="icon-btn" type="button" data-sound-toggle aria-pressed="true" aria-label="Sound on">
+          <svg class="i-sound-on" viewBox="0 0 20 20" aria-hidden="true"><path d="M3.5 8v4h3l4 3.5v-11L6.5 8z" /><path d="M13.5 7.5a3.5 3.5 0 0 1 0 5M15.5 5.5a6.5 6.5 0 0 1 0 9" /></svg>
+          <svg class="i-sound-off" viewBox="0 0 20 20" aria-hidden="true"><path d="M3.5 8v4h3l4 3.5v-11L6.5 8z" /><path d="M13.5 8l4 4M17.5 8l-4 4" /></svg>
+        </button>
+        <div class="theme-switch" role="radiogroup" aria-label="Colour theme" data-theme-switch>
+          <button type="button" role="radio" aria-checked="true" data-theme-value="light" aria-label="Light theme" title="Light">
+            <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="3.4" /><path d="M10 2v1.8M10 16.2V18M2 10h1.8M16.2 10H18M4.3 4.3l1.3 1.3M14.4 14.4l1.3 1.3M4.3 15.7l1.3-1.3M14.4 5.6l1.3-1.3" /></svg>
+          </button>
+          <button type="button" role="radio" aria-checked="false" tabindex="-1" data-theme-value="dark" aria-label="Dark theme" title="Dark">
+            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M16.5 12.2A7 7 0 0 1 7.8 3.5a7 7 0 1 0 8.7 8.7z" /></svg>
+          </button>
+          <button type="button" role="radio" aria-checked="false" tabindex="-1" data-theme-value="claude" aria-label="Claude theme" title="Claude">
+            <span class="theme-dot" aria-hidden="true"></span>
+          </button>
+        </div>
+        <a class="btn btn-ghost btn-sm nav-back" href="index.html" aria-label="Back to portfolio">
+          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M13 8H3M7 4 3 8l4 4" /></svg>
+          <span>Portfolio</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main id="main" class="arcade-page">
+    <div class="wrap">
+      <header class="arcade-head">
+        <p class="eyebrow">Arcade · off the clock</p>
+        <h1 class="arcade-title">Five small games for a short break</h1>
+        <p class="section-lede">Hand-built in vanilla JavaScript: no engines, no downloads. Your best scores stay on this device.</p>
+      </header>
+
+      <div class="picker" role="tablist" aria-label="Games" data-picker>
+        <button class="pick" type="button" role="tab" id="tab-dino" aria-controls="panel-dino" aria-selected="true" data-game="dino">
+          <svg class="pick-art" viewBox="0 0 64 64" aria-hidden="true">
+            <path class="a1" d="M22 17h18v3H22zM22 20h3v3h-3zM28 20h12v3H28zM22 23h18v3H22zM22 26h9v3h-9zM10 29h3v3h-3zM19 29h15v3H19zM10 32h21v3H10zM34 32h3v3h-3zM13 35h18v3H13zM16 38h12v3H16zM16 41h3v3h-3zM25 41h3v3h-3zM16 44h6v3h-6zM25 44h6v3h-6z" />
+            <path class="a2" d="M47 30h5v18h-5zM43 34h3v7h-3zM43 38h6v3h-6zM53 32h3v7h-3zM50 36h6v3h-6z" />
+            <path class="lane-ink" d="M4 48.5h56" />
+          </svg>
+          <span class="pick-text">
+            <span class="pick-name">Dino Jump</span>
+            <span class="pick-meta"><span class="pick-cat">Runner · </span>Best <b data-best="dino">0</b></span>
+          </span>
+        </button>
+        <button class="pick" type="button" role="tab" id="tab-2048" aria-controls="panel-2048" aria-selected="false" tabindex="-1" data-game="2048">
+          <svg class="pick-art" viewBox="0 0 64 64" aria-hidden="true">
+            <rect class="a1" x="6" y="6" width="24" height="24" rx="5" /><rect class="a2" x="34" y="6" width="24" height="24" rx="5" />
+            <rect class="a3" x="6" y="34" width="24" height="24" rx="5" /><rect class="a4" x="34" y="34" width="24" height="24" rx="5" />
+          </svg>
+          <span class="pick-text">
+            <span class="pick-name">Stack 2048</span>
+            <span class="pick-meta"><span class="pick-cat">Puzzle · </span>Best <b data-best="2048">0</b></span>
+          </span>
+        </button>
+        <button class="pick" type="button" role="tab" id="tab-tower" aria-controls="panel-tower" aria-selected="false" tabindex="-1" data-game="tower">
+          <svg class="pick-art" viewBox="0 0 64 64" aria-hidden="true">
+            <path class="a3" d="M32 40 52 50 32 60 12 50z" /><path class="a2" d="M32 28 50 37 32 46 14 37z" /><path class="a1" d="M30 16 46 24 30 32 14 24z" />
+          </svg>
+          <span class="pick-text">
+            <span class="pick-name">Deploy Tower</span>
+            <span class="pick-meta"><span class="pick-cat">One tap · </span>Best <b data-best="tower">0</b></span>
+          </span>
+        </button>
+        <button class="pick" type="button" role="tab" id="tab-rickshaw" aria-controls="panel-rickshaw" aria-selected="false" tabindex="-1" data-game="rickshaw">
+          <svg class="pick-art" viewBox="0 0 64 64" aria-hidden="true">
+            <rect class="a4" x="10" y="4" width="44" height="56" rx="6" />
+            <path class="lane" d="M25 8v8M25 24v8M25 40v8M39 8v8M39 24v8M39 40v8" />
+            <rect class="a2" x="42" y="12" width="9" height="16" rx="3" /><rect class="sun" x="28" y="40" width="8" height="14" rx="3" />
+          </svg>
+          <span class="pick-text">
+            <span class="pick-name">Rickshaw Rush</span>
+            <span class="pick-meta"><span class="pick-cat">Arcade · </span>Best <b data-best="rickshaw">0</b></span>
+          </span>
+        </button>
+        <button class="pick" type="button" role="tab" id="tab-codedle" aria-controls="panel-codedle" aria-selected="false" tabindex="-1" data-game="codedle">
+          <svg class="pick-art" viewBox="0 0 64 64" aria-hidden="true">
+            <rect class="hit" x="4" y="24" width="10" height="10" rx="2" /><rect class="miss" x="16" y="24" width="10" height="10" rx="2" />
+            <rect class="near" x="28" y="24" width="10" height="10" rx="2" /><rect class="hit" x="40" y="24" width="10" height="10" rx="2" />
+            <rect class="miss" x="52" y="24" width="10" height="10" rx="2" />
+            <rect class="empty" x="4" y="38" width="10" height="10" rx="2" /><rect class="empty" x="16" y="38" width="10" height="10" rx="2" />
+            <rect class="empty" x="28" y="38" width="10" height="10" rx="2" /><rect class="empty" x="40" y="38" width="10" height="10" rx="2" />
+            <rect class="empty" x="52" y="38" width="10" height="10" rx="2" />
+          </svg>
+          <span class="pick-text">
+            <span class="pick-name">Code-dle</span>
+            <span class="pick-meta"><span class="pick-cat">Daily · </span>Streak <b data-best="codedle">0</b></span>
+          </span>
+        </button>
+      </div>
+
+      <!-- Dino Jump -->
+      <section class="game-panel game-panel--wide" role="tabpanel" id="panel-dino" aria-labelledby="tab-dino" data-panel="dino">
+        <div class="game-layout">
+          <div class="game-stage" data-stage></div>
+          <aside class="game-side">
+            <h2 class="game-name">Dino Jump</h2>
+            <p class="game-pitch">The offline-browser classic, redrawn: run as far as you can, jumping cacti and ducking under birds.</p>
+            <dl class="scoreboard">
+              <div><dt>Score</dt><dd data-score>0</dd></div>
+              <div><dt>Best</dt><dd data-best="dino">0</dd></div>
+            </dl>
+            <div class="game-actions">
+              <button class="btn btn-primary btn-sm" type="button" data-action="new">New run</button>
+            </div>
+            <h3 class="game-h">How to play</h3>
+            <ul class="game-help">
+              <li>Space or ↑ to jump. Hold it for a higher jump; tap for a short hop.</li>
+              <li>↓ to duck under birds, or to drop faster mid-air.</li>
+              <li>On a phone, tap to jump and swipe down to duck.</li>
+              <li>It speeds up as you run. A chime marks every 100 points.</li>
+            </ul>
+          </aside>
+        </div>
+      </section>
+
+      <!-- Stack 2048 -->
+      <section class="game-panel" role="tabpanel" id="panel-2048" aria-labelledby="tab-2048" data-panel="2048" hidden>
+        <div class="game-layout">
+          <div class="game-stage" data-stage></div>
+          <aside class="game-side">
+            <h2 class="game-name">Stack 2048</h2>
+            <p class="game-pitch">Slide tiles together to merge them up the stack, from HTML all the way to Senior.</p>
+            <dl class="scoreboard">
+              <div><dt>Score</dt><dd data-score>0</dd></div>
+              <div><dt>Best</dt><dd data-best="2048">0</dd></div>
+            </dl>
+            <div class="game-actions">
+              <button class="btn btn-primary btn-sm" type="button" data-action="new">New game</button>
+            </div>
+            <h3 class="game-h">How to play</h3>
+            <ul class="game-help">
+              <li>Arrow keys or WASD on a keyboard; swipe on the board on a phone.</li>
+              <li>Two equal tiles merge into the next step up. Reach <b>Senior</b> (2048) to win.</li>
+              <li>Your board is saved, so you can come back later.</li>
+            </ul>
+            <h3 class="game-h">The stack</h3>
+            <ol class="ladder" data-ladder></ol>
+          </aside>
+        </div>
+      </section>
+
+      <!-- Deploy Tower -->
+      <section class="game-panel" role="tabpanel" id="panel-tower" aria-labelledby="tab-tower" data-panel="tower" hidden>
+        <div class="game-layout">
+          <div class="game-stage" data-stage></div>
+          <aside class="game-side">
+            <h2 class="game-name">Deploy Tower</h2>
+            <p class="game-pitch">Every block is a release. Drop each one squarely on the last and see how high you can ship.</p>
+            <dl class="scoreboard">
+              <div><dt>Height</dt><dd data-score>0</dd></div>
+              <div><dt>Best</dt><dd data-best="tower">0</dd></div>
+            </dl>
+            <div class="game-actions">
+              <button class="btn btn-primary btn-sm" type="button" data-action="new">New tower</button>
+            </div>
+            <h3 class="game-h">How to play</h3>
+            <ul class="game-help">
+              <li>Tap the tower, or press Space, to drop the sliding block.</li>
+              <li>Whatever hangs over the edge gets trimmed, so the next block is smaller.</li>
+              <li>Land three perfect drops in a row and the block starts to grow back.</li>
+            </ul>
+          </aside>
+        </div>
+      </section>
+
+      <!-- Rickshaw Rush -->
+      <section class="game-panel" role="tabpanel" id="panel-rickshaw" aria-labelledby="tab-rickshaw" data-panel="rickshaw" hidden>
+        <div class="game-layout">
+          <div class="game-stage" data-stage></div>
+          <aside class="game-side">
+            <h2 class="game-name">Rickshaw Rush</h2>
+            <p class="game-pitch">Rush hour in Dhaka. Weave your rickshaw through buses and CNGs, and grab cha on the way.</p>
+            <dl class="scoreboard">
+              <div><dt>Score</dt><dd data-score>0</dd></div>
+              <div><dt>Best</dt><dd data-best="rickshaw">0</dd></div>
+            </dl>
+            <div class="game-actions">
+              <button class="btn btn-primary btn-sm" type="button" data-action="new">New ride</button>
+            </div>
+            <h3 class="game-h">How to play</h3>
+            <ul class="game-help">
+              <li>Left and right arrow keys (or A and D) change lane. On a phone, swipe or tap either side.</li>
+              <li>Each cup of cha is worth 25 points; distance adds the rest.</li>
+              <li>Press Space or tap the bell to ring it. It doesn't help, but it's Dhaka.</li>
+            </ul>
+          </aside>
+        </div>
+      </section>
+
+      <!-- Code-dle -->
+      <section class="game-panel" role="tabpanel" id="panel-codedle" aria-labelledby="tab-codedle" data-panel="codedle" hidden>
+        <div class="game-layout">
+          <div class="game-stage game-stage--free" data-stage></div>
+          <aside class="game-side">
+            <h2 class="game-name">Code-dle</h2>
+            <p class="game-pitch">Guess the five-letter tech word in six tries. A new word every day.</p>
+            <div class="seg" role="group" aria-label="Mode" data-modes>
+              <button type="button" aria-pressed="true" data-mode="daily">Daily</button>
+              <button type="button" aria-pressed="false" data-mode="practice">Practice</button>
+            </div>
+            <dl class="scoreboard scoreboard--4" data-stats>
+              <div><dt>Played</dt><dd data-stat="played">0</dd></div>
+              <div><dt>Win %</dt><dd data-stat="win">0</dd></div>
+              <div><dt>Streak</dt><dd data-stat="streak">0</dd></div>
+              <div><dt>Best</dt><dd data-stat="max">0</dd></div>
+            </dl>
+            <div class="dist" data-dist aria-label="Guess distribution"></div>
+            <h3 class="game-h">How to play</h3>
+            <ul class="game-help">
+              <li>Type on your keyboard or tap the keys, then press Enter.</li>
+              <li><span class="key-chip hit">Green</span> is the right letter in the right spot, <span class="key-chip near">gold</span> is in the word elsewhere, and <span class="key-chip miss">grey</span> isn't in the word.</li>
+              <li>Any five letters count as a guess. Words are tech terms, like REACT or NGINX.</li>
+            </ul>
+          </aside>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap footer-inner">
+      <p>© 2026 Al-Amin Mahfuzur Rahman</p>
+      <p class="footer-note">Every game here is plain JavaScript and Canvas — no libraries.</p>
+      <a href="index.html">Back to portfolio →</a>
+    </div>
+  </footer>
+
+  <div class="sr-only" aria-live="polite" data-announce></div>
+
+  <script src="js/v3.js" defer></script>
+  <script src="js/games/arcade.js" defer></script>
+  <script src="js/games/dino-jump.js" defer></script>
+  <script src="js/games/stack-2048.js" defer></script>
+  <script src="js/games/deploy-tower.js" defer></script>
+  <script src="js/games/rickshaw-rush.js" defer></script>
+  <script src="js/games/codedle.js" defer></script>
+</body>
+</html>

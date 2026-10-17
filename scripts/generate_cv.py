@@ -48,10 +48,36 @@ def main():
         sys.exit(res.returncode)
 
     if os.path.exists(pdf_file):
+        set_metadata(pdf_file)
         print(f"Success! PDF created at: {pdf_file} ({os.path.getsize(pdf_file)} bytes)")
     else:
         print("Failed to produce output PDF.")
         sys.exit(1)
+
+
+def set_metadata(pdf_file):
+    """Add author, subject and keywords (the browser only sets the title).
+
+    Optional: needs PyMuPDF (pip install pymupdf); without it the PDF is left as printed.
+    """
+    try:
+        import fitz
+    except ImportError:
+        print("Note: PyMuPDF not installed; skipping PDF author/subject/keywords.")
+        return
+
+    doc = fitz.open(pdf_file)
+    meta = doc.metadata or {}
+    meta.update({
+        'author': 'Al-Amin Mahfuzur Rahman',
+        'subject': 'CV - Senior Software Engineer (enterprise software and mobile apps)',
+        'keywords': 'Senior Software Engineer, C#, ASP.NET Core, Dynamics 365 Business Central, AL, '
+                    'Flutter, Android, iOS, AWS, Google Cloud, Firebase, MS SQL Server',
+    })
+    doc.set_metadata(meta)
+    doc.saveIncr()
+    doc.close()
+
 
 if __name__ == '__main__':
     main()

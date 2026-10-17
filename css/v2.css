@@ -1119,7 +1119,7 @@ img {
    -------------------------------------------------------------------------- */
 .skills-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(270px, 100%), 1fr));
   gap: 24px;
 }
 
@@ -1188,7 +1188,7 @@ img {
    -------------------------------------------------------------------------- */
 .credentials-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));
   gap: 24px;
 }
 
@@ -1442,7 +1442,54 @@ img {
   }
 }
 
+/* The 3D canvas bleeds 30px past its column; clip it sideways only, so the
+   page never scrolls horizontally while vertical overflow stays visible. */
+.hero-section {
+  overflow-x: clip;
+}
+
 @media (max-width: 768px) {
+  /* Compact phone header: icon-only theme and CV buttons. */
+  .navbar {
+    padding: 8px 10px 8px 14px;
+  }
+
+  .navbar-brand {
+    gap: 8px;
+    font-size: 0.95rem;
+    min-width: 0;
+  }
+
+  .brand-title-sub,
+  .theme-label-badge,
+  .theme-arrow,
+  .btn-cv-nav span {
+    display: none;
+  }
+
+  .nav-actions {
+    gap: 6px;
+  }
+
+  .theme-toggle-btn,
+  .btn-cv-nav {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    justify-content: center;
+  }
+
+  .nav-toggle-btn {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+  }
+
+  .navbar-wrap .container {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
   .nav-links {
     display: none;
     position: absolute;
@@ -1492,6 +1539,13 @@ img {
     margin-right: 0;
     text-align: center;
     word-break: break-all;
+  }
+}
+
+/* Narrowest phones: the MR badge stands in for the name. */
+@media (max-width: 400px) {
+  .navbar-brand .brand-name {
+    display: none;
   }
 }
 
@@ -1750,7 +1804,7 @@ img {
    -------------------------------------------------------------------------- */
 .personal-projects-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));
   gap: 24px;
 }
 
@@ -1892,3 +1946,84 @@ img {
   transform: translateY(-1px);
 }
 
+
+/* --------------------------------------------------------------------------
+   Phone layout fixes. Kept at the end of the file so they win over the
+   component rules above (the project pills and timeline are defined after
+   the main breakpoints).
+   -------------------------------------------------------------------------- */
+@media (max-width: 600px) {
+  .timeline-item {
+    gap: 14px;
+  }
+
+  .timeline-content {
+    min-width: 0;
+    padding: 18px 16px;
+  }
+
+  .timeline-content:hover {
+    transform: none;
+  }
+
+  .project-pill {
+    flex-wrap: wrap;
+    max-width: 100%;
+    row-gap: 2px;
+  }
+
+  .portrait-card {
+    width: 100%;
+    max-width: 290px;
+  }
+
+  .floating-badge {
+    right: 8px;
+  }
+
+  .personal-title-row > div {
+    min-width: 0;
+  }
+
+  /* Centre the role lines to match the centred hero text. */
+  .hero-role,
+  .hero-specialty {
+    justify-content: center;
+  }
+
+  .specialty-dash {
+    display: none;
+  }
+
+  .personal-domain-link {
+    flex-wrap: wrap;
+    overflow-wrap: anywhere;
+  }
+}
+
+/* Collapse the menu earlier: between 769px and 1000px (e.g. phones in
+   landscape) the six desktop links don't fit beside the actions. */
+@media (min-width: 769px) and (max-width: 1000px) {
+  .nav-links {
+    display: none;
+    position: absolute;
+    top: 72px;
+    left: 16px;
+    right: 16px;
+    background: #ffffff;
+    border: 1px solid var(--surface-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-xl);
+    flex-direction: column;
+    padding: 16px;
+    gap: 8px;
+  }
+
+  .nav-links.mobile-open {
+    display: flex;
+  }
+
+  .nav-toggle-btn {
+    display: block;
+  }
+}
