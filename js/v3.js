@@ -790,6 +790,7 @@
       ],
       stack: ['C#', 'ASP.NET MVC 5', 'MS SQL Server', 'ZKT device SDK', 'jQuery', 'Bootstrap 3']
     },
+    // personal
     'mapcars': {
       client: 'MapCars Ltd',
       title: 'MapCars UK — ride-hailing apps',
@@ -874,6 +875,7 @@
       ],
       stack: ['Next.js (App Router)', 'React', 'Tailwind CSS', 'Supabase', 'Netlify Edge']
     }
+    // /personal
   };
 
   // Hero tour: one stop per client region, in order of significance.
@@ -881,9 +883,12 @@
     { project: 'western-digital', to: { lat: 37.34, lon: -121.89 }, tag: 'Western Digital', place: 'San Jose, USA', route: 'Dhaka → USA', title: 'Western Digital', sub: 'CIO Management Application, in progress via Altios' },
     { project: 'bc-localization', to: { lat: 47.67, lon: -122.12 }, tag: 'Microsoft', place: 'Redmond, USA', route: 'Dhaka → USA', title: 'Microsoft', sub: 'Business Central localization for the Bangladesh market' },
     { project: 'piramids', to: { lat: 34.17, lon: -118.61 }, tag: 'PIRAMIDS', place: 'Woodland Hills, USA', route: 'Dhaka → USA', title: 'PIRAMIDS', sub: 'Real estate portfolio management suite' },
+    // personal
     { project: 'mapcars', to: { lat: 50.84, lon: -0.78 }, tag: 'MapCars', place: 'Chichester, UK', route: 'Dhaka → Chichester, UK', title: 'MapCars UK', sub: 'Ride-hailing apps on Google Play and the App Store' },
     { project: 'motorshut', to: { lat: 51.52, lon: 0.19 }, tag: 'Motorshut', place: 'Rainham, UK', route: 'Dhaka → Rainham, UK', title: 'Motorshut', sub: 'Used-car marketplace' },
     { project: null, to: null, tag: 'Dhaka', route: 'Dhaka → Bangladesh', title: 'Home market', sub: 'VetMart BD, AykorGPT, Cumilla Resort and four enterprise systems' }
+    // /personal
+    // pro: { project: null, to: null, tag: 'Dhaka', route: 'Dhaka → Bangladesh', title: 'Home market', sub: 'Factory ERP, POS, task management and biometric payroll' }
   ];
 
   /* ------------------------------------------------------------------------
@@ -975,7 +980,7 @@
         ui.openLabel.textContent = 'Open project';
       } else {
         ui.open.removeAttribute('data-project');
-        ui.openLabel.textContent = 'See live projects';
+        ui.openLabel.textContent = document.getElementById('live') ? 'See live projects' : 'See the work';
       }
       ticks.forEach(function (t, i) {
         if (i === index) t.setAttribute('aria-current', 'true');
@@ -997,7 +1002,7 @@
 
     ui.open.addEventListener('click', function () {
       if (!ui.open.hasAttribute('data-project')) {
-        document.getElementById('live').scrollIntoView({ behavior: g.motion ? 'smooth' : 'auto' });
+        (document.getElementById('live') || document.getElementById('work')).scrollIntoView({ behavior: g.motion ? 'smooth' : 'auto' });
       }
     });
 

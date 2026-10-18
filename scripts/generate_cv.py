@@ -1,18 +1,26 @@
 """
-Utility script to compile cv.html into Net_CV_MahfuzurRahman.pdf using Edge/Chrome headless.
+Utility script to compile the CV sources into PDFs using Edge/Chrome headless:
+
+  cv/full.html -> Net_CV_MahfuzurRahman.pdf            (full portfolio, GitHub Pages)
+  cv/pro.html  -> cv/Net_CV_MahfuzurRahman.pro.pdf     (no independent projects, Cloudflare site)
+
+cv/pro.html is generated from cv/full.html by scripts/build-pro.js, which this runs first.
 """
 import os
 import subprocess
 import sys
 
+BUILDS = [
+    ('cv/full.html', 'Net_CV_MahfuzurRahman.pdf'),
+    ('cv/pro.html', 'cv/Net_CV_MahfuzurRahman.pro.pdf'),
+]
+
 def main():
     root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    html_file = os.path.join(root_dir, 'cv.html')
-    pdf_file = os.path.join(root_dir, 'Net_CV_MahfuzurRahman.pdf')
 
-    if not os.path.exists(html_file):
-        print(f"Error: {html_file} does not exist.")
-        sys.exit(1)
+    res = subprocess.run(['node', os.path.join(root_dir, 'scripts', 'build-pro.js'), '--cv'])
+    if res.returncode != 0:
+        sys.exit(res.returncode)
 
     edge_candidates = [
         r'C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe',
@@ -29,6 +37,15 @@ def main():
 
     if not browser_exe:
         print("Error: Could not locate Microsoft Edge or Google Chrome executable.")
+        sys.exit(1)
+
+    for html_rel, pdf_rel in BUILDS:
+        compile_pdf(browser_exe, os.path.join(root_dir, html_rel), os.path.join(root_dir, pdf_rel))
+
+
+def compile_pdf(browser_exe, html_file, pdf_file):
+    if not os.path.exists(html_file):
+        print(f"Error: {html_file} does not exist.")
         sys.exit(1)
 
     print(f"Compiling {html_file} -> {pdf_file} using {browser_exe}...")
@@ -53,7 +70,6 @@ def main():
     else:
         print("Failed to produce output PDF.")
         sys.exit(1)
-
 
 def set_metadata(pdf_file):
     """Add author, subject and keywords (the browser only sets the title).

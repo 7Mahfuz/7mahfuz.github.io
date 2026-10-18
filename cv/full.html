@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Al-Amin Mahfuzur Rahman — Senior Software Engineer — CV</title>
+  <meta name="author" content="Al-Amin Mahfuzur Rahman" />
+  <meta name="description" content="CV of Al-Amin Mahfuzur Rahman, Senior Software Engineer: enterprise software, Dynamics 365 Business Central and Flutter mobile apps." />
+
+
+  <style>
+    /* Print-first CV, styled after the v3 portfolio (light theme): deep green ink,
+       jade accent and the red "flag sun" mark. Source for Net_CV_MahfuzurRahman.pdf —
+       rebuild with: python scripts/generate_cv.py
+       Fonts are bundled static TTFs (assets/fonts/cv, SIL OFL) so the PDF embeds
+       standard TrueType text and builds offline. */
+    @font-face { font-family: "Instrument Sans CV"; src: url("../assets/fonts/cv/InstrumentSans-Regular.ttf") format("truetype"); font-weight: 400; font-style: normal; }
+    @font-face { font-family: "Instrument Sans CV"; src: url("../assets/fonts/cv/InstrumentSans-Italic.ttf") format("truetype"); font-weight: 400; font-style: italic; }
+    @font-face { font-family: "Instrument Sans CV"; src: url("../assets/fonts/cv/InstrumentSans-SemiBold.ttf") format("truetype"); font-weight: 600; font-style: normal; }
+    @font-face { font-family: "Instrument Sans CV"; src: url("../assets/fonts/cv/InstrumentSans-Bold.ttf") format("truetype"); font-weight: 700; font-style: normal; }
+    @font-face { font-family: "Bricolage Grotesque CV"; src: url("../assets/fonts/cv/BricolageGrotesque-SemiBold.ttf") format("truetype"); font-weight: 600; font-style: normal; }
+    @font-face { font-family: "Bricolage Grotesque CV"; src: url("../assets/fonts/cv/BricolageGrotesque-Bold.ttf") format("truetype"); font-weight: 700; font-style: normal; }
+
+    :root {
+      --ink: #1f332c;
+      --text: #2a3d36;
+      --muted: #4d6158;
+      --dim: #62756b;
+      --accent: #2c7360;
+      --red: #c93c4a;
+      --line: #dbe3dd;
+      --tint: #f2f5f1;
+    }
+
+    @page {
+      size: A4;
+      margin: 13mm 15mm 14mm;
+
+      @bottom-left {
+        content: "Al-Amin Mahfuzur Rahman · Senior Software Engineer";
+        font: 400 7pt "Instrument Sans CV", "Segoe UI", sans-serif;
+        color: #62756b;
+      }
+
+      @bottom-right {
+        content: "Page " counter(page) " of " counter(pages);
+        font: 400 7pt "Instrument Sans CV", "Segoe UI", sans-serif;
+        color: #62756b;
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    body {
+      margin: 0;
+      background: #ffffff;
+      color: var(--text);
+      font: 400 9.1pt/1.45 "Instrument Sans CV", "Segoe UI", system-ui, sans-serif;
+    }
+
+    /* On screen, show the sheet like a page. */
+    @media screen {
+      body {
+        background: #e9eee9;
+        padding: 24px 0;
+      }
+
+      .sheet {
+        width: 210mm;
+        margin: 0 auto;
+        padding: 13mm 15mm 14mm;
+        background: #ffffff;
+        box-shadow: 0 10px 40px -12px rgba(31, 51, 44, 0.25);
+      }
+    }
+
+    /* ----------------------------------------------------------------------
+       Header
+       ---------------------------------------------------------------------- */
+    .head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6mm;
+      padding-bottom: 4.2mm;
+      border-bottom: 1.4pt solid var(--accent);
+      margin-bottom: 4.6mm;
+    }
+
+    .head-text {
+      min-width: 0;
+    }
+
+    /* Round portrait with a thin jade ring, like the v3 contact card. */
+    .photo {
+      flex: none;
+      width: 27mm;
+      height: 27mm;
+      border-radius: 50%;
+      object-fit: cover;
+      box-shadow: 0 0 0 0.9mm #ffffff, 0 0 0 1.25mm var(--accent);
+      /* Keep the ring inside the printable area so the page margin can't clip it. */
+      margin: 1.4mm 1.4mm 1.4mm 0;
+    }
+
+    .name {
+      display: flex;
+      align-items: center;
+      gap: 3mm;
+      font: 700 24pt/1.05 "Bricolage Grotesque CV", "Segoe UI", sans-serif;
+      letter-spacing: -0.025em;
+      color: var(--ink);
+    }
+
+    .mark {
+      flex: none;
+      width: 3.4mm;
+      height: 3.4mm;
+      border-radius: 50%;
+      background: var(--red);
+      box-shadow: 0 0 0 1.1mm rgba(201, 60, 74, 0.16);
+    }
+
+    .role {
+      margin: 1.6mm 0 2.6mm;
+      font-size: 10.6pt;
+      color: var(--muted);
+    }
+
+    .role strong {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .contact {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1mm 0;
+      padding: 0;
+      list-style: none;
+      font-size: 8.6pt;
+      color: var(--muted);
+    }
+
+    .contact + .contact {
+      margin-top: 0.8mm;
+    }
+
+    .contact li:not(:last-child)::after {
+      content: "·";
+      margin: 0 2.4mm;
+      color: #a9b8b0;
+    }
+
+    .contact a {
+      color: var(--ink);
+    }
+
+    /* ----------------------------------------------------------------------
+       Sections
+       ---------------------------------------------------------------------- */
+    section {
+      margin-bottom: 4.4mm;
+    }
+
+    h2 {
+      display: flex;
+      align-items: center;
+      gap: 2.6mm;
+      margin-bottom: 2.4mm;
+      font: 700 7.8pt/1 "Instrument Sans CV", "Segoe UI", sans-serif;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    h2::after {
+      content: "";
+      flex: 1;
+      height: 0.6pt;
+      background: var(--line);
+    }
+
+    /* Short sections stay on one page with their heading. */
+    .keep {
+      break-inside: avoid;
+    }
+
+    h2 {
+      break-after: avoid;
+    }
+
+    .summary {
+      color: var(--text);
+    }
+
+    /* Skills: label and a plain comma list — easy for people and for ATS parsers. */
+    .skills {
+      display: grid;
+      gap: 1.1mm;
+    }
+
+    .skills div {
+      display: grid;
+      grid-template-columns: 31mm 1fr;
+      gap: 3mm;
+    }
+
+    .skills dt {
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    /* ----------------------------------------------------------------------
+       Experience
+       ---------------------------------------------------------------------- */
+    .job {
+      margin-bottom: 3.6mm;
+      break-inside: avoid;
+    }
+
+    .job:last-child {
+      margin-bottom: 0;
+    }
+
+    .job-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 4mm;
+    }
+
+    .job-title {
+      font: 600 10.6pt/1.25 "Bricolage Grotesque CV", "Segoe UI", sans-serif;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+    }
+
+    .job-title .at {
+      font-weight: 500;
+      color: var(--muted);
+    }
+
+    .job-title a {
+      color: var(--accent);
+    }
+
+    .job-when {
+      flex: none;
+      font-size: 8.4pt;
+      color: var(--dim);
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    .job-scope {
+      margin: 0.5mm 0 1.4mm;
+      font-size: 8.6pt;
+      font-style: italic;
+      color: var(--muted);
+    }
+
+    .bullets {
+      display: grid;
+      gap: 1mm;
+      padding: 0;
+      list-style: none;
+    }
+
+    .bullets li {
+      position: relative;
+      padding-left: 4mm;
+    }
+
+    .bullets li::before {
+      content: "";
+      position: absolute;
+      left: 0.3mm;
+      top: 0.62em;
+      width: 2mm;
+      height: 0.7pt;
+      background: var(--accent);
+    }
+
+    .bullets a {
+      color: var(--accent);
+    }
+
+    /* ----------------------------------------------------------------------
+       Projects
+       ---------------------------------------------------------------------- */
+    .projects {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2.4mm 5mm;
+    }
+
+    .proj {
+      padding: 2.4mm 3mm 2.6mm;
+      border-left: 1.4pt solid var(--accent);
+      background: var(--tint);
+      break-inside: avoid;
+    }
+
+    .proj h3 {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 3mm;
+      font: 600 9.8pt/1.25 "Bricolage Grotesque CV", "Segoe UI", sans-serif;
+      color: var(--ink);
+    }
+
+    .proj h3 a {
+      font: 500 8pt "Instrument Sans CV", "Segoe UI", sans-serif;
+      color: var(--accent);
+      white-space: nowrap;
+    }
+
+    .proj p {
+      margin-top: 0.8mm;
+      font-size: 8.6pt;
+    }
+
+    .proj .stack {
+      color: var(--dim);
+      font-size: 8pt;
+    }
+
+    /* ----------------------------------------------------------------------
+       Education, training, achievements
+       ---------------------------------------------------------------------- */
+    .rows {
+      display: grid;
+      gap: 1.6mm;
+      padding: 0;
+      list-style: none;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 0.4mm 5mm;
+      break-inside: avoid;
+    }
+
+    .row-title {
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    .row-meta {
+      text-align: right;
+      font-size: 8.4pt;
+      color: var(--dim);
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    .row-sub {
+      grid-column: 1 / -1;
+      font-size: 8.6pt;
+      color: var(--muted);
+    }
+
+    .row-sub strong {
+      font-weight: 600;
+    }
+
+    /* Phones and small tablets: the sheet flows to the screen width.
+       Print (and so the PDF) is unaffected. */
+    @media screen and (max-width: 840px) {
+      body {
+        padding: 0;
+        background: #ffffff;
+      }
+
+      /* Print sizes are in pt (12px body); scale the sheet so it reads like a
+         phone page. Paddings are pre-divided by the zoom (13px -> ~16px). */
+      .sheet {
+        width: auto;
+        zoom: 1.22;
+        padding: 18px 13px 26px;
+        box-shadow: none;
+      }
+
+      .head {
+        flex-direction: column-reverse;
+        align-items: flex-start;
+        gap: 12px;
+      }
+
+      .photo {
+        width: 72px;
+        height: 72px;
+        margin: 4px;
+      }
+
+      .name {
+        font-size: 22px;
+      }
+
+      .contact {
+        flex-direction: column;
+      }
+
+      .contact li::after {
+        display: none;
+      }
+
+      .skills div,
+      .row,
+      .projects {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      .skills div {
+        gap: 0;
+      }
+
+      .job-head {
+        flex-direction: column;
+        gap: 2px;
+      }
+
+      .job-when,
+      .row-meta {
+        white-space: normal;
+        text-align: left;
+      }
+
+      .proj h3 {
+        flex-wrap: wrap;
+      }
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    h1,
+    h2,
+    h3,
+    p,
+    ul,
+    dl,
+    dd {
+      margin: 0;
+    }
+
+    strong {
+      color: var(--ink);
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <main class="sheet">
+
+    <header class="head">
+      <div class="head-text">
+        <h1 class="name"><span class="mark" aria-hidden="true"></span>Al-Amin Mahfuzur Rahman</h1>
+        <p class="role"><strong>Senior Software Engineer</strong> — enterprise software and mobile apps (Android &amp; iOS)</p>
+        <ul class="contact">
+          <li>Uttara, Dhaka, Bangladesh (GMT+6)</li>
+          <li><a href="tel:+8801625632942">+880 1625-632942</a> (phone &amp; <a href="https://wa.me/8801625632942">WhatsApp</a>)</li>
+        </ul>
+        <ul class="contact">
+          <li><a href="mailto:7mahfuzur.rahman@gmail.com">7mahfuzur.rahman@gmail.com</a></li>
+          <li>Portfolio: <a href="https://7mahfuz.github.io/">7mahfuz.github.io</a></li>
+        </ul>
+      </div>
+      <img class="photo" src="../assets/img/portrait.jpg" alt="Photo of Al-Amin Mahfuzur Rahman" />
+    </header>
+
+    <section>
+      <h2>Summary</h2>
+      <p class="summary">
+        Senior Software Engineer with <strong>6+ years</strong> building enterprise platforms, Microsoft Dynamics 365 Business Central extensions and cross-platform mobile apps for Android and iOS. Currently engineering the <strong>CIO Management Application for Western Digital</strong>, and previously built the first version of <strong>GoGlobal's</strong> management platform — both delivered through <a href="https://altios.ai/"><strong>Altios</strong></a> — alongside Business Central localization for <strong>Microsoft</strong>. Works end to end, from ASP.NET Core and SQL Server back ends to AWS, Google Cloud and Firebase, and ships apps to Google Play and the App Store.
+      </p>
+    </section>
+
+    <section>
+      <h2>Skills</h2>
+      <dl class="skills">
+        <div><dt>Enterprise &amp; ERP</dt><dd>Dynamics 365 Business Central, AL, RDLC reports, Crystal Reports, NBR fiscal localization (VAT, tax)</dd></div>
+        <div><dt>Back end &amp; web</dt><dd>C#, ASP.NET Core, ASP.NET MVC 5, Entity Framework Core, RESTful APIs, .NET Web Forms, Next.js, React, jQuery &amp; Bootstrap</dd></div>
+        <div><dt>Mobile</dt><dd>Flutter, Dart, Android, iOS, Bloc / Provider, Firebase Auth &amp; FCM, Google Play Console, App Store Connect &amp; TestFlight</dd></div>
+        <div><dt>Cloud &amp; DevOps</dt><dd>AWS (EC2, S3, RDS), Google Cloud VMs (Compute Engine), Firebase, Linux / Ubuntu, Nginx, CI/CD pipelines, SSL/TLS, Vercel, Netlify</dd></div>
+        <div><dt>Data</dt><dd>MS SQL Server, T-SQL stored procedures, PostgreSQL / Prisma, Firestore</dd></div>
+        <div><dt>Languages</dt><dd>C#, Dart, JavaScript (ES6+), SQL, HTML &amp; CSS, C / C++</dd></div>
+        <div><dt>Architecture</dt><dd>Clean Architecture, N-tier, Repository &amp; Unit of Work, SOLID, Facade pattern, unit testing</dd></div>
+      </dl>
+    </section>
+
+    <section>
+      <h2>Experience</h2>
+
+      <article class="job">
+        <header class="job-head">
+          <h3 class="job-title">Senior Software Engineer <span class="at">at</span> <a href="https://bizzntek.com/">Bizzntek Ltd.</a></h3>
+          <p class="job-when">Oct 2020 – Present · Uttara, Dhaka</p>
+        </header>
+        <p class="job-scope">Enterprise web applications, Dynamics 365 Business Central extensions, cloud and high-throughput API back ends.</p>
+        <ul class="bullets">
+          <li><strong>Western Digital — CIO Management Application</strong> (client via <a href="https://altios.ai/">Altios</a>, ongoing). Engineering the executive CIO application for <a href="https://www.westerndigital.com/">Western Digital</a>: IT governance workflows, integration pipelines across enterprise systems, high-throughput back-end APIs and operational analytics.</li>
+          <li><strong>GoGlobal — first-version management platform</strong> (client via <a href="https://altios.ai/">Altios</a>). Built the foundational platform for <a href="https://goglobal.com/">GoGlobal's</a> Employer of Record (EOR) business: entity setup, cross-border compliance tracking and ERP data synchronization.</li>
+          <li><strong>Microsoft — Dynamics 365 Business Central localization for Bangladesh.</strong> Key developer of AL extensions implementing National Board of Revenue (NBR) rules: VAT withholding, tax computation and statutory audit reporting.</li>
+          <li><strong>PIRAMIDS — real estate portfolio management (USA).</strong> Delivered property, leasing and hospitality modules for <a href="https://piramids.com/">PIRAMIDS</a>: booking engines, automated tenant invoicing, payment-gateway integration and financial ledgers.</li>
+        </ul>
+      </article>
+
+      <article class="job">
+        <header class="job-head">
+          <h3 class="job-title">Software Engineer <span class="at">at</span> <a href="https://smartsofttechnology.com/">SmartSoft Technology</a></h3>
+          <p class="job-when">Mar 2019 – Sep 2020 · Mirpur, Dhaka</p>
+        </header>
+        <p class="job-scope">Manufacturing ERP systems, point-of-sale platforms and SQL Server solutions.</p>
+        <ul class="bullets">
+          <li><strong>Factory Management ERP</strong> (MH Golden Jute Ltd.). Raw jute intake, batch production workflows, warehouse inventory and automated double-entry accounting.</li>
+          <li><strong>Smart Sell POS &amp; inventory</strong> (Kushtia Tech). Role-based field-sales order booking, multi-warehouse stock synchronization and ledger reporting.</li>
+          <li><strong>Task &amp; workflow management</strong> (MH Golden Jute Ltd.). Cross-department task assignment with audit trails, milestone tracking and productivity reports.</li>
+        </ul>
+      </article>
+
+      <article class="job">
+        <header class="job-head">
+          <h3 class="job-title">Software Engineer <span class="at">at</span> <a href="https://gtrbd.com/">Genuine Technology &amp; Research Ltd. (GTRBD)</a></h3>
+          <p class="job-when">Oct 2018 – Feb 2019 · Uttara, Dhaka</p>
+        </header>
+        <p class="job-scope">Biometric hardware integration, attendance and automated payroll.</p>
+        <ul class="bullets">
+          <li><strong>Garments HR &amp; biometric payroll</strong> (FnF Fashion BD). Integrated ZKT fingerprint devices with SQL Server and built overtime, shift-rotation and monthly payroll calculations for hundreds of factory workers.</li>
+        </ul>
+      </article>
+    </section>
+
+    <!-- personal -->
+    <section class="keep">
+      <h2>Independent projects — live</h2>
+      <div class="projects">
+        <article class="proj">
+          <h3>MapCars UK <a href="https://mapcars.uk/">mapcars.uk</a></h3>
+          <p>Ride-hailing for England's South Coast. Passenger and driver apps in Flutter on Google Play and the App Store; real-time dispatch on Firebase; back end on Google Cloud VMs.</p>
+          <p class="stack">Flutter · Firebase Auth &amp; FCM · Google Cloud · Next.js</p>
+        </article>
+        <article class="proj">
+          <h3>Motorshut <a href="https://motorshut.com/">motorshut.com</a></h3>
+          <p>Used-car marketplace in Rainham, UK: live vehicle inventory and filtering, MOT verification, consultation booking and Schema.org JSON-LD for search.</p>
+          <p class="stack">Web architecture · AWS · SEO · Lead pipeline</p>
+        </article>
+        <article class="proj">
+          <h3>AykorGPT <a href="https://aykorgpt.vercel.app/">aykorgpt.vercel.app</a></h3>
+          <p>AI advisor for Bangladesh tax, VAT and customs law: 50,000+ NBR SROs indexed, cited answers in under 0.5 s, progressive tax calculator.</p>
+          <p class="stack">Next.js 15 · AI citation engine · Vercel</p>
+        </article>
+        <article class="proj">
+          <h3>VetMart BD <a href="https://vetmartbd.vercel.app/">vetmartbd.vercel.app</a></h3>
+          <p>Veterinary and agro-pharma marketplace for farm owners, vets and breeders, with species filters and full Bengali and English support.</p>
+          <p class="stack">Next.js · React · Tailwind CSS · PostgreSQL / Prisma</p>
+        </article>
+        <article class="proj">
+          <h3>Cumilla Resort <a href="https://resortmahfuz.netlify.app/">resortmahfuz.netlify.app</a></h3>
+          <p>Booking site for an eco-heritage resort in the Lalmai Hills near Shalban Vihara: villa availability, heritage tours, bilingual English and Bengali.</p>
+          <p class="stack">Next.js · Supabase · Netlify Edge</p>
+        </article>
+      </div>
+    </section>
+    <!-- /personal -->
+
+    <section class="keep">
+      <h2>Competitive programming</h2>
+      <ul class="rows">
+        <li class="row"><span class="row-title">ICPC Dhaka Regional — onsite contestant</span><span class="row-meta">2016</span></li>
+        <li class="row"><span class="row-title">National Computer Programming Contest (NCPC) — onsite contestant</span><span class="row-meta">2016</span></li>
+        <li class="row">
+          <span class="row-title">Online judges</span><span class="row-meta"></span>
+          <span class="row-sub">Codeforces <strong>7Mahfuz</strong> · UVa <strong>7mahfuz</strong> · HackerRank <strong>7Mahfuz</strong> — data structures, dynamic programming and graph algorithms.</span>
+        </li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Education</h2>
+      <ul class="rows">
+        <li class="row">
+          <span class="row-title">B.Sc. in Computer Science &amp; Engineering</span><span class="row-meta">2018 · CGPA 3.04 / 4.00</span>
+          <span class="row-sub">Institute of Science, Trade and Technology (ISTT), Dhaka</span>
+        </li>
+        <li class="row">
+          <span class="row-title">Higher Secondary Certificate (Science)</span><span class="row-meta">2013 · GPA 4.30 / 5.00</span>
+          <span class="row-sub">Cumilla Victoria Government College</span>
+        </li>
+        <li class="row">
+          <span class="row-title">Secondary School Certificate (Science)</span><span class="row-meta">2011 · GPA 5.00 / 5.00</span>
+          <span class="row-sub">Cumilla Zilla School</span>
+        </li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Training</h2>
+      <ul class="rows">
+        <li class="row">
+          <span class="row-title">Full Stack ASP.NET MVC — BASIS Institute of Technology &amp; Management (BITM)</span><span class="row-meta">Jun – Sep 2018</span>
+          <span class="row-sub">C#, ASP.NET MVC 5, N-tier architecture, Repository pattern, Entity Framework, SQL Server</span>
+        </li>
+        <li class="row">
+          <span class="row-title">Full Stack ASP.NET MVC — Devskill Training Academy</span><span class="row-meta">Jul – Sep 2017</span>
+          <span class="row-sub">C#, object-oriented programming, MVC architecture, database design, web services</span>
+        </li>
+      </ul>
+    </section>
+
+  </main>
+</body>
+</html>
