@@ -43,7 +43,8 @@ function strip(text, kind, file) {
   const m = MARKERS[kind];
   const out = [];
   let open = 0;
-  text.split('\n').forEach((line, i) => {
+  // Windows checkouts have CRLF line endings; normalise so `pro:` lines match.
+  text.split(/\r?\n/).forEach((line, i) => {
     const t = line.trim();
     if (t === m.start) {
       if (open) throw new Error(`${file}:${i + 1}: nested personal block`);
