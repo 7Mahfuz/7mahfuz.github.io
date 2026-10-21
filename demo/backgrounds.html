@@ -1,0 +1,1211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Background Lab</title>
+  <meta name="description" content="Seven scroll- and mouse-reactive background animations for the portfolio." />
+  <meta name="robots" content="noindex" />
+  <link rel="icon" type="image/x-icon" href="../assets/img/favicon.ico" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=Martian+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <script>
+    (function () {
+      var t = 'light';
+      try {
+        var s = localStorage.getItem('v3-theme');
+        if (s === 'light' || s === 'dark' || s === 'claude') t = s;
+      } catch (e) {}
+      document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script>
+  <style>
+    :root,
+    :root[data-theme="light"] {
+      --bg: #f2f5f1; --bg-alt: #e7ede7; --surface: #fafbf9;
+      --line: rgba(31, 51, 44, 0.12); --line-strong: rgba(31, 51, 44, 0.24);
+      --ink: #1f332c; --muted: #4d6158; --accent: #2c7360; --red: #c93c4a;
+      --globe-dot: 34, 82, 64; --globe-disc-mid: #d8e6dc;
+    }
+    :root[data-theme="dark"] {
+      --bg: #131a18; --bg-alt: #0f1513; --surface: #18221f;
+      --line: rgba(226, 232, 228, 0.1); --line-strong: rgba(226, 232, 228, 0.22);
+      --ink: #e2e8e4; --muted: #a3b3ab; --accent: #8fc6b0; --red: #ec6f78;
+      --globe-dot: 143, 198, 176; --globe-disc-mid: #1d2c26;
+    }
+    :root[data-theme="claude"] {
+      --bg: #faf9f5; --bg-alt: #f0eee6; --surface: #ffffff;
+      --line: rgba(31, 30, 29, 0.11); --line-strong: rgba(31, 30, 29, 0.22);
+      --ink: #1f1e1d; --muted: #5e5d59; --accent: #a84e2d; --red: #d97757;
+      --globe-dot: 61, 57, 50; --globe-disc-mid: #f2eee4;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body { margin: 0; background: var(--bg); color: var(--ink); font: 400 16px/1.6 "Instrument Sans", system-ui, sans-serif; }
+    button { font: inherit; color: inherit; }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+    .bg { position: fixed; inset: 0; width: 100%; height: 100%; display: block; z-index: 0; background: var(--bg); opacity: 0; }
+
+    /* Top bar */
+    .top {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 3; display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+      padding: 14px clamp(16px, 4vw, 40px);
+    }
+    .brand { display: inline-flex; align-items: center; gap: 10px; font: 650 18px/1 "Bricolage Grotesque", sans-serif; color: var(--ink); text-decoration: none; }
+    .mark { width: 14px; height: 14px; border-radius: 50%; background: var(--red); box-shadow: 0 0 0 4px color-mix(in srgb, var(--red) 18%, transparent); }
+    .pill-group {
+      display: inline-flex; gap: 2px; padding: 3px; border: 1px solid var(--line-strong); border-radius: 999px;
+      background: color-mix(in srgb, var(--surface) 80%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    }
+    .pill-group a, .pill-group button { border: 0; background: none; cursor: pointer; padding: 6px 12px; border-radius: 999px; font-size: 13px; font-weight: 500; color: var(--muted); text-decoration: none; }
+    .pill-group [aria-current="page"], .pill-group [aria-checked="true"], .pill-group [aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+    .top .theme { margin-left: auto; }
+
+    /* Mock page content */
+    main { position: relative; z-index: 1; transition: opacity 0.4s; }
+    body.is-bare main { opacity: 0; visibility: hidden; }
+    .sec { min-height: 100vh; display: flex; align-items: center; padding: 120px clamp(16px, 6vw, 96px) 140px; }
+    .sec-inner { width: min(1100px, 100%); margin: 0 auto; }
+    .eyebrow { margin: 0 0 12px; color: var(--accent); font: 500 11px/1.4 "Martian Mono", monospace; letter-spacing: 0.08em; text-transform: uppercase; }
+    h1 { margin: 0; font: 760 clamp(48px, 8vw, 112px)/0.92 "Bricolage Grotesque", sans-serif; letter-spacing: -0.035em; }
+    h2 { margin: 0 0 22px; font: 700 clamp(32px, 4.6vw, 60px)/1 "Bricolage Grotesque", sans-serif; letter-spacing: -0.025em; max-width: 16ch; }
+    .lede { max-width: 46ch; margin: 22px 0 0; font-size: clamp(17px, 1.6vw, 20px); color: var(--muted); }
+    .panel {
+      border-radius: 20px; padding: 22px 24px; background: color-mix(in srgb, var(--surface) 78%, transparent);
+      box-shadow: 0 0 0 1px var(--line); backdrop-filter: blur(12px) saturate(1.1); -webkit-backdrop-filter: blur(12px) saturate(1.1);
+    }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+    .panel h3 { margin: 0 0 4px; font: 650 19px/1.2 "Bricolage Grotesque", sans-serif; }
+    .panel p { margin: 0; color: var(--muted); font-size: 15px; }
+    .meta { margin-top: 10px !important; font: 500 11px/1.4 "Martian Mono", monospace !important; letter-spacing: 0.04em; color: var(--accent) !important; }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+    .chips span { padding: 6px 12px; border-radius: 999px; background: color-mix(in srgb, var(--surface) 80%, transparent); box-shadow: 0 0 0 1px var(--line); font-size: 14px; }
+    .cta { display: inline-block; margin-top: 26px; padding: 14px 22px; border-radius: 999px; background: var(--ink); color: var(--bg); font-weight: 600; text-decoration: none; }
+
+    /* Dock */
+    .dock {
+      position: fixed; left: 50%; bottom: 16px; transform: translateX(-50%); z-index: 3; width: min(760px, calc(100% - 24px));
+      border-radius: 22px; padding: 12px 14px 12px; background: color-mix(in srgb, var(--surface) 86%, transparent);
+      box-shadow: 0 0 0 1px var(--line-strong), 0 18px 40px rgba(0, 0, 0, 0.12); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    }
+    .dock-head { display: flex; align-items: baseline; gap: 12px; padding: 0 4px 8px; }
+    .dock-name { font: 700 18px/1.2 "Bricolage Grotesque", sans-serif; white-space: nowrap; }
+    .dock-desc { flex: 1; min-width: 0; color: var(--muted); font-size: 13.5px; line-height: 1.35; }
+    .dock-hud { font: 500 10.5px/1.4 "Martian Mono", monospace; color: var(--accent); white-space: nowrap; text-transform: uppercase; letter-spacing: 0.05em; }
+    .dock-row { display: flex; gap: 8px; align-items: center; }
+    .picks { display: flex; gap: 6px; flex: 1; overflow-x: auto; scrollbar-width: none; }
+    .picks::-webkit-scrollbar { display: none; }
+    .pick {
+      flex: none; display: inline-flex; align-items: center; gap: 7px; padding: 5px 12px 5px 5px; cursor: pointer;
+      border: 1px solid var(--line-strong); border-radius: 999px; background: transparent; font-size: 13px; font-weight: 500; white-space: nowrap;
+    }
+    .pick .n { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--bg-alt); font: 500 10px/1 "Martian Mono", monospace; }
+    .pick[aria-selected="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+    .pick[aria-selected="true"] .n { background: var(--red); color: #fff; }
+    .bare-btn { flex: none; border: 1px solid var(--line-strong); background: none; cursor: pointer; border-radius: 999px; padding: 6px 12px; font-size: 13px; font-weight: 500; white-space: nowrap; }
+    .bare-btn[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+    @media (max-width: 640px) {
+      .dock-desc { display: none; }
+      .pick .label { display: none; }
+      .pick { padding-right: 5px; }
+      .dock-row .pill-group button { padding: 6px 9px; }
+    }
+    .fallback { position: fixed; inset: 0; display: grid; place-items: center; z-index: 0; color: var(--muted); }
+    .fallback[hidden] { display: none; }
+  </style>
+</head>
+<body>
+  <canvas class="bg" data-canvas aria-hidden="true"></canvas>
+  <canvas class="bg" data-canvas aria-hidden="true"></canvas>
+  <p class="fallback" data-fallback hidden>This browser could not start WebGL, so the backgrounds can't run here.</p>
+
+  <header class="top">
+    <a class="brand" href="../index.html"><span class="mark" aria-hidden="true"></span>Background lab</a>
+    <nav class="pill-group" aria-label="Demos">
+      <a href="globes.html">Globe variants</a>
+      <a href="heroes.html">Beyond the globe</a>
+      <a href="backgrounds.html" aria-current="page">Backgrounds</a>
+    </nav>
+    <div class="pill-group theme" role="radiogroup" aria-label="Colour theme">
+      <button type="button" role="radio" aria-checked="false" data-theme-value="light">Light</button>
+      <button type="button" role="radio" aria-checked="false" data-theme-value="dark">Dark</button>
+      <button type="button" role="radio" aria-checked="false" data-theme-value="claude">Claude</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="sec" data-sec="Hero">
+      <div class="sec-inner">
+        <p class="eyebrow">Scroll down · move the mouse</p>
+        <h1>Al-Amin<br />Mahfuzur Rahman</h1>
+        <p class="lede">Senior Software Engineer building enterprise systems, Business Central extensions and Flutter apps, from Dhaka.</p>
+      </div>
+    </section>
+    <section class="sec" data-sec="Experience">
+      <div class="sec-inner">
+        <p class="eyebrow">Experience · 2018 to now</p>
+        <h2>Systems companies run on</h2>
+        <div class="grid">
+          <div class="panel"><h3>Bizzntek Ltd.</h3><p>Senior Software Engineer. Enterprise web apps, data architecture and Business Central extensions.</p><p class="meta">Oct 2020 – now</p></div>
+          <div class="panel"><h3>SmartSoft Technology</h3><p>ERP systems, factory management tools and a point-of-sale platform.</p><p class="meta">Mar 2019 – Sep 2020</p></div>
+          <div class="panel"><h3>GTRBD Ltd.</h3><p>Business modules in C#, ASP.NET Web Forms and MS SQL Server.</p><p class="meta">Oct 2018 – Feb 2019</p></div>
+        </div>
+      </div>
+    </section>
+    <section class="sec" data-sec="Projects">
+      <div class="sec-inner">
+        <p class="eyebrow">Selected projects</p>
+        <h2>From the CIO's office to the factory floor</h2>
+        <div class="grid">
+          <div class="panel"><h3>CIO Management Application</h3><p>Western Digital, via Altios. In progress.</p></div>
+          <div class="panel"><h3>Employer of Record platform</h3><p>GoGlobal, via Altios. First version.</p></div>
+          <div class="panel"><h3>Business Central localization</h3><p>Microsoft. AL extensions for NBR VAT and tax.</p></div>
+          <div class="panel"><h3>Real estate portfolio suite</h3><p>PIRAMIDS, USA. Leasing, rent and ledgers.</p></div>
+        </div>
+      </div>
+    </section>
+    <section class="sec" data-sec="Stack">
+      <div class="sec-inner">
+        <p class="eyebrow">Stack</p>
+        <h2>What I build with</h2>
+        <div class="panel">
+          <div class="chips"><span>C#</span><span>ASP.NET Core</span><span>Dynamics 365 Business Central</span><span>AL</span><span>Flutter</span><span>Dart</span><span>MS SQL Server</span><span>AWS</span><span>Google Cloud</span><span>Firebase</span><span>Next.js</span><span>Clean Architecture</span></div>
+        </div>
+      </div>
+    </section>
+    <section class="sec" data-sec="Education">
+      <div class="sec-inner">
+        <p class="eyebrow">Education</p>
+        <h2>Degree and training</h2>
+        <div class="grid">
+          <div class="panel"><h3>B.Sc. in Computer Science &amp; Engineering</h3><p>Institute of Science, Trade and Technology</p></div>
+          <div class="panel"><h3>Full Stack ASP.NET MVC</h3><p>BITM · Devskill Training Academy</p></div>
+        </div>
+      </div>
+    </section>
+    <section class="sec" data-sec="Contact">
+      <div class="sec-inner">
+        <p class="eyebrow">Contact</p>
+        <h2>Get in touch.</h2>
+        <p class="lede">7mahfuzur.rahman@gmail.com</p>
+        <a class="cta" href="#top" data-top>Back to top ↑</a>
+      </div>
+    </section>
+  </main>
+
+  <div class="dock" role="region" aria-label="Background picker">
+    <div class="dock-head">
+      <span class="dock-name" data-name></span>
+      <span class="dock-desc" data-desc></span>
+      <span class="dock-hud" data-hud></span>
+    </div>
+    <div class="dock-row">
+      <div class="picks" role="tablist" aria-label="Backgrounds" data-picks></div>
+      <div class="pill-group" role="group" aria-label="Background mode">
+        <button type="button" data-mode="single" aria-pressed="true">One for all</button>
+        <button type="button" data-mode="sections" aria-pressed="false">Per section</button>
+      </div>
+      <button type="button" class="bare-btn" aria-pressed="false" data-bare>Hide content</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.min.js';
+
+    THREE.ColorManagement.enabled = false;
+    const V3 = THREE.Vector3, C = THREE.Color, TAU = Math.PI * 2;
+    const MOTION = !(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+    const clamp = (v, lo, hi) => (v < lo ? lo : v > hi ? hi : v);
+    const $ = s => document.querySelector(s);
+
+    const VARIANTS = [
+      { key: 'silk', name: 'Silk flow', desc: 'Threads drifting on a noise field. The cursor stirs a whirlpool; scrolling bends the current and speeds it up.' },
+      { key: 'wave', name: 'Dot wave', desc: 'A field of dots rolling like water. The cursor drops ripples; scrolling carries the waves forward and lifts the camera.' },
+      { key: 'magnet', name: 'Magnetic field', desc: 'A grid of needles like iron filings. They follow a slow current that turns as you scroll, and swing round to point at the cursor.' },
+      { key: 'flock', name: 'Flock', desc: 'Birds over the Padma. The flock follows the cursor and wanders when it leaves; scroll fast and they scatter.' },
+      { key: 'murmur', name: 'Murmuration', desc: 'A thousand starlings in 3D, swirling into ribbon shapes. They chase the cursor; scrolling circles the camera, and a fast scroll scatters them like a passing hawk.' },
+      { key: 'fish', name: 'Ilish school', desc: 'A school of fish with wiggling tails. The cursor is a predator: the school splits around it and frightened fish flash red. Scrolling shifts the current.' },
+      { key: 'fireflies', name: 'Fireflies', desc: 'Fireflies at dusk. They gather around the cursor and their blinking falls into sync there. Scrolling deepens the evening and more come out.' },
+      { key: 'kites', name: 'Kites', desc: 'Shakrain kites on strings, swaying in a wind that follows the mouse, tails trailing. Scrolling lets out string so they climb higher.' },
+      { key: 'network', name: 'Constellation', desc: 'Drifting nodes that link when close, like services in a system. The cursor connects to everything nearby; scrolling turns the network.' },
+      { key: 'monsoon', name: 'Monsoon', desc: 'Dhaka rain. The cursor is an umbrella; the wind follows the mouse, and the downpour gets heavier as you scroll.' },
+      { key: 'tunnel', name: 'Stack tunnel', desc: 'Your stack as words hanging in space. Scrolling flies the camera through them; the mouse steers the view.' }
+    ];
+
+    /* ======================================================================
+       Shared state: scroll, sections, mouse
+       ====================================================================== */
+    const sections = [...document.querySelectorAll('[data-sec]')];
+    const S = { scroll: 0, sec: 0, secT: 0, vel: 0, lastY: window.scrollY, mx: 0, my: 0, tmx: 0, tmy: 0, mIn: false, mSpeed: 0 };
+    let PINNED = false;
+    function readScroll() {
+      if (PINNED) return;
+      const max = Math.max(1, document.documentElement.scrollHeight - innerHeight);
+      S.scroll = clamp(scrollY / max, 0, 1);
+      // Continuous section index: which section the middle of the screen is in, plus how far through it.
+      const mid = innerHeight / 2;
+      let idx = 0;
+      sections.forEach((s, i) => {
+        const r = s.getBoundingClientRect();
+        if (r.top <= mid) idx = i + clamp((mid - r.top) / r.height, 0, 1);
+      });
+      S.secT = clamp(idx - 0.5, 0, sections.length - 1);
+    }
+    addEventListener('scroll', readScroll, { passive: true });
+    addEventListener('resize', readScroll);
+    addEventListener('pointermove', e => {
+      const nx = (e.clientX / innerWidth) * 2 - 1, ny = -((e.clientY / innerHeight) * 2 - 1);
+      S.mSpeed = Math.min(1, S.mSpeed + Math.hypot(nx - S.tmx, ny - S.tmy) * 2);
+      S.tmx = nx; S.tmy = ny; S.mIn = true;
+    }, { passive: true });
+    document.addEventListener('pointerleave', () => { S.mIn = false; });
+
+    /* ======================================================================
+       Palette
+       ====================================================================== */
+    function cssVar(n) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
+    function col(v) { if (v.startsWith('#')) return new C(v); const m = v.match(/[\d.]+/g); return new C(+m[0] / 255, +m[1] / 255, +m[2] / 255); }
+    function palette() {
+      return {
+        bg: col(cssVar('--bg')), bgAlt: col(cssVar('--bg-alt')), surface: col(cssVar('--surface')), ink: col(cssVar('--ink')),
+        muted: col(cssVar('--muted')), accent: col(cssVar('--accent')), red: col(cssVar('--red')), dot: col(cssVar('--globe-dot')),
+        mid: col(cssVar('--globe-disc-mid')), dark: document.documentElement.getAttribute('data-theme') === 'dark',
+        inkCss: cssVar('--ink'), redCss: cssVar('--red'), accentCss: cssVar('--accent')
+      };
+    }
+
+    /* ======================================================================
+       Renderer
+       ====================================================================== */
+    // Two layers: in "per section" mode the next section's background fades in on the second one.
+    const layers = [...document.querySelectorAll('[data-canvas]')].map(canvas => {
+      let renderer = null;
+      try {
+        renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
+        renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
+        renderer.setClearColor(0x000000, 0);
+      } catch (e) {}
+      return { canvas, renderer, V: null, key: null, opacity: 0 };
+    });
+    if (!layers[0].renderer) $('[data-fallback]').hidden = false;
+    const U = { uTime: { value: 0 }, uScale: { value: 800 }, uRes: { value: new THREE.Vector2(1, 1) } };
+
+    /* ======================================================================
+       GLSL helpers
+       ====================================================================== */
+    const LINE_VS = `attribute float aAlpha; attribute vec3 aColor; varying float vA; varying vec3 vC;
+      void main() { vA = aAlpha; vC = aColor; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`;
+    const LINE_FS = `varying float vA; varying vec3 vC; void main() { gl_FragColor = vec4(vC, vA); }`;
+    const PT_VS = `uniform float uScale; attribute float aSize; attribute float aAlpha; attribute vec3 aColor; varying float vA; varying vec3 vC;
+      void main() { vA = aAlpha; vC = aColor; vec4 mv = modelViewMatrix * vec4(position, 1.0); gl_PointSize = aSize * uScale / -mv.z; gl_Position = projectionMatrix * mv; }`;
+    const PT_FS = `uniform float uSoft; varying float vA; varying vec3 vC;
+      void main() { float d = length(gl_PointCoord - 0.5); if (d > 0.5) discard; gl_FragColor = vec4(vC, vA * (uSoft > 0.5 ? exp(-d * d * 12.0) : smoothstep(0.5, 0.35, d))); }`;
+
+    // Dynamic line segments / points with per-vertex colour and alpha.
+    function dynLines(maxSegs, additive) {
+      const g = new THREE.BufferGeometry();
+      g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(maxSegs * 6), 3).setUsage(THREE.DynamicDrawUsage));
+      g.setAttribute('aColor', new THREE.BufferAttribute(new Float32Array(maxSegs * 6), 3).setUsage(THREE.DynamicDrawUsage));
+      g.setAttribute('aAlpha', new THREE.BufferAttribute(new Float32Array(maxSegs * 2), 1).setUsage(THREE.DynamicDrawUsage));
+      const m = new THREE.LineSegments(g, new THREE.ShaderMaterial({ vertexShader: LINE_VS, fragmentShader: LINE_FS, transparent: true, depthWrite: false, blending: additive ? THREE.AdditiveBlending : THREE.NormalBlending }));
+      m.frustumCulled = false;
+      return m;
+    }
+    function dynPoints(n, o = {}) {
+      const g = new THREE.BufferGeometry();
+      g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(n * 3), 3).setUsage(THREE.DynamicDrawUsage));
+      g.setAttribute('aColor', new THREE.BufferAttribute(new Float32Array(n * 3), 3).setUsage(THREE.DynamicDrawUsage));
+      g.setAttribute('aAlpha', new THREE.BufferAttribute(new Float32Array(n), 1).setUsage(THREE.DynamicDrawUsage));
+      g.setAttribute('aSize', new THREE.BufferAttribute(new Float32Array(n), 1).setUsage(THREE.DynamicDrawUsage));
+      const p = new THREE.Points(g, new THREE.ShaderMaterial({ uniforms: { uScale: U.uScale, uSoft: { value: o.soft ? 1 : 0 } }, vertexShader: PT_VS, fragmentShader: PT_FS, transparent: true, depthWrite: false }));
+      p.frustumCulled = false;
+      return p;
+    }
+    // Cheap smooth 3D value noise for the CPU-side effects.
+    function vnoise(x, y, z) {
+      const xi = Math.floor(x), yi = Math.floor(y), zi = Math.floor(z);
+      const xf = x - xi, yf = y - yi, zf = z - zi;
+      const u = xf * xf * (3 - 2 * xf), v = yf * yf * (3 - 2 * yf), w = zf * zf * (3 - 2 * zf);
+      const h = (a, b, c) => { const s = Math.sin(a * 127.1 + b * 311.7 + c * 74.7) * 43758.5453; return s - Math.floor(s); };
+      const l = (a, b, t) => a + (b - a) * t;
+      return l(
+        l(l(h(xi, yi, zi), h(xi + 1, yi, zi), u), l(h(xi, yi + 1, zi), h(xi + 1, yi + 1, zi), u), v),
+        l(l(h(xi, yi, zi + 1), h(xi + 1, yi, zi + 1), u), l(h(xi, yi + 1, zi + 1), h(xi + 1, yi + 1, zi + 1), u), v), w);
+    }
+    const aspect = () => innerWidth / innerHeight;
+
+    /* ======================================================================
+       Silk flow — trails on a noise field
+       ====================================================================== */
+    function buildSilk(P) {
+      const scene = new THREE.Scene(), camera = new THREE.OrthographicCamera(-1, 1, 1, -1, -1, 1);
+      const N = innerWidth < 760 ? 700 : 1200, H = 26;
+      const lines = dynLines(N * (H - 1));
+      scene.add(lines);
+      const hist = new Float32Array(N * H * 2), age = new Float32Array(N), life = new Float32Array(N);
+      const spawn = i => {
+        const a = aspect(), x = (Math.random() * 2 - 1) * a * 1.05, y = Math.random() * 2.1 - 1.05;
+        for (let k = 0; k < H; k++) { hist[(i * H + k) * 2] = x; hist[(i * H + k) * 2 + 1] = y; }
+        age[i] = 0; life[i] = 4 + Math.random() * 6;
+      };
+      for (let i = 0; i < N; i++) { spawn(i); age[i] = Math.random() * life[i]; }
+      const pos = lines.geometry.getAttribute('position'), colA = lines.geometry.getAttribute('aColor'), alA = lines.geometry.getAttribute('aAlpha');
+      const base = P.dot, hot = P.red, tmp = new C();
+      return {
+        scene, camera,
+        resize() { const a = aspect(); camera.left = -a; camera.right = a; camera.updateProjectionMatrix(); },
+        update(t, dt) {
+          const a = aspect(), mx = S.mx * a, my = S.my, speed = 0.22 + S.vel * 0.9, zt = t * 0.06 + S.scroll * 3.0, bend = S.sec * 0.6;
+          const step = MOTION ? dt : 0;
+          let s = 0;
+          for (let i = 0; i < N; i++) {
+            const o = i * H * 2;
+            let x = hist[o], y = hist[o + 1];
+            const ang = vnoise(x * 0.9 + 10, y * 0.9 + bend, zt) * TAU * 2;
+            let vx = Math.cos(ang) * speed, vy = Math.sin(ang) * speed;
+            if (S.mIn) {
+              const dx = x - mx, dy = y - my, r2 = dx * dx + dy * dy;
+              if (r2 < 0.3) { const k = (0.3 - r2) / (r2 + 0.03) * 0.25; vx += -dy * k; vy += dx * k; }
+            }
+            for (let k = H - 1; k > 0; k--) { hist[o + k * 2] = hist[o + (k - 1) * 2]; hist[o + k * 2 + 1] = hist[o + (k - 1) * 2 + 1]; }
+            x += vx * step; y += vy * step;
+            hist[o] = x; hist[o + 1] = y;
+            age[i] += step;
+            if (age[i] > life[i] || Math.abs(x) > a * 1.1 || Math.abs(y) > 1.1) spawn(i);
+            const fade = Math.min(1, age[i] * 2) * Math.min(1, (life[i] - age[i]) * 2);
+            const near = S.mIn ? Math.exp(-((x - mx) ** 2 + (y - my) ** 2) * 8) : 0;
+            tmp.copy(base).lerp(hot, near * 0.9);
+            for (let k = 0; k < H - 1; k++, s++) {
+              pos.setXYZ(s * 2, hist[o + k * 2], hist[o + k * 2 + 1], 0);
+              pos.setXYZ(s * 2 + 1, hist[o + (k + 1) * 2], hist[o + (k + 1) * 2 + 1], 0);
+              colA.setXYZ(s * 2, tmp.r, tmp.g, tmp.b); colA.setXYZ(s * 2 + 1, tmp.r, tmp.g, tmp.b);
+              const al = (P.dark ? 0.55 : 0.42) * fade;
+              alA.setX(s * 2, al * (1 - k / (H - 1))); alA.setX(s * 2 + 1, al * (1 - (k + 1) / (H - 1)));
+            }
+          }
+          pos.needsUpdate = colA.needsUpdate = alA.needsUpdate = true;
+        }
+      };
+    }
+
+    /* ======================================================================
+       Dot wave — a rolling field of dots
+       ====================================================================== */
+    function buildWave(P) {
+      const scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(40, aspect(), 0.1, 100);
+      const pts = [];
+      for (let z = -22; z <= 4; z += 0.17) for (let x = -12; x <= 12; x += 0.17) pts.push(x, 0, z);
+      const g = new THREE.BufferGeometry();
+      g.setAttribute('position', new THREE.Float32BufferAttribute(pts, 3));
+      const mouse = { value: new V3(0, 0, -100) };
+      const u = { uTime: U.uTime, uScale: U.uScale, uScroll: { value: 0 }, uMouse: mouse, uDot: { value: P.dot }, uHot: { value: P.red }, uAlpha: { value: P.dark ? 0.75 : 0.55 } };
+      const mat = new THREE.ShaderMaterial({
+        uniforms: u, transparent: true, depthWrite: false,
+        vertexShader: `
+          uniform float uTime; uniform float uScale; uniform float uScroll; uniform vec3 uMouse;
+          varying float vH; varying float vFade;
+          void main() {
+            vec3 p = position;
+            float z = p.z + uScroll * 8.0;
+            float h = sin(p.x * 0.55 + uTime * 0.7) * 0.14 + sin(z * 0.8 - uTime * 0.55) * 0.12 + sin((p.x + z) * 0.32 + uTime * 0.35) * 0.2;
+            float d = distance(p.xz, uMouse.xz);
+            float rip = exp(-d * d * 0.35) * (0.55 + 0.45 * sin(d * 3.5 - uTime * 4.0));
+            h += rip * 0.55;
+            p.y += h;
+            vH = rip;
+            vec4 mv = modelViewMatrix * vec4(p, 1.0);
+            vFade = smoothstep(-26.0, -8.0, mv.z) * smoothstep(-1.5, -6.5, mv.z);
+            gl_PointSize = 0.045 * uScale / -mv.z;
+            gl_Position = projectionMatrix * mv;
+          }`,
+        fragmentShader: `
+          uniform vec3 uDot; uniform vec3 uHot; uniform float uAlpha;
+          varying float vH; varying float vFade;
+          void main() {
+            float d = length(gl_PointCoord - 0.5);
+            if (d > 0.5) discard;
+            gl_FragColor = vec4(mix(uDot, uHot, smoothstep(0.3, 0.9, vH)), uAlpha * vFade * smoothstep(0.5, 0.35, d));
+          }`
+      });
+      scene.add(new THREE.Points(g, mat));
+      const ray = new THREE.Raycaster(), plane = new THREE.Plane(new V3(0, 1, 0), 0), hit = new V3();
+      return {
+        scene, camera,
+        resize() { camera.aspect = aspect(); camera.updateProjectionMatrix(); },
+        update(t) {
+          camera.position.set(S.mx * 0.8, 2.1 + S.sec * 0.35 - S.my * 0.3, 6);
+          camera.lookAt(S.mx * 0.4, 0, -4 + S.sec * 0.2);
+          u.uScroll.value = S.scroll;
+          if (S.mIn) {
+            ray.setFromCamera(new THREE.Vector2(S.mx, S.my), camera);
+            if (ray.ray.intersectPlane(plane, hit)) mouse.value.lerp(hit, 0.2);
+          } else mouse.value.set(0, 0, -100);
+        }
+      };
+    }
+
+    /* ======================================================================
+       Magnetic field — needles that turn toward the cursor
+       ====================================================================== */
+    const lerpAngle = (a, b, t) => a + ((((b - a + Math.PI) % TAU) + TAU) % TAU - Math.PI) * t;
+    function buildMagnet(P) {
+      const scene = new THREE.Scene(), camera = new THREE.OrthographicCamera(-1, 1, 1, -1, -1, 1);
+      const lines = dynLines(5000);
+      scene.add(lines);
+      const pos = lines.geometry.getAttribute('position'), colA = lines.geometry.getAttribute('aColor'), alA = lines.geometry.getAttribute('aAlpha');
+      let needles = [], step = 0.065;
+      function layout() {
+        const a = aspect();
+        step = innerWidth < 760 ? 0.09 : 0.065;
+        needles = [];
+        for (let y = -1 + step / 2; y < 1; y += step) for (let x = -a + step / 2; x < a; x += step) needles.push({ x, y, ang: 0, len: step * 0.4, near: 0 });
+        lines.geometry.setDrawRange(0, needles.length * 2);
+      }
+      layout();
+      const tmp = new C(), headA = P.dark ? 0.75 : 0.6;
+      return {
+        scene, camera,
+        resize() { const a = aspect(); camera.left = -a; camera.right = a; camera.updateProjectionMatrix(); layout(); },
+        update(t, dt) {
+          const a = aspect(), mx = S.mx * a, my = S.my, k = MOTION ? Math.min(1, dt * 7) : 1;
+          // At rest the needles follow a slow flowing field that turns as you scroll.
+          const base = S.scroll * Math.PI + S.sec * 0.4;
+          needles.forEach((n, i) => {
+            let target = base + vnoise(n.x * 1.3, n.y * 1.3 + S.scroll * 2.5, t * 0.07) * Math.PI * 1.4;
+            let near = 0;
+            if (S.mIn) {
+              const dx = mx - n.x, dy = my - n.y;
+              near = Math.exp(-(dx * dx + dy * dy) * 3.5);
+              target = lerpAngle(target, Math.atan2(dy, dx), Math.min(1, near * 1.8));
+            }
+            n.ang = lerpAngle(n.ang, target, k);
+            n.near += (near - n.near) * k;
+            n.len += (step * (0.38 + n.near * 0.35) - n.len) * k;
+            const cx = Math.cos(n.ang) * n.len, cy = Math.sin(n.ang) * n.len;
+            pos.setXYZ(i * 2, n.x - cx, n.y - cy, 0);
+            pos.setXYZ(i * 2 + 1, n.x + cx, n.y + cy, 0);
+            tmp.copy(P.dot).lerp(P.red, n.near);
+            colA.setXYZ(i * 2, tmp.r, tmp.g, tmp.b);
+            colA.setXYZ(i * 2 + 1, tmp.r, tmp.g, tmp.b);
+            // Faint tail, stronger head, so each needle reads as pointing somewhere.
+            alA.setX(i * 2, 0.08);
+            alA.setX(i * 2 + 1, headA * (0.55 + n.near * 0.45));
+          });
+          pos.needsUpdate = colA.needsUpdate = alA.needsUpdate = true;
+        }
+      };
+    }
+
+    /* ======================================================================
+       Flock — birds that follow the cursor
+       ====================================================================== */
+    function buildFlock(P) {
+      const scene = new THREE.Scene(), camera = new THREE.OrthographicCamera(-1, 1, 1, -1, -1, 1);
+      const N = innerWidth < 760 ? 140 : 260;
+      const lines = dynLines(N * 2);
+      scene.add(lines);
+      const pos = lines.geometry.getAttribute('position'), colA = lines.geometry.getAttribute('aColor'), alA = lines.geometry.getAttribute('aAlpha');
+      const birds = [];
+      // Start as a few loose flocks already flying together, so it reads as birds from the first frame.
+      const groups = [0, 1, 2].map(() => ({ x: (Math.random() - 0.5) * 1.4 * aspect(), y: Math.random() * 1.2 - 0.6, ang: Math.random() * TAU }));
+      for (let i = 0; i < N; i++) {
+        const g = groups[i % groups.length], ang = g.ang + (Math.random() - 0.5) * 0.5, r = Math.sqrt(Math.random()) * 0.28, a2 = Math.random() * TAU;
+        birds.push({ x: g.x + Math.cos(a2) * r * 1.6, y: g.y + Math.sin(a2) * r, vx: Math.cos(ang) * 0.25, vy: Math.sin(ang) * 0.25, ph: Math.random() * TAU, near: 0 });
+      }
+      const tmp = new C(), alpha = P.dark ? 0.85 : 0.7;
+      return {
+        scene, camera,
+        resize() { const a = aspect(); camera.left = -a; camera.right = a; camera.updateProjectionMatrix(); },
+        update(t, dt) {
+          const a = aspect(), step = MOTION ? Math.min(dt, 0.033) : 0;
+          // Follow the cursor; without it, chase a slow wandering point that scrolling moves along.
+          const gx = S.mIn ? S.mx * a : Math.sin(t * 0.21 + S.scroll * 5) * a * 0.6;
+          const gy = S.mIn ? S.my : Math.cos(t * 0.29 + S.sec * 0.8) * 0.5;
+          const scatter = clamp(S.vel * 3, 0, 1);
+          for (let i = 0; i < N; i++) {
+            const b = birds[i];
+            let cx = 0, cy = 0, ax = 0, ay = 0, sx = 0, sy = 0, n = 0;
+            for (let j = 0; j < N; j++) {
+              if (i === j) continue;
+              const o = birds[j], dx = o.x - b.x, dy = o.y - b.y, d2 = dx * dx + dy * dy;
+              if (d2 > 0.02) continue;
+              n++; cx += o.x; cy += o.y; ax += o.vx; ay += o.vy;
+              if (d2 < 0.0016) { sx -= dx / (d2 + 1e-4); sy -= dy / (d2 + 1e-4); }
+            }
+            let fx = 0, fy = 0;
+            if (n) {
+              fx += (cx / n - b.x) * 0.9 + (ax / n - b.vx) * 1.2;
+              fy += (cy / n - b.y) * 0.9 + (ay / n - b.vy) * 1.2;
+            }
+            fx += sx * 0.0016 * (1 + scatter * 6);
+            fy += sy * 0.0016 * (1 + scatter * 6);
+            const gdx = gx - b.x, gdy = gy - b.y, gd = Math.hypot(gdx, gdy) || 1;
+            fx += (gdx / gd) * 0.5 * (1 - scatter);
+            fy += (gdy / gd) * 0.5 * (1 - scatter);
+            b.vx += fx * step; b.vy += fy * step;
+            const sp = Math.hypot(b.vx, b.vy) || 1, max = 0.45 * (1 + scatter), min = 0.16;
+            const k = sp > max ? max / sp : sp < min ? min / sp : 1;
+            b.vx *= k; b.vy *= k;
+            b.x += b.vx * step; b.y += b.vy * step;
+            if (b.x > a + 0.1) b.x = -a - 0.1; else if (b.x < -a - 0.1) b.x = a + 0.1;
+            if (b.y > 1.1) b.y = -1.1; else if (b.y < -1.1) b.y = 1.1;
+            // Draw a flapping chevron pointing along the flight direction.
+            const ux = b.vx / (Math.hypot(b.vx, b.vy) || 1), uy = b.vy / (Math.hypot(b.vx, b.vy) || 1);
+            const flap = MOTION ? Math.sin(t * 11 + b.ph) : 0, w = 0.015, spread = w * (0.5 + flap * 0.3);
+            const bx = b.x - ux * w, by = b.y - uy * w;
+            pos.setXYZ(i * 4, bx - uy * spread, by + ux * spread, 0); pos.setXYZ(i * 4 + 1, b.x, b.y, 0);
+            pos.setXYZ(i * 4 + 2, bx + uy * spread, by - ux * spread, 0); pos.setXYZ(i * 4 + 3, b.x, b.y, 0);
+            const near = S.mIn ? Math.exp(-((b.x - gx) ** 2 + (b.y - gy) ** 2) * 6) : 0;
+            b.near += (near - b.near) * Math.min(1, dt * 4);
+            tmp.copy(P.dot).lerp(P.red, b.near * 0.8);
+            for (let v = 0; v < 4; v++) { colA.setXYZ(i * 4 + v, tmp.r, tmp.g, tmp.b); alA.setX(i * 4 + v, alpha); }
+          }
+          pos.needsUpdate = colA.needsUpdate = alA.needsUpdate = true;
+        }
+      };
+    }
+
+    /* ======================================================================
+       Constellation — nodes that link when close
+       ====================================================================== */
+    function buildNetwork(P) {
+      const scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(45, aspect(), 0.1, 50);
+      camera.position.set(0, 0, 6);
+      const group = new THREE.Group();
+      scene.add(group);
+      const N = innerWidth < 760 ? 80 : 140, MAX = 1600;
+      const nodes = [];
+      for (let i = 0; i < N; i++) nodes.push({ p: new V3((Math.random() - 0.5) * 9, (Math.random() - 0.5) * 6, (Math.random() - 0.5) * 4), v: new V3((Math.random() - 0.5) * 0.15, (Math.random() - 0.5) * 0.15, (Math.random() - 0.5) * 0.1) });
+      const lines = dynLines(MAX), dots = dynPoints(N);
+      group.add(lines, dots);
+      const lp = lines.geometry.getAttribute('position'), lc = lines.geometry.getAttribute('aColor'), la = lines.geometry.getAttribute('aAlpha');
+      const dp = dots.geometry.getAttribute('position'), dc = dots.geometry.getAttribute('aColor'), da = dots.geometry.getAttribute('aAlpha'), ds = dots.geometry.getAttribute('aSize');
+      const ray = new THREE.Raycaster(), plane = new THREE.Plane(new V3(0, 0, 1), 0), hit = new V3(), cursor = new V3(99, 99, 0), local = new V3();
+      return {
+        scene, camera,
+        resize() { camera.aspect = aspect(); camera.updateProjectionMatrix(); },
+        update(t, dt) {
+          group.rotation.y += ((S.sec * 0.55 + S.mx * 0.25) - group.rotation.y) * 0.05;
+          group.rotation.x += ((-S.my * 0.15 + S.scroll * 0.4) - group.rotation.x) * 0.05;
+          group.updateMatrixWorld();
+          if (S.mIn) {
+            ray.setFromCamera(new THREE.Vector2(S.mx, S.my), camera);
+            if (ray.ray.intersectPlane(plane, hit)) { local.copy(hit); group.worldToLocal(local); cursor.lerp(local, 0.3); }
+          } else cursor.set(99, 99, 0);
+          const step = MOTION ? dt * (1 + S.vel * 6) : 0, D = 1.25 + 0.15 * Math.sin(S.sec * 1.3), D2 = D * D;
+          nodes.forEach((n, i) => {
+            n.p.addScaledVector(n.v, step);
+            ['x', 'y', 'z'].forEach((a, k) => { const lim = [4.8, 3.2, 2.2][k]; if (Math.abs(n.p[a]) > lim) n.v[a] *= -1; });
+            const dx = cursor.x - n.p.x, dy = cursor.y - n.p.y, d2 = dx * dx + dy * dy;
+            if (d2 < 2.2) { n.p.x += dx * 0.004; n.p.y += dy * 0.004; }
+            dp.setXYZ(i, n.p.x, n.p.y, n.p.z);
+            const near = Math.exp(-d2 * 1.2);
+            const c = P.dot.clone().lerp(P.red, near);
+            dc.setXYZ(i, c.r, c.g, c.b); da.setX(i, 0.55 + near * 0.4); ds.setX(i, 0.05 + near * 0.06);
+          });
+          let s = 0;
+          for (let i = 0; i < N && s < MAX; i++) for (let j = i + 1; j < N && s < MAX; j++) {
+            const a = nodes[i].p, b = nodes[j].p, d2 = a.distanceToSquared(b);
+            if (d2 > D2) continue;
+            const al = (1 - Math.sqrt(d2) / D) * (P.dark ? 0.5 : 0.4);
+            lp.setXYZ(s * 2, a.x, a.y, a.z); lp.setXYZ(s * 2 + 1, b.x, b.y, b.z);
+            lc.setXYZ(s * 2, P.dot.r, P.dot.g, P.dot.b); lc.setXYZ(s * 2 + 1, P.dot.r, P.dot.g, P.dot.b);
+            la.setX(s * 2, al); la.setX(s * 2 + 1, al);
+            s++;
+          }
+          // Lines from the cursor to every nearby node.
+          for (let i = 0; i < N && s < MAX; i++) {
+            const a = nodes[i].p, d = Math.hypot(a.x - cursor.x, a.y - cursor.y);
+            if (d > 1.6) continue;
+            lp.setXYZ(s * 2, cursor.x, cursor.y, 0); lp.setXYZ(s * 2 + 1, a.x, a.y, a.z);
+            lc.setXYZ(s * 2, P.red.r, P.red.g, P.red.b); lc.setXYZ(s * 2 + 1, P.red.r, P.red.g, P.red.b);
+            la.setX(s * 2, 0.7 * (1 - d / 1.6)); la.setX(s * 2 + 1, 0.15);
+            s++;
+          }
+          lines.geometry.setDrawRange(0, s * 2);
+          lp.needsUpdate = lc.needsUpdate = la.needsUpdate = true;
+          dp.needsUpdate = dc.needsUpdate = da.needsUpdate = ds.needsUpdate = true;
+        }
+      };
+    }
+
+    /* ======================================================================
+       Monsoon — rain with a cursor umbrella
+       ====================================================================== */
+    function buildMonsoon(P) {
+      const scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(55, aspect(), 0.1, 50);
+      camera.position.set(0, 0, 5);
+      const N = innerWidth < 760 ? 900 : 1800;
+      const lines = dynLines(N);
+      scene.add(lines);
+      const reach = z => Math.tan(27.5 * Math.PI / 180) * (5 - z);
+      const drops = [];
+      const spawn = (d, top) => {
+        d.z = -12 + Math.random() * 15;
+        const r = reach(d.z);
+        d.x = (Math.random() * 2 - 1) * r * aspect() * 1.2;
+        d.y = top ? r * (1 + Math.random() * 0.3) : (Math.random() * 2 - 1) * r;
+        d.s = 4 + Math.random() * 3;
+      };
+      for (let i = 0; i < N; i++) { const d = {}; spawn(d, false); drops.push(d); }
+      const lp = lines.geometry.getAttribute('position'), lc = lines.geometry.getAttribute('aColor'), la = lines.geometry.getAttribute('aAlpha');
+      const c = P.dark ? P.accent.clone().lerp(new C(1, 1, 1), 0.3) : P.dot;
+      for (let i = 0; i < N * 2; i++) lc.setXYZ(i, c.r, c.g, c.b);
+      lc.needsUpdate = true;
+      let wind = 0;
+      return {
+        scene, camera,
+        resize() { camera.aspect = aspect(); camera.updateProjectionMatrix(); },
+        update(t, dt) {
+          wind += (S.mx * 2.2 - wind) * 0.03;
+          const heavy = 0.3 + 0.7 * clamp(S.sec / (sections.length - 1), 0, 1);
+          const active = Math.floor(N * heavy), boost = 1 + S.vel * 4, step = MOTION ? dt : 0;
+          drops.forEach((d, i) => {
+            d.y -= d.s * boost * step;
+            d.x += wind * step;
+            const r = reach(d.z);
+            // Umbrella: the cursor's position at this drop's depth pushes drops sideways.
+            if (S.mIn && d.z > -6) {
+              const ux = S.mx * r * aspect(), uy = S.my * r, R = 0.08 * r + 0.15;
+              const dx = d.x - ux, dy = d.y - uy;
+              if (dy > -R * 0.2 && Math.abs(dx) < R && dy < R * 1.6) d.x = ux + Math.sign(dx || 1) * R;
+            }
+            if (d.y < -r * 1.1) spawn(d, true);
+            if (Math.abs(d.x) > r * aspect() * 1.3) d.x = -Math.sign(d.x) * r * aspect() * 1.2;
+            const len = 0.18 + 0.05 * d.s * boost * 0.3;
+            lp.setXYZ(i * 2, d.x, d.y, d.z);
+            lp.setXYZ(i * 2 + 1, d.x - wind * len * 0.12, d.y + len, d.z);
+            const depth = clamp((d.z + 12) / 15, 0, 1);
+            const a = i < active ? (0.12 + 0.38 * depth) * (P.dark ? 1.2 : 1) : 0;
+            la.setX(i * 2, a); la.setX(i * 2 + 1, 0);
+          });
+          lp.needsUpdate = la.needsUpdate = true;
+        }
+      };
+    }
+
+    /* ======================================================================
+       Stack tunnel — fly through the stack
+       ====================================================================== */
+    const WORDS = ['C#', 'ASP.NET Core', 'Business Central', 'AL', 'Flutter', 'Dart', 'SQL Server', 'T-SQL', 'AWS', 'Google Cloud', 'Firebase', 'Dhaka',
+      'Next.js', 'React', 'REST APIs', 'Clean Architecture', 'SOLID', 'ERP', 'RDLC', 'Entity Framework', 'Android', 'iOS', 'CI/CD', 'Nginx', 'Linux', 'PostgreSQL', 'jQuery', 'Bootstrap'];
+    function buildTunnel(P) {
+      const scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(55, aspect(), 0.1, 60);
+      const GAP = 2.4, items = [];
+      WORDS.forEach((w, i) => {
+        const cv = document.createElement('canvas'), g = cv.getContext('2d');
+        g.font = '700 96px "Bricolage Grotesque", system-ui, sans-serif';
+        const tw = Math.ceil(g.measureText(w).width) + 24;
+        cv.width = tw; cv.height = 130;
+        g.font = '700 96px "Bricolage Grotesque", system-ui, sans-serif';
+        g.textBaseline = 'middle';
+        g.fillStyle = w === 'Dhaka' ? P.redCss : i % 5 === 2 ? P.accentCss : `rgb(${cssVar('--globe-dot')})`;
+        g.fillText(w, 12, 68);
+        const tex = new THREE.CanvasTexture(cv);
+        const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false }));
+        const h = 0.42 + (i % 3) * 0.1;
+        sp.scale.set((h * tw) / 130, h, 1);
+        const ang = i * 2.39, rad = 1.9 + (i % 4) * 0.55;
+        sp.position.set(Math.cos(ang) * rad * 1.3, Math.sin(ang) * rad * 0.75, -i * GAP);
+        scene.add(sp);
+        items.push(sp);
+      });
+      const dust = dynPoints(700);
+      const dpos = dust.geometry.getAttribute('position'), dcol = dust.geometry.getAttribute('aColor'), dal = dust.geometry.getAttribute('aAlpha'), dsz = dust.geometry.getAttribute('aSize');
+      for (let i = 0; i < 700; i++) {
+        dpos.setXYZ(i, (Math.random() - 0.5) * 12, (Math.random() - 0.5) * 8, 4 - Math.random() * (WORDS.length * GAP + 10));
+        dcol.setXYZ(i, P.dot.r, P.dot.g, P.dot.b); dal.setX(i, 0.35 + Math.random() * 0.4); dsz.setX(i, 0.025 + Math.random() * 0.03);
+      }
+      scene.add(dust);
+      let camZ = 5;
+      return {
+        scene, camera,
+        resize() { camera.aspect = aspect(); camera.updateProjectionMatrix(); },
+        update(t) {
+          const target = 5 - S.scroll * (WORDS.length - 1) * GAP;
+          camZ += (target - camZ) * 0.08;
+          const drift = MOTION ? Math.sin(t * 0.3) * 0.15 : 0;
+          camera.position.set(S.mx * 0.9 + drift, S.my * 0.6, camZ);
+          camera.lookAt(S.mx * 0.3, S.my * 0.2, camZ - 6);
+          items.forEach(sp => {
+            const d = camZ - sp.position.z;
+            // Kept soft so the words read as background behind real headings.
+            sp.material.opacity = 0.5 * clamp((d - 1.2) / 2.5, 0, 1) * clamp((22 - d) / 10, 0, 1);
+          });
+        }
+      };
+    }
+
+    /* ======================================================================
+       Boids engine shared by the murmuration and the fish school.
+       A spatial hash keeps neighbour lookups cheap, so a thousand boids are fine.
+       Each boid: { x, y, z, vx, vy, vz }. Options:
+         r (neighbour radius), sepR, coh, ali, sep, min, max, z3 (3D or flat),
+         goal { x, y, z, w }, flee { x, y, z, r, w }, bounds { x, y, z }, edge
+       ====================================================================== */
+    function boids(B, o, step) {
+      const inv = 1 / o.r, r2 = o.r * o.r, s2 = o.sepR * o.sepR, map = new Map();
+      const cellKey = (x, y, z) => (x + 512) * 1048576 + (y + 512) * 1024 + (z + 512);
+      for (let i = 0; i < B.length; i++) {
+        const b = B[i], k = cellKey(Math.floor(b.x * inv), Math.floor(b.y * inv), Math.floor(b.z * inv));
+        let list = map.get(k);
+        if (!list) map.set(k, (list = []));
+        list.push(i);
+      }
+      const dzr = o.z3 ? 1 : 0;
+      for (let i = 0; i < B.length; i++) {
+        const b = B[i], gx = Math.floor(b.x * inv), gy = Math.floor(b.y * inv), gz = Math.floor(b.z * inv);
+        let n = 0, cx = 0, cy = 0, cz = 0, ax = 0, ay = 0, az = 0, sx = 0, sy = 0, sz = 0;
+        for (let dx = -1; dx <= 1; dx++) for (let dy = -1; dy <= 1; dy++) for (let dz = -dzr; dz <= dzr; dz++) {
+          const list = map.get(cellKey(gx + dx, gy + dy, gz + dz));
+          if (!list) continue;
+          for (const j of list) {
+            if (j === i) continue;
+            const q = B[j], ex = q.x - b.x, ey = q.y - b.y, ez = q.z - b.z, d2 = ex * ex + ey * ey + ez * ez;
+            if (d2 > r2) continue;
+            n++; cx += q.x; cy += q.y; cz += q.z; ax += q.vx; ay += q.vy; az += q.vz;
+            if (d2 < s2) { const w = 1 / (d2 + 1e-5); sx -= ex * w; sy -= ey * w; sz -= ez * w; }
+          }
+        }
+        let fx = 0, fy = 0, fz = 0;
+        if (n) {
+          fx += (cx / n - b.x) * o.coh + (ax / n - b.vx) * o.ali;
+          fy += (cy / n - b.y) * o.coh + (ay / n - b.vy) * o.ali;
+          fz += (cz / n - b.z) * o.coh + (az / n - b.vz) * o.ali;
+        }
+        fx += sx * o.sep; fy += sy * o.sep; fz += sz * o.sep;
+        if (o.goal) {
+          const g = o.goal, ex = g.x - b.x, ey = g.y - b.y, ez = (g.z || 0) - b.z, d = Math.hypot(ex, ey, ez) || 1;
+          fx += (ex / d) * g.w; fy += (ey / d) * g.w; fz += (ez / d) * g.w;
+        }
+        b.fear = 0;
+        if (o.flee) {
+          const f = o.flee, ex = b.x - f.x, ey = b.y - f.y, ez = b.z - (f.z || 0), d = Math.hypot(ex, ey, ez) || 1;
+          if (d < f.r) { const k = (1 - d / f.r) * f.w; fx += (ex / d) * k; fy += (ey / d) * k; fz += (ez / d) * k; b.fear = 1 - d / f.r; }
+        }
+        if (o.bounds) {
+          const bd = o.bounds, e = o.edge;
+          if (b.x > bd.x) fx -= (b.x - bd.x) * e; else if (b.x < -bd.x) fx -= (b.x + bd.x) * e;
+          if (b.y > bd.y) fy -= (b.y - bd.y) * e; else if (b.y < -bd.y) fy -= (b.y + bd.y) * e;
+          if (o.z3) { if (b.z > bd.z) fz -= (b.z - bd.z) * e; else if (b.z < -bd.z) fz -= (b.z + bd.z) * e; }
+        }
+        b.vx += fx * step; b.vy += fy * step; b.vz = o.z3 ? b.vz + fz * step : 0;
+        const sp = Math.hypot(b.vx, b.vy, b.vz) || 1, k = sp > o.max ? o.max / sp : sp < o.min ? o.min / sp : 1;
+        b.vx *= k; b.vy *= k; b.vz *= k;
+      }
+      for (const b of B) { b.x += b.vx * step; b.y += b.vy * step; b.z += b.vz * step; }
+    }
+
+    /* ======================================================================
+       Murmuration — a thousand starlings in 3D
+       ====================================================================== */
+    function buildMurmur(P) {
+      const scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(45, aspect(), 0.1, 60);
+      const N = innerWidth < 760 ? 500 : 1000;
+      const birds = [];
+      // Start as a long curved ribbon flying along itself: the classic murmuration shape.
+      for (let i = 0; i < N; i++) {
+        const u = Math.random(), j = () => (Math.random() - 0.5) * 0.22;
+        const x = (u - 0.5) * 4.2, y = Math.sin(u * Math.PI * 1.6) * 0.55, z = Math.cos(u * Math.PI) * 0.9;
+        const tx = 4.2, ty = Math.cos(u * Math.PI * 1.6) * 0.55 * Math.PI * 1.6, tz = -Math.sin(u * Math.PI) * 0.9 * Math.PI, tl = Math.hypot(tx, ty, tz);
+        birds.push({ x: x + j(), y: y + j(), z: z + j(), vx: (tx / tl) * 0.8, vy: (ty / tl) * 0.8, vz: (tz / tl) * 0.8 });
+      }
+      const dots = dynPoints(N);
+      scene.add(dots);
+      const pos = dots.geometry.getAttribute('position'), col = dots.geometry.getAttribute('aColor'), al = dots.geometry.getAttribute('aAlpha'), sz = dots.geometry.getAttribute('aSize');
+      const base = P.dark ? P.ink : P.ink.clone().lerp(P.dot, 0.3);
+      for (let i = 0; i < N; i++) { col.setXYZ(i, base.r, base.g, base.b); sz.setX(i, 0.03); }
+      const ray = new THREE.Raycaster(), plane = new THREE.Plane(), hit = new V3(), goal = { x: 0, y: 0, z: 0, w: 0.45 }, dir = new V3();
+      let orbit = 0;
+      return {
+        scene, camera,
+        resize() { camera.aspect = aspect(); camera.updateProjectionMatrix(); },
+        update(t, dt) {
+          orbit += ((S.scroll * TAU * 0.6 + S.mx * 0.35) - orbit) * Math.min(1, dt * 3);
+          camera.position.set(Math.sin(orbit) * 5.6, 0.5 + S.my * 0.8, Math.cos(orbit) * 5.6);
+          camera.lookAt(0, 0, 0);
+          if (S.mIn) {
+            camera.getWorldDirection(dir);
+            plane.setFromNormalAndCoplanarPoint(dir, new V3());
+            ray.setFromCamera(new THREE.Vector2(S.mx, S.my), camera);
+            // Loop around the cursor rather than diving onto it, so the flock keeps swirling.
+            if (ray.ray.intersectPlane(plane, hit)) { goal.x = hit.x + Math.cos(t * 0.9) * 1.1; goal.y = hit.y + Math.sin(t * 1.3) * 0.5; goal.z = hit.z + Math.sin(t * 0.9) * 0.9; }
+          } else {
+            // Without a cursor, chase a looping point: this is what draws the ribbon shapes.
+            goal.x = Math.sin(t * 0.21) * 2.4; goal.y = Math.sin(t * 0.33 + 1) * 1.0; goal.z = Math.cos(t * 0.17) * 1.4;
+          }
+          const scatter = clamp(S.vel * 3, 0, 1);
+          if (MOTION) boids(birds, { r: 0.3, sepR: 0.13, coh: 0.3, ali: 0.9, sep: 0.007 * (1 + scatter * 8), min: 0.55, max: 1.25 * (1 + scatter), z3: true, goal, bounds: { x: 3.2, y: 1.8, z: 2.2 }, edge: 0.6 }, Math.min(dt, 0.033));
+          for (let i = 0; i < N; i++) {
+            const b = birds[i];
+            pos.setXYZ(i, b.x, b.y, b.z);
+            const d = camera.position.distanceTo(hit.set(b.x, b.y, b.z));
+            al.setX(i, clamp(1.15 - d / 8, 0.2, 0.75));
+          }
+          pos.needsUpdate = al.needsUpdate = true;
+        }
+      };
+    }
+
+    /* ======================================================================
+       Ilish school — fish that part around the cursor
+       ====================================================================== */
+    function buildFish(P) {
+      const scene = new THREE.Scene(), camera = new THREE.OrthographicCamera(-1, 1, 1, -1, -1, 1);
+      const N = innerWidth < 760 ? 110 : 180, SEG = 5;
+      const lines = dynLines(N * SEG);
+      scene.add(lines);
+      const pos = lines.geometry.getAttribute('position'), colA = lines.geometry.getAttribute('aColor'), alA = lines.geometry.getAttribute('aAlpha');
+      const fish = [];
+      for (let i = 0; i < N; i++) {
+        const a = (Math.random() - 0.5) * 0.6;
+        fish.push({ x: -0.6 + (Math.random() - 0.5) * 0.6, y: (Math.random() - 0.5) * 0.5, z: 0, vx: Math.cos(a) * 0.2, vy: Math.sin(a) * 0.2, vz: 0, ph: Math.random() * TAU, red: 0 });
+      }
+      const tmp = new C(), alpha = P.dark ? 0.85 : 0.7;
+      return {
+        scene, camera,
+        resize() { const a = aspect(); camera.left = -a; camera.right = a; camera.updateProjectionMatrix(); },
+        update(t, dt) {
+          const a = aspect(), step = MOTION ? Math.min(dt, 0.033) : 0, scatter = clamp(S.vel * 3, 0, 1);
+          // The current: a slow drifting point the school follows; scrolling moves it along.
+          const goal = { x: Math.sin(t * 0.13 + S.scroll * 6) * a * 0.55, y: Math.cos(t * 0.19 + S.sec) * 0.45, w: 0.28 };
+          // The cursor is a predator: the school splits around it.
+          const flee = S.mIn ? { x: S.mx * a, y: S.my, r: 0.38, w: 3.2 } : null;
+          if (MOTION) boids(fish, { r: 0.13, sepR: 0.035, coh: 0.5, ali: 1.0, sep: 0.0011 * (1 + scatter * 5), min: 0.12, max: 0.32 * (1 + scatter), goal, flee, bounds: { x: a * 0.92, y: 0.88 }, edge: 1.5 }, step);
+          let s = 0;
+          for (let i = 0; i < N; i++) {
+            const f = fish[i], sp = Math.hypot(f.vx, f.vy) || 1, ux = f.vx / sp, uy = f.vy / sp, nx = -uy, ny = ux;
+            f.ph += step * (6 + sp * 30);
+            f.red += ((f.fear > 0 ? 1 : 0) * f.fear * 1.6 - f.red) * Math.min(1, dt * 5);
+            const L = 0.055, pts = [];
+            // Spine of 4 points; the wiggle grows toward the tail.
+            for (let k = 0; k < 4; k++) {
+              const back = (k / 3) * L, sway = Math.sin(f.ph - k * 1.1) * 0.0065 * (k / 3);
+              pts.push([f.x - ux * back + nx * sway, f.y - uy * back + ny * sway]);
+            }
+            const [tx, ty] = pts[3], fl = Math.sin(f.ph) * 0.004;
+            const segs = [
+              [pts[0], pts[1]], [pts[1], pts[2]], [pts[2], pts[3]],
+              [[tx, ty], [tx - ux * 0.012 + nx * (0.009 + fl), ty - uy * 0.012 + ny * (0.009 + fl)]],
+              [[tx, ty], [tx - ux * 0.012 - nx * (0.009 - fl), ty - uy * 0.012 - ny * (0.009 - fl)]]
+            ];
+            tmp.copy(P.dot).lerp(P.red, clamp(f.red, 0, 1));
+            segs.forEach(([p, q], k) => {
+              pos.setXYZ(s * 2, p[0], p[1], 0); pos.setXYZ(s * 2 + 1, q[0], q[1], 0);
+              colA.setXYZ(s * 2, tmp.r, tmp.g, tmp.b); colA.setXYZ(s * 2 + 1, tmp.r, tmp.g, tmp.b);
+              const w = k < 3 ? alpha : alpha * 0.7;
+              alA.setX(s * 2, w); alA.setX(s * 2 + 1, w);
+              s++;
+            });
+          }
+          pos.needsUpdate = colA.needsUpdate = alA.needsUpdate = true;
+        }
+      };
+    }
+
+    /* ======================================================================
+       Fireflies — they gather at the cursor and blink in sync there
+       ====================================================================== */
+    function buildFireflies(P) {
+      const scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(40, aspect(), 0.1, 20);
+      camera.position.set(0, 0, 3);
+      const H = 3 * Math.tan(20 * Math.PI / 180);
+      const N = innerWidth < 760 ? 90 : 170;
+      const theme = document.documentElement.getAttribute('data-theme');
+      const core = new C(P.dark ? '#f4ff9a' : theme === 'claude' ? '#c7771f' : '#b8860b');
+      const glow = new C(P.dark ? '#c8ff5a' : theme === 'claude' ? '#f0a54a' : '#f2c94c');
+      const flies = [];
+      for (let i = 0; i < N; i++) flies.push({ x: (Math.random() * 2 - 1) * H * aspect(), y: (Math.random() * 2 - 1) * H, z: (Math.random() - 0.5) * 0.6, vx: 0, vy: 0, ph: Math.random() * TAU, rate: 1.6 + Math.random() * 1.4, seed: Math.random() * 100, orbit: 0.12 + Math.random() * 0.22 });
+      const halo = dynPoints(N, { soft: true }), dot = dynPoints(N);
+      scene.add(halo, dot);
+      const hp = halo.geometry.getAttribute('position'), hc = halo.geometry.getAttribute('aColor'), ha = halo.geometry.getAttribute('aAlpha'), hs = halo.geometry.getAttribute('aSize');
+      const dp = dot.geometry.getAttribute('position'), dc = dot.geometry.getAttribute('aColor'), da = dot.geometry.getAttribute('aAlpha'), ds = dot.geometry.getAttribute('aSize');
+      for (let i = 0; i < N; i++) { hc.setXYZ(i, glow.r, glow.g, glow.b); dc.setXYZ(i, core.r, core.g, core.b); hs.setX(i, 0.16); ds.setX(i, 0.022); }
+      let sync = 0;
+      return {
+        scene, camera,
+        resize() { camera.aspect = aspect(); camera.updateProjectionMatrix(); },
+        update(t, dt) {
+          const a = aspect(), step = MOTION ? Math.min(dt, 0.033) : 0, mx = S.mx * H * a, my = S.my * H;
+          sync += step * 2.2;
+          // Dusk deepens as you scroll: more fireflies come out.
+          const active = Math.floor(N * (0.45 + 0.55 * S.scroll));
+          flies.forEach((f, i) => {
+            const ang = vnoise(f.x * 0.8 + f.seed, f.y * 0.8, t * 0.1) * TAU * 2;
+            let ax = Math.cos(ang) * 0.12, ay = Math.sin(ang) * 0.12, near = 0;
+            if (S.mIn) {
+              const dx = mx - f.x, dy = my - f.y, d = Math.hypot(dx, dy);
+              near = clamp(1 - d / (H * 0.9), 0, 1);
+              if (near > 0) {
+                // Circle the cursor at each firefly's own distance.
+                const ox = mx + Math.cos(t * 0.7 + f.seed) * f.orbit - f.x, oy = my + Math.sin(t * 0.9 + f.seed) * f.orbit - f.y;
+                ax += ox * 1.4 * near; ay += oy * 1.4 * near;
+              }
+            }
+            f.vx += (ax - f.vx) * Math.min(1, step * 2); f.vy += (ay - f.vy) * Math.min(1, step * 2);
+            f.vx *= 1 + S.vel * 0.5; f.vy *= 1 + S.vel * 0.5;
+            f.x += f.vx * step; f.y += f.vy * step;
+            if (Math.abs(f.x) > H * a * 1.1) f.x = -Math.sign(f.x) * H * a; if (Math.abs(f.y) > H * 1.1) f.y = -Math.sign(f.y) * H;
+            // Near the cursor the blinking pulls into the shared rhythm.
+            f.ph += step * f.rate;
+            if (near > 0) f.ph = lerpAngle(f.ph, sync, Math.min(1, near * step * 3));
+            const flash = Math.pow(Math.max(0, Math.sin(f.ph)), 6), on = i < active ? 1 : 0;
+            hp.setXYZ(i, f.x, f.y, f.z); dp.setXYZ(i, f.x, f.y, f.z);
+            ha.setX(i, flash * (P.dark ? 0.55 : 0.45) * on);
+            da.setX(i, (0.18 + flash * 0.8) * on);
+          });
+          hp.needsUpdate = ha.needsUpdate = dp.needsUpdate = da.needsUpdate = true;
+        }
+      };
+    }
+
+    /* ======================================================================
+       Kites — Shakrain kites on strings, swaying with the mouse wind
+       ====================================================================== */
+    function buildKites(P) {
+      const scene = new THREE.Scene(), camera = new THREE.OrthographicCamera(-1, 1, 1, -1, -1, 1);
+      const theme = document.documentElement.getAttribute('data-theme');
+      const colours = [P.red, P.accent, new C(theme === 'dark' ? '#e7b75f' : '#d3961c'), P.ink, P.red.clone().lerp(P.bg, 0.3), P.dot];
+      const K = innerWidth < 760 ? 5 : 8, TAIL = 9, STR = 18;
+      const lines = dynLines(K * (STR + TAIL + 2));
+      scene.add(lines);
+      const pos = lines.geometry.getAttribute('position'), colA = lines.geometry.getAttribute('aColor'), alA = lines.geometry.getAttribute('aAlpha');
+      const shape = new THREE.Shape();
+      shape.moveTo(0, 0.075); shape.lineTo(0.052, 0.012); shape.lineTo(0, -0.085); shape.lineTo(-0.052, 0.012); shape.closePath();
+      const kites = [];
+      for (let i = 0; i < K; i++) {
+        const mesh = new THREE.Mesh(new THREE.ShapeGeometry(shape), new THREE.MeshBasicMaterial({ color: colours[i % colours.length], transparent: true, opacity: 0.92 }));
+        const s = 0.75 + Math.random() * 0.5;
+        mesh.scale.setScalar(s);
+        scene.add(mesh);
+        kites.push({ mesh, s, ax: (i + 0.5) / K, len: 1.25 + Math.random() * 0.6, lean: (Math.random() - 0.5) * 0.5, seed: Math.random() * 50, ang: 0, x: 0, y: 0, ready: false, tail: Array.from({ length: TAIL }, () => [0, -2]) });
+      }
+      const lineCol = P.ink, tmp = new C();
+      return {
+        scene, camera,
+        resize() { const a = aspect(); camera.left = -a; camera.right = a; camera.updateProjectionMatrix(); },
+        update(t, dt) {
+          const a = aspect(), step = MOTION ? Math.min(dt, 0.033) : 0, gust = 1 + S.vel * 3;
+          const wind = S.mx * 0.55, lift = 0.72 + 0.28 * clamp(S.sec / (sections.length - 1), 0, 1) + S.my * 0.08;
+          let s = 0;
+          const seg = (x1, y1, x2, y2, c, al) => {
+            pos.setXYZ(s * 2, x1, y1, 0); pos.setXYZ(s * 2 + 1, x2, y2, 0);
+            colA.setXYZ(s * 2, c.r, c.g, c.b); colA.setXYZ(s * 2 + 1, c.r, c.g, c.b);
+            alA.setX(s * 2, al); alA.setX(s * 2 + 1, al);
+            s++;
+          };
+          kites.forEach(k => {
+            // Each kite is held from below the screen; scrolling lets out string so they climb.
+            const axX = (k.ax * 2 - 1) * a * 0.9, axY = -1.15;
+            const wobble = (vnoise(k.seed, t * 0.4, 0) - 0.5) * 0.5 * gust;
+            const target = k.lean + wind + wobble;
+            k.ang += (target - k.ang) * Math.min(1, step * 2);
+            const L = k.len * lift;
+            k.x = axX + Math.sin(k.ang) * L;
+            k.y = axY + Math.cos(k.ang) * L;
+            k.mesh.position.set(k.x, k.y, 0);
+            k.mesh.rotation.z = -k.ang * 0.8 + Math.sin(t * 1.3 + k.seed) * 0.12 * (MOTION ? 1 : 0);
+            // String: a sagging curve from the hand to the kite.
+            const mx = (axX + k.x) / 2 + Math.sin(k.ang) * 0.12, my = (axY + k.y) / 2 - 0.18;
+            let px = axX, py = axY;
+            for (let j = 1; j <= STR; j++) {
+              const u = j / STR, x = (1 - u) * (1 - u) * axX + 2 * (1 - u) * u * mx + u * u * k.x, y = (1 - u) * (1 - u) * axY + 2 * (1 - u) * u * my + u * u * k.y;
+              seg(px, py, x, y, lineCol, 0.22);
+              px = x; py = y;
+            }
+            // Tail: each knot follows the one above it, pulled down and blown by the wind.
+            const r = k.mesh.rotation.z, bx = k.x + Math.sin(r) * 0.085 * k.s, by = k.y - Math.cos(r) * 0.085 * k.s;
+            if (!k.ready) { k.tail.forEach((p, j) => { p[0] = bx; p[1] = by - (j + 1) * 0.028; }); k.ready = true; }
+            let prev = [bx, by];
+            k.tail.forEach((p, j) => {
+              const wantX = prev[0] - wind * 0.02 + Math.sin(t * 3 + j * 0.8 + k.seed) * 0.008, wantY = prev[1] - 0.028;
+              p[0] += (wantX - p[0]) * Math.min(1, step * 9); p[1] += (wantY - p[1]) * Math.min(1, step * 9);
+              tmp.copy(k.mesh.material.color);
+              seg(prev[0], prev[1], p[0], p[1], tmp, 0.75 * (1 - j / TAIL));
+              prev = p;
+            });
+            // Spars across the kite.
+            const c = Math.cos(r), sn = Math.sin(r), sc = k.s;
+            const rot = (x, y) => [k.x + (x * c - y * sn) * sc, k.y + (x * sn + y * c) * sc];
+            const [t1x, t1y] = rot(0, 0.075), [b1x, b1y] = rot(0, -0.085), [l1x, l1y] = rot(-0.052, 0.012), [r1x, r1y] = rot(0.052, 0.012);
+            seg(t1x, t1y, b1x, b1y, lineCol, 0.45);
+            seg(l1x, l1y, r1x, r1y, lineCol, 0.45);
+          });
+          lines.geometry.setDrawRange(0, s * 2);
+          pos.needsUpdate = colA.needsUpdate = alA.needsUpdate = true;
+        }
+      };
+    }
+
+    const BUILDERS = { silk: buildSilk, wave: buildWave, magnet: buildMagnet, flock: buildFlock, murmur: buildMurmur, fish: buildFish, fireflies: buildFireflies, kites: buildKites, network: buildNetwork, monsoon: buildMonsoon, tunnel: buildTunnel };
+
+    /* ======================================================================
+       UI
+       ====================================================================== */
+    // Per-section mapping: each section of the page gets its own background.
+    const SECTION_BG = { Hero: 'magnet', Experience: 'silk', Projects: 'network', Stack: 'tunnel', Education: 'wave', Contact: 'flock' };
+    const keyIndex = k => VARIANTS.findIndex(v => v.key === k);
+    let VI = 0, MODE = 'single';
+    const picks = $('[data-picks]');
+    VARIANTS.forEach((v, i) => {
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'pick'; b.setAttribute('role', 'tab');
+      b.innerHTML = `<span class="n">${i + 1}</span><span class="label"></span>`;
+      b.querySelector('.label').textContent = v.name;
+      b.title = v.name;
+      b.addEventListener('click', () => pick(i));
+      picks.appendChild(b);
+    });
+
+    function dispose(scene) {
+      scene.traverse(o => {
+        if (o.geometry) o.geometry.dispose();
+        const m = o.material;
+        if (m) { if (m.map) m.map.dispose(); m.dispose(); }
+      });
+    }
+    // Make a layer show background `key`, rebuilding it only when it changes.
+    function load(layer, key, force) {
+      if (!layer.renderer || (layer.key === key && !force)) return;
+      if (layer.V) dispose(layer.V.scene);
+      layer.key = key;
+      layer.V = BUILDERS[key](palette());
+      sizeLayer(layer);
+    }
+    function sizeLayer(layer) {
+      if (!layer.renderer) return;
+      layer.renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1.5));
+      layer.renderer.setSize(innerWidth, innerHeight, false);
+      U.uRes.value.copy(layer.renderer.getDrawingBufferSize(new THREE.Vector2()));
+      if (layer.V && layer.V.resize) layer.V.resize();
+    }
+    // Point sizes depend on each camera's field of view, so set the shared value before each render.
+    function scaleFor(layer) {
+      const fov = layer.V && layer.V.camera.fov ? layer.V.camera.fov : 40;
+      U.uScale.value = U.uRes.value.y / (2 * Math.tan(fov * Math.PI / 360));
+    }
+    addEventListener('resize', () => layers.forEach(sizeLayer));
+
+    const currentSection = () => sections[clamp(Math.round(S.sec), 0, sections.length - 1)].dataset.sec;
+    function renderDock() {
+      const sec = currentSection();
+      const shown = MODE === 'single' ? VI : keyIndex(SECTION_BG[sec]);
+      const d = VARIANTS[shown];
+      $('[data-name]').textContent = MODE === 'single' ? d.name : `${sec}: ${d.name}`;
+      $('[data-desc]').textContent = MODE === 'single' ? d.desc : 'Each section has its own background, crossfading as you scroll. Pick one below to give it to the section on screen.';
+      [...picks.children].forEach((b, j) => b.setAttribute('aria-selected', String(j === shown)));
+    }
+    function pick(i) {
+      i = (i + VARIANTS.length) % VARIANTS.length;
+      if (MODE === 'sections') {
+        SECTION_BG[currentSection()] = VARIANTS[i].key;
+      } else {
+        VI = i;
+        load(layers[0], VARIANTS[VI].key);
+        try { history.replaceState(null, '', `${location.search}#${VARIANTS[VI].key}`); } catch (e) {}
+      }
+      picks.children[i].scrollIntoView({ block: 'nearest', inline: 'nearest' });
+      renderDock();
+    }
+    function setMode(m) {
+      MODE = m;
+      document.querySelectorAll('[data-mode]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.mode === m)));
+      if (m === 'single') load(layers[0], VARIANTS[VI].key);
+      renderDock();
+    }
+    document.querySelectorAll('[data-mode]').forEach(b => b.addEventListener('click', () => setMode(b.dataset.mode)));
+
+    // Per section: blend from the section in view to the next one, halfway between their centres.
+    function updateSections() {
+      const n = sections.length, c = clamp(S.sec, 0, n - 1), i = Math.floor(c), f = c - i;
+      const t = i < n - 1 ? clamp((f - 0.35) / 0.3, 0, 1) : 0;
+      const tt = t * t * (3 - 2 * t);
+      const kA = SECTION_BG[sections[i].dataset.sec];
+      const kB = i < n - 1 ? SECTION_BG[sections[i + 1].dataset.sec] : kA;
+      const want = tt > 0.001 && kB !== kA ? [[kA, 1 - tt], [kB, tt]] : [[tt > 0.5 ? kB : kA, 1]];
+      // Reuse a layer that already shows a wanted background; rebuild the other one only if needed.
+      const free = layers.filter(l => !want.some(([k]) => k === l.key));
+      want.forEach(([k, o]) => {
+        let l = layers.find(x => x.key === k);
+        if (!l) { l = free.shift(); load(l, k); }
+        l.opacity = o;
+      });
+      layers.forEach(l => { if (!want.some(([k]) => k === l.key)) l.opacity = 0; });
+    }
+
+    const themeButtons = [...document.querySelectorAll('[data-theme-value]')];
+    const markTheme = () => { const t = document.documentElement.getAttribute('data-theme'); themeButtons.forEach(b => b.setAttribute('aria-checked', String(b.dataset.themeValue === t))); };
+    themeButtons.forEach(b => b.addEventListener('click', () => {
+      document.documentElement.setAttribute('data-theme', b.dataset.themeValue);
+      try { localStorage.setItem('v3-theme', b.dataset.themeValue); } catch (e) {}
+      markTheme();
+      layers.forEach(l => { if (l.key) load(l, l.key, true); });
+    }));
+    markTheme();
+
+    const bare = $('[data-bare]');
+    bare.addEventListener('click', () => {
+      const on = !document.body.classList.contains('is-bare');
+      document.body.classList.toggle('is-bare', on);
+      bare.setAttribute('aria-pressed', String(on));
+      bare.textContent = on ? 'Show content' : 'Hide content';
+    });
+    $('[data-top]').addEventListener('click', e => { e.preventDefault(); scrollTo({ top: 0, behavior: MOTION ? 'smooth' : 'auto' }); });
+    document.addEventListener('keydown', e => {
+      const n = e.key.length === 1 ? +e.key : NaN;
+      if (n >= 1 && n <= Math.min(9, VARIANTS.length)) pick(n - 1);
+    });
+
+    const hud = $('[data-hud]');
+    await Promise.race([document.fonts.ready, new Promise(r => setTimeout(r, 2000))]);
+    // Optional URL options: ?y=0.6 starts 60% down the page, ?mx=0.3&my=-0.2 places a cursor, ?mode=sections.
+    const q = new URLSearchParams(location.search);
+    if (q.has('y')) scrollTo(0, +q.get('y') * (document.documentElement.scrollHeight - innerHeight));
+    if (q.has('mx')) { S.tmx = S.mx = +q.get('mx'); S.tmy = S.my = +(q.get('my') || 0); S.mIn = true; }
+    readScroll();
+    // ?pin=0.6 freezes the background at 60% of the page without scrolling (for screenshots).
+    if (q.has('pin')) {
+      const pin = clamp(+q.get('pin'), 0, 1);
+      PINNED = true;
+      S.scroll = pin;
+      S.secT = pin * (sections.length - 1);
+    }
+    S.sec = S.secT;
+    const fromHash = VARIANTS.findIndex(v => `#${v.key}` === location.hash);
+    VI = fromHash >= 0 ? fromHash : 0;
+    layers.forEach(sizeLayer);
+    setMode(q.get('mode') === 'sections' ? 'sections' : 'single');
+
+    let last = performance.now(), lastHud = '';
+    function frame(now) {
+      const dt = clamp(now - last, 0, 64) / 1000;
+      last = now;
+      U.uTime.value = MOTION ? now / 1000 : 0;
+      const e = Math.min(1, dt * 5);
+      S.mx += (S.tmx - S.mx) * e;
+      S.my += (S.tmy - S.my) * e;
+      S.sec += (S.secT - S.sec) * Math.min(1, dt * 4);
+      const v = Math.abs(scrollY - S.lastY) / Math.max(1, innerHeight) / Math.max(dt, 0.001);
+      S.lastY = scrollY;
+      S.vel += (Math.min(v, 3) * 0.25 - S.vel) * Math.min(1, dt * 6);
+      S.mSpeed *= 0.92;
+      if (MODE === 'sections') updateSections();
+      else { layers[0].opacity = 1; layers[1].opacity = 0; }
+      layers.forEach(l => {
+        l.canvas.style.opacity = l.opacity.toFixed(3);
+        if (!l.V || !l.renderer || l.opacity <= 0.001) return;
+        scaleFor(l);
+        l.V.update(now / 1000, dt);
+        l.renderer.render(l.V.scene, l.V.camera);
+      });
+      const label = `${currentSection()} · ${Math.round(S.scroll * 100)}%`;
+      if (label !== lastHud) { hud.textContent = label; lastHud = label; if (MODE === 'sections') renderDock(); }
+      requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+  </script>
+</body>
+</html>

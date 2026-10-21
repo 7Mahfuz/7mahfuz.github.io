@@ -1,0 +1,1637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Globe Lab</title>
+  <meta name="description" content="Seven Three.js variants of the portfolio hero globe, side by side." />
+  <meta name="robots" content="noindex" />
+  <link rel="icon" type="image/x-icon" href="../assets/img/favicon.ico" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=Martian+Mono:wght@400;500&family=Tiro+Bangla&display=swap" rel="stylesheet" />
+  <script>
+    // Same saved theme as the portfolio (light by default).
+    (function () {
+      var t = 'light';
+      try {
+        var s = localStorage.getItem('v3-theme');
+        if (s === 'light' || s === 'dark' || s === 'claude') t = s;
+      } catch (e) {}
+      document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script>
+  <style>
+    /* Tokens copied from css/v3.css so the theme-aware globes match the site. */
+    :root,
+    :root[data-theme="light"] {
+      --bg: #f2f5f1; --bg-alt: #e7ede7; --surface: #fafbf9;
+      --line: rgba(31, 51, 44, 0.12); --line-strong: rgba(31, 51, 44, 0.24);
+      --ink: #1f332c; --muted: #4d6158; --accent: #2c7360; --red: #c93c4a;
+      --globe-disc-hi: #f1f6f2; --globe-disc-mid: #d8e6dc; --globe-disc-lo: #b5cbbd;
+      --globe-glow: 44, 115, 96; --globe-dot: 34, 82, 64; --globe-dot-alpha: 0.3, 0.56, 0.85;
+      --globe-arc: 201, 60, 74; --globe-ink: 31, 51, 44;
+      --chip-bg: rgba(250, 251, 249, 0.95);
+    }
+    :root[data-theme="dark"] {
+      --bg: #131a18; --bg-alt: #0f1513; --surface: #18221f;
+      --line: rgba(226, 232, 228, 0.1); --line-strong: rgba(226, 232, 228, 0.22);
+      --ink: #e2e8e4; --muted: #a3b3ab; --accent: #8fc6b0; --red: #ec6f78;
+      --globe-disc-hi: #2c4038; --globe-disc-mid: #1d2c26; --globe-disc-lo: #111a17;
+      --globe-glow: 143, 198, 176; --globe-dot: 143, 198, 176; --globe-dot-alpha: 0.26, 0.5, 0.8;
+      --globe-arc: 236, 111, 120; --globe-ink: 226, 232, 228;
+      --chip-bg: rgba(15, 21, 19, 0.92);
+    }
+    :root[data-theme="claude"] {
+      --bg: #faf9f5; --bg-alt: #f0eee6; --surface: #ffffff;
+      --line: rgba(31, 30, 29, 0.11); --line-strong: rgba(31, 30, 29, 0.22);
+      --ink: #1f1e1d; --muted: #5e5d59; --accent: #a84e2d; --red: #d97757;
+      --globe-disc-hi: #fffdf8; --globe-disc-mid: #f2eee4; --globe-disc-lo: #d9d1bf;
+      --globe-glow: 217, 119, 87; --globe-dot: 61, 57, 50; --globe-dot-alpha: 0.26, 0.5, 0.78;
+      --globe-arc: 217, 119, 87; --globe-ink: 31, 30, 29;
+      --chip-bg: rgba(255, 255, 255, 0.95);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font: 400 16px/1.55 "Instrument Sans", system-ui, sans-serif;
+      transition: background-color 0.3s, color 0.3s;
+    }
+    button { font: inherit; color: inherit; }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+    /* Top bar */
+    .top {
+      display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+      padding: 18px clamp(16px, 4vw, 48px) 10px;
+    }
+    .brand {
+      display: inline-flex; align-items: center; gap: 10px;
+      font: 650 18px/1 "Bricolage Grotesque", sans-serif; color: var(--ink); text-decoration: none;
+    }
+    .mark {
+      width: 14px; height: 14px; border-radius: 50%; background: var(--red);
+      box-shadow: 0 0 0 4px color-mix(in srgb, var(--red) 18%, transparent);
+    }
+    .pages { display: inline-flex; gap: 2px; padding: 3px; border: 1px solid var(--line-strong); border-radius: 999px; }
+    .pages a { padding: 6px 12px; border-radius: 999px; font-size: 13px; font-weight: 500; color: var(--muted); text-decoration: none; }
+    .pages a[aria-current="page"] { background: var(--ink); color: var(--bg); }
+    .theme-switch {
+      margin-left: auto; display: inline-flex; gap: 2px; padding: 3px;
+      border: 1px solid var(--line-strong); border-radius: 999px;
+    }
+    .theme-switch button {
+      border: 0; background: none; cursor: pointer; padding: 6px 12px; border-radius: 999px;
+      font-size: 13px; font-weight: 500; color: var(--muted);
+    }
+    .theme-switch button[aria-checked="true"] { background: var(--ink); color: var(--bg); }
+
+    /* Variant tabs */
+    .tabs {
+      display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none;
+      padding: 10px clamp(16px, 4vw, 48px) 18px;
+    }
+    .tabs::-webkit-scrollbar { display: none; }
+    .tab {
+      flex: none; display: inline-flex; align-items: center; gap: 9px;
+      padding: 7px 15px 7px 7px; cursor: pointer;
+      border: 1px solid var(--line-strong); border-radius: 999px; background: transparent;
+      font-size: 14px; font-weight: 500; white-space: nowrap;
+      transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+    }
+    .tab:hover { border-color: var(--ink); }
+    .tab .n {
+      display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%;
+      background: var(--bg-alt); font: 500 11px/1 "Martian Mono", monospace;
+    }
+    .tab[aria-selected="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+    .tab[aria-selected="true"] .n { background: var(--red); color: #fff; }
+
+    /* Layout */
+    .lab {
+      display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+      gap: clamp(24px, 4vw, 64px); align-items: start;
+      padding: 0 clamp(16px, 4vw, 48px) 56px;
+    }
+    @media (max-width: 900px) { .lab { grid-template-columns: minmax(0, 1fr); } }
+
+    /* Stage */
+    .stage {
+      position: relative; width: 100%; aspect-ratio: 1 / 1; max-height: 80vh;
+      border-radius: 28px; overflow: hidden; isolation: isolate;
+      background: var(--bg); border: 1px solid var(--line);
+      touch-action: pan-y; cursor: grab; user-select: none; -webkit-user-select: none;
+      transition: background-color 0.4s;
+    }
+    .stage.is-dragging { cursor: grabbing; }
+    .stage[data-variant="flat"] { cursor: default; }
+    .stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+    .stage[data-variant="night"] {
+      background: radial-gradient(circle at 50% 42%, #0f1f3d 0%, #060b18 55%, #02040a 100%);
+      border-color: transparent;
+    }
+    .stage[data-variant="data"] {
+      background: radial-gradient(circle at 50% 45%, #0b1b20 0%, #04080b 70%);
+      border-color: transparent;
+    }
+    .stage[data-variant="blueprint"] {
+      background-color: #103d7a;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.11) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.11) 1px, transparent 1px),
+        linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px);
+      background-size: 120px 120px, 120px 120px, 24px 24px, 24px 24px;
+      background-position: center;
+      border-color: transparent;
+    }
+    .stage[data-variant="kantha"] {
+      background-color: #f1e6cf;
+      background-image:
+        repeating-linear-gradient(45deg, rgba(120, 90, 40, 0.05) 0 2px, transparent 2px 6px),
+        repeating-linear-gradient(-45deg, rgba(120, 90, 40, 0.04) 0 2px, transparent 2px 6px);
+      border-color: transparent;
+    }
+    .stage[data-variant="kantha"]::after {
+      content: ""; position: absolute; inset: 12px; pointer-events: none;
+      border: 2px dashed rgba(179, 38, 30, 0.42); border-radius: 20px;
+    }
+
+    .stage-hint {
+      position: absolute; left: 18px; bottom: 14px; margin: 0; pointer-events: none;
+      font: 500 10px/1 "Martian Mono", monospace; letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--muted); opacity: 0.8;
+    }
+    .stage[data-variant="night"] .stage-hint,
+    .stage[data-variant="data"] .stage-hint,
+    .stage[data-variant="blueprint"] .stage-hint { color: rgba(235, 242, 255, 0.6); }
+    .stage[data-variant="kantha"] .stage-hint { color: #7a5a3a; left: 26px; bottom: 24px; }
+    .stage-fallback {
+      position: absolute; inset: 0; display: grid; place-items: center; margin: 0; padding: 24px;
+      text-align: center; color: var(--muted);
+    }
+    .stage-fallback[hidden] { display: none; }
+
+    /* Blueprint title block */
+    .titleblock {
+      position: absolute; right: 16px; bottom: 16px; margin: 0; display: none;
+      grid-template-columns: auto auto; border: 1px solid rgba(235, 242, 255, 0.75);
+      font: 500 9.5px/1.2 "Martian Mono", monospace; color: #fff; text-transform: uppercase; letter-spacing: 0.05em;
+      pointer-events: none;
+    }
+    .titleblock div { padding: 6px 9px; border: 0.5px solid rgba(235, 242, 255, 0.5); }
+    .titleblock dt { opacity: 0.6; font-size: 8px; margin-bottom: 3px; }
+    .titleblock dd { margin: 0; }
+    .stage[data-variant="blueprint"] .titleblock { display: grid; }
+
+    /* Chips (labels pinned to points on the globe) */
+    .chips { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+    .chip {
+      position: absolute; left: 0; top: 0; opacity: 0;
+      display: flex; flex-direction: column; gap: 2px; padding: 6px 10px;
+      border-radius: 10px; background: var(--chip-bg); color: var(--ink);
+      box-shadow: 0 0 0 1px var(--line), 0 6px 18px rgba(0, 0, 0, 0.08);
+      font: 600 12.5px/1.15 "Instrument Sans", "Tiro Bangla", sans-serif; white-space: nowrap;
+      transition: opacity 0.25s; will-change: transform;
+    }
+    .chip span { font: 500 9.5px/1.3 "Martian Mono", monospace; color: var(--muted); letter-spacing: 0.02em; }
+    .chip.is-active { box-shadow: 0 0 0 1.5px var(--red), 0 6px 18px rgba(0, 0, 0, 0.1); }
+
+    .stage[data-variant="night"] .chip {
+      background: rgba(8, 16, 34, 0.72); color: #f6e7c6; box-shadow: 0 0 0 1px rgba(255, 210, 140, 0.32);
+      backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    }
+    .stage[data-variant="night"] .chip span { color: #b8c3da; }
+    .stage[data-variant="night"] .chip.is-active { box-shadow: 0 0 0 1.5px #ffd27a, 0 0 24px rgba(255, 200, 110, 0.25); }
+
+    .stage[data-variant="data"] .chip {
+      background: rgba(4, 14, 16, 0.78); color: #c9fff3; border-radius: 4px;
+      box-shadow: 0 0 0 1px rgba(62, 230, 195, 0.4);
+      font: 500 11px/1.2 "Martian Mono", monospace; text-transform: uppercase; letter-spacing: 0.04em;
+    }
+    .stage[data-variant="data"] .chip span { color: #6fbfae; }
+    .stage[data-variant="data"] .chip.is-active { box-shadow: 0 0 0 1.5px #ff4d6a, 0 0 20px rgba(255, 77, 106, 0.3); }
+
+    .stage[data-variant="blueprint"] .chip {
+      background: rgba(16, 61, 122, 0.88); color: #fff; border-radius: 0;
+      box-shadow: 0 0 0 1px rgba(235, 242, 255, 0.75);
+      font: 500 10.5px/1.2 "Martian Mono", monospace; text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    .stage[data-variant="blueprint"] .chip span { color: rgba(235, 242, 255, 0.72); }
+    .stage[data-variant="blueprint"] .chip.is-active { box-shadow: 0 0 0 1.5px #ffd27a; }
+
+    .stage[data-variant="kantha"] .chip {
+      background: #fbf5e8; color: #3a2a1a; border-radius: 14px;
+      box-shadow: none; outline: 1.5px dashed #b3261e; outline-offset: -4px; padding: 8px 13px;
+      font: 650 13px/1.15 "Bricolage Grotesque", "Tiro Bangla", sans-serif;
+    }
+    .stage[data-variant="kantha"] .chip span { color: #7a5a3a; }
+    .stage[data-variant="kantha"] .chip.is-active { outline-color: #d3961c; }
+
+    /* Tour caption under the stage (same pattern as the hero) */
+    .tour { margin-top: 18px; border-top: 1px solid var(--line-strong); padding-top: 12px; }
+    .tour-head {
+      display: flex; justify-content: space-between;
+      font: 500 11px/1.4 "Martian Mono", monospace; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent);
+    }
+    .tour-title { margin: 8px 0 2px; font: 650 clamp(20px, 2.4vw, 26px)/1.15 "Bricolage Grotesque", sans-serif; }
+    .tour-sub { margin: 0; color: var(--muted); min-height: 1.55em; }
+    .tour-text.is-swapping { animation: swap 0.5s ease; }
+    @keyframes swap { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+    .tour-foot { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 14px; }
+    .ticks { display: flex; gap: 6px; }
+    .ticks button { position: relative; width: 26px; height: 22px; border: 0; padding: 0; background: none; cursor: pointer; }
+    .ticks button::after {
+      content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 2px; border-radius: 2px;
+      background: var(--line-strong); transition: background-color 0.2s;
+    }
+    .ticks button[aria-current="true"]::after { background: var(--red); }
+    .tour-buttons { display: flex; gap: 6px; }
+    .tour-buttons button {
+      display: grid; place-items: center; width: 38px; height: 38px; cursor: pointer;
+      border: 1px solid var(--line-strong); border-radius: 50%; background: transparent;
+    }
+    .tour-buttons button:hover { border-color: var(--ink); }
+    .tour-buttons svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+    [data-toggle] .i-play { display: none; }
+    [data-toggle][aria-pressed="true"] .i-play { display: block; }
+    [data-toggle][aria-pressed="true"] .i-pause { display: none; }
+
+    /* Info panel */
+    .info { position: sticky; top: 20px; }
+    .eyebrow {
+      margin: 0 0 10px; color: var(--accent);
+      font: 500 11px/1.4 "Martian Mono", monospace; letter-spacing: 0.08em; text-transform: uppercase;
+    }
+    .info h1 { margin: 0; font: 700 clamp(38px, 5vw, 66px)/0.98 "Bricolage Grotesque", sans-serif; letter-spacing: -0.025em; }
+    .badge {
+      display: inline-block; margin-left: 12px; vertical-align: 0.55em; padding: 5px 9px; border-radius: 999px;
+      background: var(--red); color: #fff; font: 500 10px/1 "Martian Mono", monospace; letter-spacing: 0.06em; text-transform: uppercase;
+    }
+    .badge[hidden] { display: none; }
+    .line { margin: 16px 0 10px; font: 500 19px/1.4 "Instrument Sans", sans-serif; }
+    .desc { margin: 0 0 22px; color: var(--muted); max-width: 54ch; }
+    .facts {
+      display: grid; grid-template-columns: auto 1fr; gap: 9px 20px; margin: 0 0 22px; padding: 16px 0;
+      border-block: 1px solid var(--line);
+    }
+    .facts dt { padding-top: 3px; color: var(--muted); font: 500 10.5px/1.4 "Martian Mono", monospace; letter-spacing: 0.06em; text-transform: uppercase; }
+    .facts dd { margin: 0; font-weight: 500; }
+
+    .extra:empty { display: none; }
+    .extra { margin: 0 0 22px; padding: 16px; border-radius: 16px; background: var(--surface); box-shadow: 0 0 0 1px var(--line); }
+    .extra-label { margin: 0 0 10px; color: var(--muted); font: 500 10.5px/1.4 "Martian Mono", monospace; letter-spacing: 0.06em; text-transform: uppercase; }
+    .times { list-style: none; margin: 0 0 14px; padding: 0; display: grid; gap: 8px; }
+    .times li { display: grid; grid-template-columns: 1fr auto auto; gap: 12px; align-items: baseline; }
+    .times b { font-weight: 600; }
+    .times .t { font: 500 15px/1 "Martian Mono", monospace; }
+    .times .d { color: var(--muted); font-size: 13px; min-width: 9.5em; text-align: right; }
+    .shift { display: grid; gap: 6px; font-size: 13px; color: var(--muted); }
+    .shift b { color: var(--ink); font-weight: 600; }
+    .shift input { width: 100%; accent-color: var(--red); }
+
+    .set-label { margin: 0 0 8px; color: var(--muted); font: 500 10.5px/1.4 "Martian Mono", monospace; letter-spacing: 0.06em; text-transform: uppercase; }
+    .seg { display: inline-flex; padding: 3px; border: 1px solid var(--line-strong); border-radius: 999px; }
+    .seg button { border: 0; background: none; cursor: pointer; padding: 6px 14px; border-radius: 999px; font-size: 13px; font-weight: 500; }
+    .seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+    .keys { margin: 22px 0 0; color: var(--muted); font: 500 11px/1.8 "Martian Mono", monospace; }
+    kbd { padding: 1px 6px; border: 1px solid var(--line-strong); border-radius: 5px; font: inherit; }
+
+    @media (max-width: 900px) {
+      .info { position: static; }
+      .pages { order: 3; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .tour-text.is-swapping { animation: none; }
+    }
+  </style>
+</head>
+<body>
+  <header class="top">
+    <a class="brand" href="../index.html"><span class="mark" aria-hidden="true"></span>Globe lab</a>
+    <nav class="pages" aria-label="Demos">
+      <a href="globes.html" aria-current="page">Globe variants</a>
+      <a href="heroes.html">Beyond the globe</a>
+      <a href="backgrounds.html">Backgrounds</a>
+    </nav>
+    <div class="theme-switch" role="radiogroup" aria-label="Colour theme" data-theme-switch>
+      <button type="button" role="radio" aria-checked="false" data-theme-value="light">Light</button>
+      <button type="button" role="radio" aria-checked="false" data-theme-value="dark">Dark</button>
+      <button type="button" role="radio" aria-checked="false" data-theme-value="claude">Claude</button>
+    </div>
+  </header>
+
+  <nav class="tabs" role="tablist" aria-label="Globe variants" data-tabs></nav>
+
+  <main class="lab">
+    <section aria-label="Preview">
+      <div class="stage" data-stage data-variant="flag">
+        <canvas data-canvas aria-hidden="true"></canvas>
+        <div class="chips" data-chips aria-hidden="true"></div>
+        <dl class="titleblock" aria-hidden="true">
+          <div><dt>Project</dt><dd>Client reach</dd></div>
+          <div><dt>Origin</dt><dd>Dhaka 23.81°N 90.41°E</dd></div>
+          <div><dt>Drawn</dt><dd>A. M. Rahman</dd></div>
+          <div><dt>Sheet</dt><dd>04 / 07</dd></div>
+        </dl>
+        <p class="stage-hint" data-hint>Drag to spin</p>
+        <p class="stage-fallback" data-fallback hidden>This browser could not start WebGL, so the 3D previews can't run here.</p>
+      </div>
+
+      <div class="tour">
+        <div class="tour-head"><span data-route>Dhaka → USA</span><span data-count>1 / 6</span></div>
+        <div class="tour-text" data-tour-text>
+          <p class="tour-title" data-title>Western Digital</p>
+          <p class="tour-sub" data-sub></p>
+        </div>
+        <div class="tour-foot">
+          <div class="ticks" role="group" aria-label="Tour stops" data-ticks></div>
+          <div class="tour-buttons">
+            <button type="button" data-prev aria-label="Previous stop"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3.5 5.5 8l4.5 4.5" /></svg></button>
+            <button type="button" data-toggle aria-pressed="false" aria-label="Pause tour">
+              <svg class="i-pause" viewBox="0 0 16 16" aria-hidden="true"><path d="M5.5 3.5v9M10.5 3.5v9" /></svg>
+              <svg class="i-play" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 3.5v9l7-4.5z" /></svg>
+            </button>
+            <button type="button" data-next aria-label="Next stop"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3.5 10.5 8 6 12.5" /></svg></button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <aside class="info">
+      <p class="eyebrow" data-eyebrow>Variant 01 / 07</p>
+      <h1><span data-name>Flag disc</span><span class="badge" data-badge hidden>Live today</span></h1>
+      <p class="line" data-line></p>
+      <p class="desc" data-desc></p>
+      <dl class="facts">
+        <dt>Suits</dt><dd data-suits></dd>
+        <dt>Effort</dt><dd data-effort></dd>
+        <dt>Weight</dt><dd data-weight></dd>
+        <dt>Colours</dt><dd data-themed></dd>
+      </dl>
+      <div class="extra" data-extra></div>
+      <p class="set-label">Clients on the globe</p>
+      <div class="seg" role="group" aria-label="Client set" data-set>
+        <button type="button" data-set-value="full" aria-pressed="true">Full site</button>
+        <button type="button" data-set-value="pro" aria-pressed="false">Pro build</button>
+      </div>
+      <p class="keys"><kbd>1</kbd>–<kbd>7</kbd> switch variant · <kbd>←</kbd> <kbd>→</kbd> tour stops</p>
+    </aside>
+  </main>
+
+  <script type="module">
+    import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.min.js';
+
+    // Colours are written as-is (hex in, same hex out) so they match the CSS.
+    THREE.ColorManagement.enabled = false;
+
+    const V3 = THREE.Vector3, C = THREE.Color;
+    const DEG = Math.PI / 180, TAU = Math.PI * 2;
+    const Z = new V3(0, 0, 1);
+    const DHAKA = { lat: 23.81, lon: 90.41 };
+    const EARTH_KM = 6371;
+    const MOTION = !(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+
+    /* ======================================================================
+       Data
+       ====================================================================== */
+
+    // Natural Earth 110m land on a 1.6° grid, run-length encoded (same string as js/v3.js).
+    const LAND = '-56,1.6|3i:3i|3n:13.2.2i|3s:14.1.2n|3x:15.2.2q|42:16.4.1j.1.18|47:18.4.2v|4b:19.3.2u.1.4|4g:1b.4.2v.2.4|4k:1d.3.2o.1.b.1.3|4o:1d.5.2q.1.b.1.3|4s:1f.5.36.1.1|4w:1g.7.2s.1.d.2.1|50:1h.9.2q.5.c.1.2|54:1j.8.2s.6.b.1.3|57:1k.a.11.4.1a.5.6.8.f|5b:1m.a.11.6.1a.6.3.b.e|5e:1m.c.10.8.19.k.f|5h:1n.d.10.8.19.m.e|5k:1p.c.z.a.19.m.f|5n:1q.c.10.a.1a.m.f|5q:1r.e.y.c.5.2.12.m.g|5s:1r.h.w.d.4.3.12.l.h|5u:1s.h.w.c.6.2.14.j.9.1.8|5w:1t.i.u.e.5.3.17.f.j|5y:1t.j.u.f.4.3.18.e.i.1.1|60:1s.l.u.h.3.3.19.7.3.2.l|62:1r.m.v.i.4.1.1a.1.1.4.4.2.l|63:1r.n.v.h.5.1.1d.4.3.1.m|65:1r.p.v.g.2e|66:1r.q.u.h.1c.1.2.1.e.1.6.1.c|67:1q.s.u.g.18.3.e.4.1.1.k|68:1q.s.u.g.16.1.g.1.2.6.4.1.f|68:1p.s.u.h.14.2.8.1.1.1.8.6.3.1.h|69:1q.q.v.j.12.3.3.3.2.2.2.3.1.7.5.1.h|69:1q.m.y.l.10.3.3.4.2.2.6.1.t|69:1q.j.11.l.10.2.4.5.1.1.4.1.w|69:1r.i.11.n.x.2.1.1.3.5.6.1.w|69:1s.h.12.n.v.2.1.1.6.3.13|68:1s.g.q.2.7.r.t.2.2.1.7.3.12|68:1s.c.t.12.j.1.b.1.9.1.4.2.x|67:1p.1.1.c.s.13.j.1.b.1.d.3.x|66:1m.2.4.9.t.14.g.3.f.1.b.1.x|65:1m.1.6.1.1.1.x.10.3.2.f.3.b.1.2.3.8.1.1.1.x|63:1k.3.14.12.i.3.b.1.1.5.17|62:1h.6.14.z.1.4.f.4.a.7.7.1.z|60:1d.2.1.3.17.y.2.5.d.5.a.6.7.1.z|5y:1b.8.16.x.2.8.b.5.7.7.9.1.y|5w:e.1.t.5.3.2.9.2.v.w.2.a.9.7.5.7.2.1.15|5u:17.5.4.2.5.2.y.w.1.b.7.a.3.8.2.1.14|5s:17.4.8.1.1.2.10.u.2.c.5.c.1.d.12|5q:16.5.b.1.z.t.2.b.6.s.2.1.x|5n:12.1.1.7.1a.s.1.9.4.y.y|5k:10.2.1.7.8.1.12.q.1.7.2.12.x|5h:11.9.7.1.13.n.2.7.1.13.w|5e:y.1.1.h.13.1y.w|5b:x.k.11.e.2.2.6.1a.v|57:w.l.10.a.d.18.5.2.o|54:u.n.10.9.6.1.5.17.4.1.2.4.k|50:t.n.z.2.3.3.2.1.6.1b.2.2.3.2.k|4w:s.n.w.5.a.2.1.b.2.w.3.2.5.1.j|4s:r.o.v.4.4.1.2.1.1.2.2.b.1.w.1.3.6.1.i|4o:q.p.t.5.5.1.2.4.2.2.2.4.2.10.4.1.i|4k:p.p.s.6.3.1.2.5.5.4.1.12.3.2.g|4g:p.p.1.1.r.6.2.6.2.1.1.4.2.12.j|4b:o.r.q.g.1.5.1.11.i|47:n.n.1.1.3.2.l.1o.h|42:n.n.1.1.1.1.n.1l.1.1.e|3x:k.t.k.2.1.1j.e|3s:j.i.1.9.i.3.2.1f.6.1.8|3n:i.i.1.8.h.1.1.1.6.18.7.2.7|3i:7.1.9.f.4.6.j.1.4.2.2.15.6.3.6|3d:7.1.8.d.6.5.j.1.4.2.3.12.6.2.6|37:6.2.5.e.6.2.1.1.m.4.2.12.3.1.2.1.5|32:4.m.5.3.7.1.f.3.2.15.2.2.3|2w:4.l.7.1.5.2.e.3.1.19.1|2r:5.k.1.1.2.3.3.3.5.2.7.3.1.17|2l:2.1c.2.1.3.1.10|2f:1.1a.6.1.x|29:0.18.5.5.1.1.p|23:4.2.8.2.1.1.1.4.3.6.a.2.7.k.4|1y:b.5.1.3.4.6.f.1.2.c.2.2.6|1s:a.1.3.3.5.6.i.7.b|1l:a.2.1.3.3.6.c.1.5.3.4.1.6|1f:8.1.4.1.1.8.h.1.a|19:9.2.1.8.4.1.a.1.9|13:9.9.3.1.h|x:8.2.1.3.j';
+
+    const CLIENTS = [
+      { id: 'wd', to: { lat: 37.34, lon: -121.89 }, tag: 'Western Digital', place: 'San Jose, USA', tz: 'America/Los_Angeles', route: 'Dhaka → USA', title: 'Western Digital', sub: 'CIO Management Application, in progress via Altios' },
+      { id: 'ms', to: { lat: 47.67, lon: -122.12 }, tag: 'Microsoft', place: 'Redmond, USA', tz: 'America/Los_Angeles', route: 'Dhaka → USA', title: 'Microsoft', sub: 'Business Central localization for the Bangladesh market' },
+      { id: 'pi', to: { lat: 34.17, lon: -118.61 }, tag: 'PIRAMIDS', place: 'Woodland Hills, USA', tz: 'America/Los_Angeles', route: 'Dhaka → USA', title: 'PIRAMIDS', sub: 'Real estate portfolio management suite' },
+      { id: 'mc', personal: true, to: { lat: 50.84, lon: -0.78 }, tag: 'MapCars', place: 'Chichester, UK', tz: 'Europe/London', route: 'Dhaka → Chichester, UK', title: 'MapCars UK', sub: 'Ride-hailing apps on Google Play and the App Store' },
+      { id: 'mh', personal: true, to: { lat: 51.52, lon: 0.19 }, tag: 'Motorshut', place: 'Rainham, UK', tz: 'Europe/London', route: 'Dhaka → Rainham, UK', title: 'Motorshut', sub: 'Used-car marketplace' }
+    ];
+    const HOME_FULL = { id: 'home', to: null, tag: 'Dhaka', route: 'Dhaka → Bangladesh', title: 'Home market', sub: 'VetMart BD, AykorGPT, Cumilla Resort and four enterprise systems' };
+    const HOME_PRO = { ...HOME_FULL, sub: 'Factory ERP, POS, task management and biometric payroll' };
+    const SETS = {
+      full: [...CLIENTS, HOME_FULL],
+      pro: [...CLIENTS.filter(c => !c.personal), HOME_PRO]
+    };
+    const ZONES = {
+      'America/Los_Angeles': { name: 'California', ll: { lat: 34.05, lon: -118.24 } },
+      'Europe/London': { name: 'United Kingdom', ll: { lat: 51.51, lon: -0.13 } }
+    };
+
+    // Big cities for the night-lights layer: [lat, lon, weight].
+    const CITIES = [
+      [23.81, 90.41, 1.4], [22.57, 88.36, 1.2], [28.61, 77.21, 1.3], [19.08, 72.88, 1.3], [24.86, 67.0, 1.1],
+      [31.55, 74.34, 0.9], [13.08, 80.27, 0.9], [12.97, 77.59, 0.9], [39.9, 116.4, 1.3], [31.23, 121.47, 1.4],
+      [22.54, 114.06, 1.2], [35.68, 139.69, 1.5], [34.69, 135.5, 1.0], [37.57, 126.98, 1.2], [14.6, 120.98, 1.0],
+      [13.76, 100.5, 1.0], [-6.21, 106.85, 1.2], [1.35, 103.82, 0.8], [3.14, 101.69, 0.8], [10.82, 106.63, 0.9],
+      [21.03, 105.85, 0.8], [35.69, 51.39, 1.0], [24.71, 46.68, 0.9], [25.2, 55.27, 0.9], [41.01, 28.98, 1.1],
+      [30.04, 31.24, 1.2], [6.52, 3.38, 1.0], [-1.29, 36.82, 0.6], [-26.2, 28.05, 0.9], [33.57, -7.59, 0.6],
+      [55.76, 37.62, 1.2], [59.93, 30.34, 0.8], [51.51, -0.13, 1.2], [48.86, 2.35, 1.1], [52.52, 13.4, 0.9],
+      [40.42, -3.7, 0.9], [41.9, 12.5, 0.8], [45.46, 9.19, 0.8], [52.37, 4.9, 0.8], [50.85, 4.35, 0.7],
+      [53.48, -2.24, 0.7], [40.71, -74.0, 1.4], [34.05, -118.24, 1.3], [41.88, -87.63, 1.1], [37.77, -122.42, 1.0],
+      [47.61, -122.33, 0.8], [29.76, -95.37, 1.0], [33.75, -84.39, 0.9], [25.76, -80.19, 0.9], [38.9, -77.04, 0.9],
+      [42.36, -71.06, 0.8], [43.65, -79.38, 0.9], [45.5, -73.57, 0.7], [19.43, -99.13, 1.2], [4.71, -74.07, 0.8],
+      [-12.05, -77.04, 0.8], [-23.55, -46.63, 1.3], [-22.91, -43.17, 1.0], [-34.6, -58.38, 1.0], [-33.45, -70.67, 0.8],
+      [-33.87, 151.21, 0.9], [-37.81, 144.96, 0.8], [-27.47, 153.03, 0.5], [37.34, -121.89, 0.9], [34.17, -118.61, 0.6]
+    ];
+
+    const VARIANTS = [
+      { key: 'flag', name: 'Flag disc', badge: 'Live today', themed: true,
+        line: 'Built in Bangladesh: a red sun over green land.',
+        desc: 'What the hero shows now, rebuilt in Three.js. Green dot land on a soft disc, red routes out of Dhaka, and every colour taken from the active theme.',
+        suits: 'Light theme · both builds', effort: 'Done (live today as a 2D canvas)', weight: 'Light' },
+      { key: 'night', name: 'Night lights', themed: false,
+        line: 'Your reach, seen from orbit at night.',
+        desc: 'A dark Earth with city lights, a blue atmosphere and routes that read like flight paths. Client cities glow brighter than everything around them.',
+        suits: 'Dark theme', effort: 'Low: mostly new colours on the current globe', weight: 'Light' },
+      { key: 'daynight', name: 'Day / night', themed: true,
+        line: 'Working across time zones, live.',
+        desc: 'Real sunlight for this moment: the lit half, the night half with its city lights, and the line between. Chips show each client\'s local time, and the panel below shows working-hour overlap with Dhaka.',
+        suits: 'Pro / LinkedIn build', effort: 'Medium', weight: 'Light' },
+      { key: 'blueprint', name: 'Blueprint', themed: false,
+        line: 'An engineer\'s drawing of where the work goes.',
+        desc: 'Latitude and longitude grid, coastlines only, dashed routes with distances in km, and a drawing title block. Hidden lines stay faintly visible, as on a technical drawing.',
+        suits: 'Claude theme or pro build', effort: 'Medium', weight: 'Light' },
+      { key: 'flat', name: 'Flat dotted map', themed: true,
+        line: 'Every client at a glance.',
+        desc: 'A tilted dotted world map instead of a sphere. Nothing hides on the far side, so every route is visible at once, and it reads well on a phone.',
+        suits: 'Phones · pro build', effort: 'Medium', weight: 'Light' },
+      { key: 'data', name: 'Data globe', themed: false,
+        line: 'Systems talking to each other.',
+        desc: 'A dark, dense dot sphere with glowing routes, packets flowing out of Dhaka, light beams over each client and a satellite on an orbit ring. The statement piece.',
+        suits: 'Dark theme · full site', effort: 'High', weight: 'Heaviest of the seven on the GPU' },
+      { key: 'kantha', name: 'Nakshi kantha', themed: false,
+        line: 'Hand-stitched in Bangladesh.',
+        desc: 'Land sewn as rows of running stitches, coastlines in indigo, the sea in wavy kantha rows, routes stitched in red thread and an embroidered flower over Dhaka.',
+        suits: 'Claude theme · signature look', effort: 'Medium', weight: 'Light' }
+    ];
+
+    /* ======================================================================
+       Helpers
+       ====================================================================== */
+    const clamp = (v, lo, hi) => (v < lo ? lo : v > hi ? hi : v);
+    const wrapLon = lon => ((((lon + 180) % 360) + 360) % 360) - 180;
+    const easeInOut = t => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+    function hash(a, b) { const s = Math.sin(a * 127.1 + b * 311.7) * 43758.5453; return s - Math.floor(s); }
+    function rng(seed) {
+      return function () {
+        seed = (seed + 0x6d2b79f5) | 0;
+        let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+        t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+      };
+    }
+    function gauss(r) { let u = 0; while (!u) u = r(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(TAU * r()); }
+    function vec(lat, lon, r = 1) {
+      const p = lat * DEG, l = lon * DEG;
+      return new V3(Math.cos(p) * Math.sin(l) * r, Math.sin(p) * r, Math.cos(p) * Math.cos(l) * r);
+    }
+    function latLonOf(v) { return { lat: Math.asin(clamp(v.y, -1, 1)) / DEG, lon: Math.atan2(v.x, v.z) / DEG }; }
+    const DHAKA_V = vec(DHAKA.lat, DHAKA.lon);
+
+    // Land grid: rows of booleans, plus every land cell with a coastline flag.
+    const GRID = (() => {
+      const rows = LAND.split('|');
+      const [lat0, step] = rows[0].split(',').map(parseFloat);
+      const out = [];
+      for (let r = 1; r < rows.length; r++) {
+        const [cs, rs] = rows[r].split(':');
+        const cells = parseInt(cs, 36), land = new Uint8Array(cells);
+        let j = 0, on = false;
+        for (const run of rs.split('.')) {
+          const n = parseInt(run, 36);
+          if (on) land.fill(1, j, j + n);
+          j += n;
+          on = !on;
+        }
+        out.push({ lat: lat0 + (r - 1) * step, cells, land });
+      }
+      return { lat0, step, rows: out };
+    })();
+    function isLand(lat, lon) {
+      const r = Math.round((lat - GRID.lat0) / GRID.step);
+      if (r < 0 || r >= GRID.rows.length) return false;
+      const row = GRID.rows[r];
+      const c = Math.min(row.cells - 1, Math.floor(((wrapLon(lon) + 180) / 360) * row.cells));
+      return row.land[c] === 1;
+    }
+    const CELLS = [];
+    GRID.rows.forEach(row => {
+      for (let c = 0; c < row.cells; c++) {
+        if (!row.land[c]) continue;
+        const lon = -180 + ((c + 0.5) * 360) / row.cells;
+        const coast = !row.land[(c + 1) % row.cells] || !row.land[(c - 1 + row.cells) % row.cells] ||
+          !isLand(row.lat + GRID.step, lon) || !isLand(row.lat - GRID.step, lon);
+        CELLS.push({ lat: row.lat, lon, coast });
+      }
+    });
+    const LAND_V = CELLS.map(c => vec(c.lat, c.lon));
+
+    function fib(n) {
+      const out = [], g = Math.PI * (3 - Math.sqrt(5));
+      for (let i = 0; i < n; i++) {
+        const y = 1 - ((i + 0.5) / n) * 2, r = Math.sqrt(1 - y * y), t = g * i;
+        out.push(new V3(Math.sin(t) * r, y, Math.cos(t) * r));
+      }
+      return out;
+    }
+
+    function cityLights() {
+      const r = rng(11), out = [];
+      CITIES.forEach(([la, lo, w]) => {
+        const n = Math.round(22 * w);
+        for (let k = 0; k < n; k++) {
+          const core = k === 0;
+          const lat = core ? la : la + gauss(r) * 0.75 * w;
+          const lon = core ? lo : lo + (gauss(r) * 0.95 * w) / Math.max(0.3, Math.cos(la * DEG));
+          if (!core && !isLand(lat, lon) && r() < 0.75) continue;
+          out.push({ lat, lon, core, s: core ? 0.05 * w : 0.016 + r() * 0.02, a: core ? 0.95 : 0.35 + r() * 0.5 });
+        }
+      });
+      CELLS.forEach(c => {
+        if (Math.abs(c.lat) > 62 || hash(c.lat, c.lon) > 0.05) return;
+        out.push({ lat: c.lat + hash(c.lon, c.lat) - 0.5, lon: c.lon + hash(c.lat * 2, c.lon) - 0.5, s: 0.012, a: 0.22 + hash(c.lon * 3, c.lat) * 0.3 });
+      });
+      return out;
+    }
+
+    // Sun position (approximate subsolar point) for a date.
+    function subsolar(d) {
+      const doy = (d - Date.UTC(d.getUTCFullYear(), 0, 0)) / 864e5;
+      const decl = -23.44 * Math.cos((TAU / 365) * (doy + 10));
+      const B = (TAU * (doy - 81)) / 364;
+      const eot = 9.87 * Math.sin(2 * B) - 7.53 * Math.cos(B) - 1.5 * Math.sin(B);
+      const utcH = d.getUTCHours() + d.getUTCMinutes() / 60 + d.getUTCSeconds() / 3600;
+      return { lat: decl, lon: wrapLon(-15 * (utcH - 12 + eot / 60)) };
+    }
+    const fmtCache = {};
+    function fmtTime(tz, d) {
+      fmtCache[tz] = fmtCache[tz] || new Intl.DateTimeFormat('en-GB', { timeZone: tz, hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
+      return fmtCache[tz].format(d);
+    }
+    function tzOffset(tz, d) {
+      try {
+        const p = new Intl.DateTimeFormat('en-US', { timeZone: tz, timeZoneName: 'shortOffset' }).formatToParts(d).find(x => x.type === 'timeZoneName').value;
+        const m = p.match(/GMT([+-]\d+)(?::(\d+))?/);
+        if (!m) return 0;
+        const h = +m[1];
+        return h + (h < 0 ? -1 : 1) * (m[2] ? +m[2] / 60 : 0);
+      } catch (e) { return 0; }
+    }
+    // Shared hours when both sides work 09:00–18:00 local.
+    function overlapHours(tzA, tzB, d) {
+      const a0 = 9 - tzOffset(tzA, d), a1 = a0 + 9, b0 = 9 - tzOffset(tzB, d), b1 = b0 + 9;
+      let best = 0;
+      for (const k of [-24, 0, 24]) best = Math.max(best, Math.min(a1, b1 + k) - Math.max(a0, b0 + k));
+      return best;
+    }
+
+    // Theme colours, read from the CSS custom properties.
+    function cssVar(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+    function col(v) {
+      if (v.startsWith('#')) return new C(v);
+      const m = v.match(/[\d.]+/g);
+      return new C(+m[0] / 255, +m[1] / 255, +m[2] / 255);
+    }
+    function themePalette() {
+      return {
+        hi: col(cssVar('--globe-disc-hi')), mid: col(cssVar('--globe-disc-mid')), lo: col(cssVar('--globe-disc-lo')),
+        glow: col(cssVar('--globe-glow')), dot: col(cssVar('--globe-dot')),
+        dotAlpha: cssVar('--globe-dot-alpha').split(',').map(parseFloat),
+        arc: col(cssVar('--globe-arc')), red: col(cssVar('--red')), ink: col(cssVar('--globe-ink')),
+        dark: document.documentElement.getAttribute('data-theme') === 'dark'
+      };
+    }
+
+    /* ======================================================================
+       Shaders
+       ====================================================================== */
+    const SPHERE_VS = `
+      varying vec3 vN; varying vec3 vV; varying vec3 vObj;
+      void main() {
+        vObj = normalize(position);
+        vN = normalize(normalMatrix * normal);
+        vec4 mv = modelViewMatrix * vec4(position, 1.0);
+        vV = normalize(-mv.xyz);
+        gl_Position = projectionMatrix * mv;
+      }`;
+    const LIGHT = 'normalize(vec3(-0.45, 0.55, 0.72))';
+    const FLAG_FS = `
+      uniform vec3 uHi; uniform vec3 uMid; uniform vec3 uLo; uniform vec3 uGlow;
+      varying vec3 vN; varying vec3 vV; varying vec3 vObj;
+      void main() {
+        float l = clamp(dot(vN, ${LIGHT}) * 0.5 + 0.5, 0.0, 1.0);
+        vec3 c = l > 0.5 ? mix(uMid, uHi, (l - 0.5) * 2.0) : mix(uLo, uMid, l * 2.0);
+        float f = pow(1.0 - max(dot(vN, vV), 0.0), 2.6);
+        gl_FragColor = vec4(mix(c, uGlow, f * 0.28), 1.0);
+      }`;
+    const NIGHT_FS = `
+      uniform vec3 uBase; uniform vec3 uRim;
+      varying vec3 vN; varying vec3 vV; varying vec3 vObj;
+      void main() {
+        float l = max(dot(vN, ${LIGHT}), 0.0);
+        vec3 c = uBase * (0.6 + 0.6 * l);
+        float f = pow(1.0 - max(dot(vN, vV), 0.0), 3.0);
+        gl_FragColor = vec4(c + uRim * f * 0.7, 1.0);
+      }`;
+    const DN_FS = `
+      uniform vec3 uSun; uniform vec3 uDay; uniform vec3 uNight; uniform vec3 uTwi; uniform vec3 uGlow;
+      varying vec3 vN; varying vec3 vV; varying vec3 vObj;
+      void main() {
+        float s = dot(vObj, uSun);
+        float day = smoothstep(-0.1, 0.1, s);
+        float l = clamp(dot(vN, ${LIGHT}) * 0.5 + 0.5, 0.0, 1.0);
+        vec3 c = mix(uNight, uDay * (0.88 + 0.2 * l), day);
+        c = mix(c, uTwi, exp(-pow(s / 0.07, 2.0)) * 0.45);
+        float f = pow(1.0 - max(dot(vN, vV), 0.0), 2.6);
+        gl_FragColor = vec4(mix(c, uGlow, f * 0.25), 1.0);
+      }`;
+    const DATA_FS = `
+      uniform vec3 uBase; uniform vec3 uRim;
+      varying vec3 vN; varying vec3 vV; varying vec3 vObj;
+      void main() {
+        float l = max(dot(vN, ${LIGHT}), 0.0);
+        vec3 c = uBase * (0.7 + 0.6 * l);
+        float f = pow(1.0 - max(dot(vN, vV), 0.0), 2.4);
+        c += uRim * f * 0.45 + uRim * 0.014 * step(0.5, fract(vObj.y * 90.0));
+        gl_FragColor = vec4(c, 1.0);
+      }`;
+    const KANTHA_FS = `
+      uniform vec3 uCloth; uniform vec3 uShade;
+      varying vec3 vN; varying vec3 vV; varying vec3 vObj;
+      void main() {
+        float lon = atan(vObj.x, vObj.z);
+        float lat = asin(clamp(vObj.y, -1.0, 1.0));
+        float weave = 0.5 + 0.5 * sin(lon * 260.0) * sin(lat * 260.0);
+        float l = clamp(dot(vN, ${LIGHT}) * 0.5 + 0.5, 0.0, 1.0);
+        vec3 c = mix(uShade, uCloth, smoothstep(0.15, 0.85, l)) * (0.97 + 0.045 * weave);
+        c *= mix(0.86, 1.0, smoothstep(0.0, 0.5, max(dot(vN, vV), 0.0)));
+        gl_FragColor = vec4(c, 1.0);
+      }`;
+    const BP_FILL_FS = `
+      uniform vec3 uC;
+      varying vec3 vN; varying vec3 vV; varying vec3 vObj;
+      void main() {
+        float f = pow(1.0 - max(dot(vN, vV), 0.0), 2.0);
+        gl_FragColor = vec4(uC, 0.035 + f * 0.16);
+      }`;
+
+    const HALO_VS = `varying vec2 vP; void main() { vP = position.xy; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`;
+    const HALO_FS = `
+      uniform vec3 uColor; uniform float uStrength; uniform float uWidth; uniform float uEdge;
+      varying vec2 vP;
+      void main() {
+        float r = length(vP);
+        float k = clamp(1.0 - (r - uEdge) / uWidth, 0.0, 1.0);
+        gl_FragColor = vec4(uColor, pow(k, 2.2) * uStrength);
+      }`;
+
+    const DOT_VS = `
+      uniform float uScale; uniform float uTime; uniform vec3 uSun; uniform float uTwinkle;
+      attribute vec3 aColor; attribute float aSize; attribute float aAlpha;
+      varying vec3 vColor; varying float vAlpha; varying float vFace; varying float vDay; varying vec3 vPos;
+      void main() {
+        vec4 mv = modelViewMatrix * vec4(position, 1.0);
+        vec3 dir = normalize(position + vec3(1e-6));
+        vFace = dot(normalize(normalMatrix * dir), normalize(-mv.xyz));
+        vDay = dot(dir, uSun);
+        vColor = aColor;
+        vAlpha = aAlpha;
+        if (uTwinkle > 0.5) vAlpha *= 0.72 + 0.28 * sin(uTime * 2.2 + position.x * 41.0 + position.y * 23.0);
+        vPos = position;
+        gl_PointSize = aSize * uScale / -mv.z;
+        gl_Position = projectionMatrix * mv;
+      }`;
+    const DOT_FS = `
+      uniform float uShape; uniform float uFaceMin; uniform float uFlat; uniform float uKeepBack;
+      uniform float uDN; uniform float uNightMode; uniform vec3 uNightColor;
+      uniform float uCX; uniform float uF0; uniform float uF1;
+      varying vec3 vColor; varying float vAlpha; varying float vFace; varying float vDay; varying vec3 vPos;
+      void main() {
+        vec2 c = gl_PointCoord - 0.5;
+        float d = length(c);
+        float a = 1.0;
+        if (uShape < 0.5) { if (d > 0.5) discard; a = smoothstep(0.5, 0.36, d); }
+        else if (uShape > 1.5) { if (d > 0.5) discard; a = exp(-d * d * 14.0); }
+        if (uFlat < 0.5 && uKeepBack < 0.5 && vFace < -0.05) discard;
+        float face = uFlat > 0.5 ? 1.0 : smoothstep(-0.02, 0.55, vFace);
+        vec3 col = vColor;
+        float alpha = vAlpha * a * mix(uFaceMin, 1.0, face);
+        if (uDN > 0.5) {
+          float day = smoothstep(-0.1, 0.1, vDay);
+          if (uNightMode < 0.5) { col = mix(uNightColor, vColor, day); alpha *= mix(0.55, 1.0, day); }
+          else alpha *= 1.0 - day;
+        }
+        if (uFlat > 0.5 && uF1 > 0.0) alpha *= 1.0 - smoothstep(uF0, uF1, abs(vPos.x - uCX));
+        gl_FragColor = vec4(col, alpha);
+      }`;
+
+    const ARC_VS = `varying vec2 vUv; void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`;
+    const ARC_FS = `
+      uniform vec3 uColor; uniform vec3 uColor2; uniform vec3 uActive; uniform float uUseActive; uniform vec3 uHeadColor;
+      uniform float uOpacity; uniform float uIdle; uniform float uBoost; uniform float uDraw;
+      uniform float uDash; uniform float uDashRatio;
+      uniform float uHeads; uniform float uSpeed; uniform float uPhase; uniform float uTail; uniform float uHeadAlpha;
+      uniform float uTime;
+      varying vec2 vUv;
+      void main() {
+        float u = vUv.x;
+        if (u > uDraw) discard;
+        if (uDash > 0.0 && fract(u * uDash) > uDashRatio) discard;
+        vec3 c = mix(mix(uColor, uColor2, u), uActive, uBoost * uUseActive);
+        float a = uOpacity * mix(uIdle, 1.0, uBoost);
+        float h = 0.0;
+        for (int k = 0; k < 4; k++) {
+          if (float(k) >= uHeads) break;
+          float pos = fract(uTime * uSpeed + uPhase + float(k) / max(uHeads, 1.0));
+          float dd = pos - u;
+          if (dd >= 0.0 && dd < uTail) h = max(h, pow(1.0 - dd / uTail, 2.0));
+        }
+        h *= uHeadAlpha;
+        gl_FragColor = vec4(mix(c, uHeadColor, h), max(a, h));
+      }`;
+    const BEAM_FS = `
+      uniform vec3 uC; uniform float uA; varying vec2 vUv;
+      void main() { gl_FragColor = vec4(uC, pow(1.0 - vUv.y, 1.6) * uA); }`;
+    const GRAT_VS = `
+      varying float vFace;
+      void main() {
+        vec4 mv = modelViewMatrix * vec4(position, 1.0);
+        vFace = dot(normalize(normalMatrix * normalize(position)), normalize(-mv.xyz));
+        gl_Position = projectionMatrix * mv;
+      }`;
+    const GRAT_FS = `
+      uniform vec3 uColor; uniform float uFront; uniform float uBack; varying float vFace;
+      void main() { gl_FragColor = vec4(uColor, mix(uBack, uFront, smoothstep(-0.05, 0.1, vFace))); }`;
+
+    /* ======================================================================
+       Renderer and shared state
+       ====================================================================== */
+    const $ = s => document.querySelector(s);
+    const stage = $('[data-stage]'), canvas = $('[data-canvas]'), chipsEl = $('[data-chips]');
+    let renderer = null;
+    try {
+      renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+      renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
+      renderer.setClearColor(0x000000, 0);
+    } catch (e) {
+      renderer = null;
+      $('[data-fallback]').hidden = false;
+    }
+    const camera = new THREE.PerspectiveCamera(32, 1, 0.1, 200);
+    const U = { uTime: { value: 0 }, uScale: { value: 1000 }, uEdge: { value: 1.03 } };
+    let CAM_D = 4.2;
+    const VIEW = { lon: DHAKA.lon, lat: 20 };
+    let viewAnim = null;
+    let DN_OFFSET = 0;
+    const dnDate = () => new Date(Date.now() + DN_OFFSET * 3600e3);
+
+    /* ======================================================================
+       Building blocks
+       ====================================================================== */
+    function base() {
+      const scene = new THREE.Scene(), globe = new THREE.Group();
+      scene.add(globe);
+      return { scene, globe };
+    }
+    function sphereMesh(fs, uniforms) {
+      return new THREE.Mesh(new THREE.SphereGeometry(1, 96, 64), new THREE.ShaderMaterial({ vertexShader: SPHERE_VS, fragmentShader: fs, uniforms }));
+    }
+    // A soft ring of light just outside the globe's edge (camera-facing).
+    function halo(color, strength, width, additive) {
+      const mesh = new THREE.Mesh(new THREE.PlaneGeometry(4, 4), new THREE.ShaderMaterial({
+        uniforms: { uColor: { value: color }, uStrength: { value: strength }, uWidth: { value: width }, uEdge: U.uEdge },
+        vertexShader: HALO_VS, fragmentShader: HALO_FS, transparent: true, depthWrite: false,
+        blending: additive ? THREE.AdditiveBlending : THREE.NormalBlending
+      }));
+      mesh.renderOrder = -1;
+      return mesh;
+    }
+    // items: [{ p: Vector3, c: Color, s: size (world units), a: alpha }]
+    function dots(items, o = {}) {
+      const n = items.length;
+      const pos = new Float32Array(n * 3), colr = new Float32Array(n * 3), size = new Float32Array(n), alpha = new Float32Array(n);
+      items.forEach((it, i) => {
+        pos[i * 3] = it.p.x; pos[i * 3 + 1] = it.p.y; pos[i * 3 + 2] = it.p.z;
+        colr[i * 3] = it.c.r; colr[i * 3 + 1] = it.c.g; colr[i * 3 + 2] = it.c.b;
+        size[i] = it.s; alpha[i] = it.a;
+      });
+      const g = new THREE.BufferGeometry();
+      g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+      g.setAttribute('aColor', new THREE.BufferAttribute(colr, 3));
+      g.setAttribute('aSize', new THREE.BufferAttribute(size, 1));
+      g.setAttribute('aAlpha', new THREE.BufferAttribute(alpha, 1));
+      const m = new THREE.ShaderMaterial({
+        uniforms: {
+          uScale: U.uScale, uTime: U.uTime,
+          uShape: { value: o.shape || 0 }, uFaceMin: { value: o.faceMin || 0 },
+          uFlat: { value: o.flat ? 1 : 0 }, uKeepBack: { value: o.keepBack ? 1 : 0 },
+          uSun: o.sun || { value: new V3(0, 0, 1) }, uDN: { value: o.dayNight ? 1 : 0 },
+          uNightMode: { value: o.nightMode || 0 }, uNightColor: { value: o.nightColor || new C(0, 0, 0) },
+          uTwinkle: { value: o.twinkle && MOTION ? 1 : 0 },
+          uCX: { value: o.cx || 0 }, uF0: { value: o.f0 || 0 }, uF1: { value: o.f1 || 0 }
+        },
+        vertexShader: DOT_VS, fragmentShader: DOT_FS, transparent: true, depthWrite: false,
+        depthTest: o.depthTest !== false,
+        blending: o.additive ? THREE.AdditiveBlending : THREE.NormalBlending
+      });
+      return new THREE.Points(g, m);
+    }
+    function arcPoints(a, b, h, n = 96) {
+      const omega = a.angleTo(b), s = Math.sin(omega), pts = [];
+      for (let i = 0; i <= n; i++) {
+        const t = i / n;
+        const p = s < 1e-6 ? a.clone() : a.clone().multiplyScalar(Math.sin((1 - t) * omega) / s).add(b.clone().multiplyScalar(Math.sin(t * omega) / s));
+        pts.push(p.normalize().multiplyScalar(1.002 + h * Math.sin(Math.PI * t)));
+      }
+      return pts;
+    }
+    // Tube routes with a shader for dashes, a one-off highlight sweep, or looping packets.
+    function arcSet(parent, list, st) {
+      const t0 = performance.now();
+      const arcs = list.map(({ idx, pts }, n) => {
+        const curve = new THREE.CatmullRomCurve3(pts);
+        const u = {
+          uTime: U.uTime, uColor: { value: st.color }, uColor2: { value: st.color2 || st.color },
+          uActive: { value: st.active || st.color }, uUseActive: { value: st.active ? 1 : 0 },
+          uHeadColor: { value: st.head || new C(1, 1, 1) },
+          uOpacity: { value: st.opacity ?? 1 }, uIdle: { value: st.idle ?? 0.5 }, uBoost: { value: 0 },
+          uDraw: { value: MOTION ? 0 : 1 },
+          uDash: { value: st.dashDensity ? st.dashDensity * curve.getLength() : 0 }, uDashRatio: { value: st.dashRatio || 0.55 },
+          uHeads: { value: 0 }, uSpeed: { value: 0 }, uPhase: { value: 0 }, uTail: { value: st.tail || 0.22 }, uHeadAlpha: { value: 1 }
+        };
+        const mesh = new THREE.Mesh(new THREE.TubeGeometry(curve, 140, st.radius, 6, false), new THREE.ShaderMaterial({
+          uniforms: u, vertexShader: ARC_VS, fragmentShader: ARC_FS, transparent: true, depthWrite: false,
+          blending: st.additive ? THREE.AdditiveBlending : THREE.NormalBlending
+        }));
+        parent.add(mesh);
+        return { idx, u, target: 0, born: t0 + 250 + n * 220, sweep: -1 };
+      });
+      return {
+        setActive(i, now) {
+          arcs.forEach(a => {
+            a.target = a.idx === i ? 1 : 0;
+            if (a.idx === i && !st.packets) a.sweep = now + 700;
+          });
+        },
+        update(now, dt) {
+          arcs.forEach(a => {
+            const u = a.u;
+            u.uBoost.value += (a.target - u.uBoost.value) * Math.min(1, dt * 0.006);
+            u.uDraw.value = MOTION ? clamp((now - a.born) / 1100, 0, 1) : 1;
+            if (!MOTION) { u.uHeads.value = 0; return; }
+            if (st.packets) {
+              u.uHeads.value = st.packets; u.uSpeed.value = st.speed; u.uPhase.value = a.idx * 0.137;
+              u.uHeadAlpha.value = st.packetAlpha + (1 - st.packetAlpha) * u.uBoost.value;
+            } else if (a.sweep > 0) {
+              const p = (now - a.sweep) / 1300;
+              if (p < 0) u.uHeads.value = 0;
+              else if (p < 1.35) {
+                u.uHeads.value = 1; u.uSpeed.value = 0; u.uPhase.value = Math.min(p, 0.999);
+                u.uHeadAlpha.value = p < 1 ? 1 : Math.max(0, 1 - (p - 1) / 0.35);
+              } else { u.uHeads.value = 0; a.sweep = -1; }
+            }
+          });
+        }
+      };
+    }
+    function arcsFrom(S, parent, st) {
+      const list = [];
+      S.stops.forEach((s, i) => {
+        if (!s.to) return;
+        const b = vec(s.to.lat, s.to.lon), om = DHAKA_V.angleTo(b);
+        list.push({ idx: i, pts: arcPoints(DHAKA_V, b, 0.06 + (0.36 * om) / Math.PI) });
+      });
+      return arcSet(parent, list, st);
+    }
+    function clientsOf(S) {
+      return S.stops.map((s, i) => (s.to ? { i, s, n: vec(s.to.lat, s.to.lon) } : null)).filter(Boolean);
+    }
+    function pinDot(parent, n, color, r = 0.012, lift = 1.004) {
+      const m = new THREE.Mesh(new THREE.SphereGeometry(r, 16, 12), new THREE.MeshBasicMaterial({ color }));
+      m.position.copy(n).normalize().multiplyScalar(lift);
+      parent.add(m);
+      return m;
+    }
+    function ringMesh(color, additive, inner = 0.8) {
+      return new THREE.Mesh(new THREE.RingGeometry(inner, 1, 48), new THREE.MeshBasicMaterial({
+        color, transparent: true, depthWrite: false, side: THREE.DoubleSide,
+        blending: additive ? THREE.AdditiveBlending : THREE.NormalBlending
+      }));
+    }
+    function ringAt(parent, n, color, size, alpha = 0.9, inner = 0.8) {
+      const m = ringMesh(color, false, inner);
+      const dir = n.clone().normalize();
+      m.quaternion.setFromUnitVectors(Z, dir);
+      m.position.copy(dir).multiplyScalar(1.004);
+      m.scale.setScalar(size);
+      m.material.opacity = alpha;
+      parent.add(m);
+      return m;
+    }
+    // An expanding ring that fades out, lying flat on the surface at n (or at o.pos).
+    function pulse(parent, n, color, o = {}) {
+      const mesh = ringMesh(color, o.additive);
+      const dir = n.clone().normalize();
+      mesh.quaternion.setFromUnitVectors(Z, dir);
+      mesh.position.copy(o.pos || dir.clone().multiplyScalar(1.004));
+      parent.add(mesh);
+      return {
+        mesh, on: o.on ?? true, size: o.size || 0.07, alpha: o.alpha ?? 0.6, period: o.period || 2200, offset: o.offset || 0,
+        update(now) {
+          if (!MOTION) { mesh.scale.setScalar(this.size * 0.55); mesh.material.opacity = this.on ? this.alpha * 0.6 : 0; return; }
+          const k = (now / this.period + this.offset) % 1;
+          mesh.scale.setScalar(this.size * (0.12 + 0.88 * k));
+          mesh.material.opacity = this.on ? this.alpha * (1 - k) * (1 - k) : 0;
+        }
+      };
+    }
+    function tangent(n) {
+      const d = n.clone().normalize();
+      const up = Math.abs(d.y) > 0.98 ? new V3(1, 0, 0) : new V3(0, 1, 0);
+      const e = new V3().crossVectors(up, d).normalize();
+      return { e, n: new V3().crossVectors(d, e).normalize(), d };
+    }
+    // Instanced quads lying on the sphere: { p, n, ang (radians from east), len, w, c }.
+    function quads(list, mat) {
+      const mesh = new THREE.InstancedMesh(new THREE.PlaneGeometry(1, 1), mat, list.length);
+      const m = new THREE.Matrix4();
+      list.forEach((q, i) => {
+        const { e, n, d } = tangent(q.n);
+        const ca = Math.cos(q.ang || 0), sa = Math.sin(q.ang || 0);
+        const ax = e.clone().multiplyScalar(ca).addScaledVector(n, sa).multiplyScalar(q.len);
+        const ay = e.clone().multiplyScalar(-sa).addScaledVector(n, ca).multiplyScalar(q.w);
+        m.makeBasis(ax, ay, d);
+        m.setPosition(q.p);
+        mesh.setMatrixAt(i, m);
+        mesh.setColorAt(i, q.c);
+      });
+      mesh.instanceMatrix.needsUpdate = true;
+      if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+      mesh.frustumCulled = false;
+      return mesh;
+    }
+    // A capsule of thread with a twist, used for stitches and petals.
+    function threadTexture() {
+      const cv = document.createElement('canvas');
+      cv.width = 64; cv.height = 16;
+      const g = cv.getContext('2d');
+      g.fillStyle = '#fff';
+      g.beginPath();
+      g.moveTo(8, 1); g.lineTo(56, 1); g.arc(56, 8, 7, -Math.PI / 2, Math.PI / 2); g.lineTo(8, 15); g.arc(8, 8, 7, Math.PI / 2, -Math.PI / 2);
+      g.fill();
+      g.globalCompositeOperation = 'source-atop';
+      g.strokeStyle = 'rgba(0, 0, 0, 0.16)'; g.lineWidth = 2;
+      for (let x = -16; x < 80; x += 6) { g.beginPath(); g.moveTo(x, 16); g.lineTo(x + 8, 0); g.stroke(); }
+      const grad = g.createLinearGradient(0, 0, 0, 16);
+      grad.addColorStop(0, 'rgba(0, 0, 0, 0.25)'); grad.addColorStop(0.45, 'rgba(255, 255, 255, 0)'); grad.addColorStop(1, 'rgba(0, 0, 0, 0.3)');
+      g.fillStyle = grad; g.fillRect(0, 0, 64, 16);
+      return new THREE.CanvasTexture(cv);
+    }
+    function graticule(step, color, front, back) {
+      const pts = [];
+      for (let lat = -75; lat <= 75; lat += step) for (let lon = -180; lon < 180; lon += 3) pts.push(vec(lat, lon, 1.001), vec(lat, lon + 3, 1.001));
+      for (let lon = -180; lon < 180; lon += step) for (let lat = -87; lat < 87; lat += 3) pts.push(vec(lat, lon, 1.001), vec(lat + 3, lon, 1.001));
+      return new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(pts), new THREE.ShaderMaterial({
+        uniforms: { uColor: { value: color }, uFront: { value: front }, uBack: { value: back } },
+        vertexShader: GRAT_VS, fragmentShader: GRAT_FS, transparent: true, depthWrite: false, depthTest: false
+      }));
+    }
+    // Default: Dhaka pin + pulse, a pin per client, and a pulse on the active one.
+    function withPins(S, globe, scene, arcs, o) {
+      pinDot(globe, DHAKA_V, o.home, o.homeR || 0.016);
+      const homeP = pulse(globe, DHAKA_V, o.homeRing || o.home, { size: 0.1, alpha: 0.5, additive: o.additive });
+      const pins = clientsOf(S).map(c => {
+        pinDot(globe, c.n, o.pin, o.pinR || 0.011);
+        return { i: c.i, ring: pulse(globe, c.n, o.ring || o.pin, { size: 0.075, additive: o.additive, on: false }) };
+      });
+      return {
+        scene, globe, pins,
+        update(now, dt) { arcs.update(now, dt); homeP.update(now); pins.forEach(p => p.ring.update(now)); },
+        setStop(i, now) { arcs.setActive(i, now); pins.forEach(p => { p.ring.on = p.i === i; }); }
+      };
+    }
+    function sphereAnchor(globe, ll, lift = 1.012) {
+      const w = vec(ll.lat, ll.lon, lift).applyMatrix4(globe.matrixWorld);
+      // Keep chips readable for points sitting right on the visible edge.
+      return { world: w, opacity: clamp((w.z / lift - 1 / CAM_D + 0.05) / 0.12, 0, 1) };
+    }
+    const kmTo = to => Math.round(DHAKA_V.angleTo(vec(to.lat, to.lon)) * EARTH_KM).toLocaleString('en-US');
+
+    /* ======================================================================
+       Variants
+       ====================================================================== */
+
+    // 1. Flag disc — the current hero, theme colours.
+    function buildFlag(S) {
+      const P = S.pal, { scene, globe } = base();
+      scene.add(halo(P.glow, P.dark ? 0.2 : 0.28, 0.3));
+      globe.add(sphereMesh(FLAG_FS, { uHi: { value: P.hi }, uMid: { value: P.mid }, uLo: { value: P.lo }, uGlow: { value: P.glow } }));
+      const a0 = P.dotAlpha[0], a2 = P.dotAlpha[2];
+      globe.add(dots(LAND_V.map(p => ({ p: p.clone().multiplyScalar(1.003), c: P.dot, s: 0.0165, a: a2 })), { faceMin: a0 / a2 }));
+      const arcs = arcsFrom(S, globe, { radius: 0.0042, color: P.arc, idle: 0.45, opacity: 0.95, head: P.hi.clone().lerp(new C(1, 1, 1), 0.5) });
+      return withPins(S, globe, scene, arcs, { home: P.red, pin: P.red });
+    }
+
+    // 2. Night lights — dark Earth, city lights, flight-path routes.
+    function buildNight(S) {
+      const { scene, globe } = base();
+      const r = rng(7), stars = [];
+      for (let k = 0; k < 900; k++) {
+        const z = -6 - r() * 14, reach = Math.tan(17 * DEG) * (4.2 - z) * 1.4;
+        stars.push({ p: new V3((r() * 2 - 1) * reach, (r() * 2 - 1) * reach, z), c: new C(0.86, 0.9, 1), s: 0.02 + r() * 0.035, a: 0.2 + r() * 0.6 });
+      }
+      scene.add(dots(stars, { flat: true, twinkle: true, additive: true }));
+      scene.add(halo(new C('#3d8bff'), 0.55, 0.34, true));
+      globe.add(sphereMesh(NIGHT_FS, { uBase: { value: new C('#050c1a') }, uRim: { value: new C('#3d8bff') } }));
+      globe.add(dots(LAND_V.map(p => ({ p: p.clone().multiplyScalar(1.003), c: new C('#1e365e'), s: 0.0135, a: 0.8 })), { faceMin: 0.15 }));
+      globe.add(dots(cityLights().map(l => ({ p: vec(l.lat, l.lon, 1.004), c: new C(l.core ? '#fff1cf' : '#ffc56e'), s: l.s, a: l.a })), { shape: 2, additive: true, twinkle: true }));
+      const glows = clientsOf(S).map(c => ({ p: c.n.clone().multiplyScalar(1.006), c: new C('#ffe3a3'), s: 0.11, a: 0.9 }));
+      glows.push({ p: DHAKA_V.clone().multiplyScalar(1.006), c: new C('#ff7a59'), s: 0.16, a: 1 });
+      globe.add(dots(glows, { shape: 2, additive: true }));
+      const arcs = arcsFrom(S, globe, { radius: 0.0036, color: new C('#ffb84d'), color2: new C('#ffe6b0'), active: new C('#fff3d6'), head: new C('#ffffff'), idle: 0.35, opacity: 0.85, additive: true });
+      const V = withPins(S, globe, scene, arcs, { home: new C('#ff8a65'), pin: new C('#ffe3a3'), additive: true, homeR: 0.012, pinR: 0.008 });
+      V.homeSub = () => 'Home base · lights on';
+      return V;
+    }
+
+    // 3. Day / night — live sunlight, terminator line, local times.
+    function buildDayNight(S) {
+      const P = S.pal, { scene, globe } = base();
+      const sun = { value: new V3(0, 0, 1) };
+      let ss = { lat: 0, lon: 0 };
+      scene.add(halo(P.glow, P.dark ? 0.18 : 0.24, 0.3));
+      globe.add(sphereMesh(DN_FS, { uSun: sun, uDay: { value: P.mid }, uNight: { value: new C(P.dark ? '#0a121a' : '#17252f') }, uTwi: { value: new C('#f0a35e') }, uGlow: { value: P.glow } }));
+      globe.add(dots(LAND_V.map(p => ({ p: p.clone().multiplyScalar(1.003), c: P.dot, s: 0.0165, a: 0.85 })), { faceMin: 0.35, sun, dayNight: true, nightColor: new C('#56717f') }));
+      globe.add(dots(cityLights().map(l => ({ p: vec(l.lat, l.lon, 1.004), c: new C(l.core ? '#fff1cf' : '#ffc56e'), s: l.s * 0.9, a: l.a })), { shape: 2, additive: true, sun, dayNight: true, nightMode: 1 }));
+      const ring = [];
+      for (let k = 0; k < 180; k++) { const t = (k / 180) * TAU; ring.push(new V3(Math.cos(t) * 1.004, Math.sin(t) * 1.004, 0)); }
+      const term = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(ring, true), 240, 0.0032, 6, true), new THREE.MeshBasicMaterial({ color: new C('#e8893a'), transparent: true, opacity: 0.85, depthWrite: false }));
+      globe.add(term);
+      const sunDot = new THREE.Mesh(new THREE.SphereGeometry(0.022, 20, 14), new THREE.MeshBasicMaterial({ color: new C('#ffbf2e') }));
+      globe.add(sunDot);
+      const sunRing = pulse(globe, Z, new C('#ffbf2e'), { size: 0.13, alpha: 0.75, period: 2600 });
+      const arcs = arcsFrom(S, globe, { radius: 0.0042, color: P.arc, idle: 0.45, opacity: 0.95, head: new C(1, 1, 1) });
+      const V = withPins(S, globe, scene, arcs, { home: P.red, pin: P.red });
+      const isDay = ll => vec(ll.lat, ll.lon).dot(sun.value) > 0;
+      const base_update = V.update;
+      V.update = (now, dt) => {
+        base_update(now, dt);
+        ss = subsolar(dnDate());
+        sun.value.copy(vec(ss.lat, ss.lon));
+        term.quaternion.setFromUnitVectors(Z, sun.value);
+        sunDot.position.copy(sun.value).multiplyScalar(1.014);
+        sunRing.mesh.position.copy(sun.value).multiplyScalar(1.005);
+        sunRing.mesh.quaternion.setFromUnitVectors(Z, sun.value);
+        sunRing.update(now);
+      };
+      V.chipSub = s => `${s.place} · ${fmtTime(s.tz, dnDate())} · ${isDay(s.to) ? 'day' : 'night'}`;
+      V.homeSub = () => `${fmtTime('Asia/Dhaka', dnDate())} · ${isDay(DHAKA) ? 'day' : 'night'}`;
+      V.extraLabels = () => {
+        const a = sphereAnchor(globe, ss, 1.03);
+        return [{ id: 'sun', world: a.world, opacity: a.opacity, title: 'Sun overhead', sub: 'local noon here', side: 1 }];
+      };
+      V.panel = 'time';
+      return V;
+    }
+
+    // 4. Blueprint — wireframe drawing, coastlines, distances.
+    function buildBlueprint(S) {
+      const { scene, globe } = base();
+      const W = new C('#eaf2ff'), AMBER = new C('#ffd27a'), CORAL = new C('#ff8a7a');
+      const occluder = new THREE.Mesh(new THREE.SphereGeometry(0.994, 64, 48), new THREE.MeshBasicMaterial({ colorWrite: false }));
+      occluder.renderOrder = -5;
+      globe.add(occluder);
+      globe.add(new THREE.Mesh(new THREE.SphereGeometry(1, 64, 48), new THREE.ShaderMaterial({ vertexShader: SPHERE_VS, fragmentShader: BP_FILL_FS, uniforms: { uC: { value: W } }, transparent: true, depthWrite: false })));
+      globe.add(graticule(15, W, 0.45, 0.07));
+      const coast = CELLS.filter(c => c.coast), inland = CELLS.filter(c => !c.coast);
+      globe.add(dots(coast.map(c => ({ p: vec(c.lat, c.lon, 1.002), c: W, s: 0.0115, a: 0.95 })), { faceMin: 0.12, keepBack: true, depthTest: false }));
+      globe.add(dots(inland.map(c => ({ p: vec(c.lat, c.lon, 1.002), c: W, s: 0.007, a: 0.2 })), { faceMin: 0.15, keepBack: true, depthTest: false }));
+      const tro = [];
+      for (let k = 0; k <= 240; k++) tro.push(vec(23.44, -180 + k * 1.5, 1.002));
+      const tropic = new THREE.Line(new THREE.BufferGeometry().setFromPoints(tro), new THREE.LineDashedMaterial({ color: AMBER, dashSize: 0.025, gapSize: 0.018, transparent: true, opacity: 0.9 }));
+      tropic.computeLineDistances();
+      globe.add(tropic);
+      const arcs = arcsFrom(S, globe, { radius: 0.003, color: W, active: AMBER, head: AMBER, idle: 0.55, opacity: 0.95, dashDensity: 34, dashRatio: 0.58 });
+      ringAt(globe, DHAKA_V, CORAL, 0.042); ringAt(globe, DHAKA_V, CORAL, 0.022); pinDot(globe, DHAKA_V, CORAL, 0.008);
+      const pins = clientsOf(S).map(c => { pinDot(globe, c.n, W, 0.006); return { i: c.i, r: ringAt(globe, c.n, W, 0.026) }; });
+
+      // Drawing furniture facing the camera: outline, tick marks, dimension ring, centre lines.
+      const furn = new THREE.Group();
+      scene.add(furn);
+      const circle = (r, n = 180) => { const p = []; for (let k = 0; k <= n; k++) { const t = (k / n) * TAU; p.push(new V3(Math.cos(t) * r, Math.sin(t) * r, 0)); } return p; };
+      furn.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(circle(1)), new THREE.LineBasicMaterial({ color: W, transparent: true, opacity: 0.9 })));
+      const ticks = [];
+      for (let k = 0; k < 72; k++) { const t = (k / 72) * TAU, l = k % 6 === 0 ? 1.07 : 1.035; ticks.push(new V3(Math.cos(t), Math.sin(t), 0), new V3(Math.cos(t) * l, Math.sin(t) * l, 0)); }
+      furn.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(ticks), new THREE.LineBasicMaterial({ color: W, transparent: true, opacity: 0.55 })));
+      const dashed = (pts, opacity) => { const l = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineDashedMaterial({ color: W, dashSize: 0.035, gapSize: 0.025, transparent: true, opacity })); l.computeLineDistances(); furn.add(l); };
+      dashed(circle(1.14, 240), 0.4);
+      dashed([new V3(-1.3, 0, 0), new V3(1.3, 0, 0)], 0.32);
+      dashed([new V3(0, -1.3, 0), new V3(0, 1.3, 0)], 0.32);
+
+      return {
+        scene, globe,
+        update(now, dt) {
+          arcs.update(now, dt);
+          furn.position.z = 1 / CAM_D;
+          furn.scale.setScalar(Math.sqrt(1 - 1 / (CAM_D * CAM_D)));
+        },
+        setStop(i, now) {
+          arcs.setActive(i, now);
+          pins.forEach(p => p.r.material.color.copy(p.i === i ? AMBER : W));
+        },
+        chipSub: s => `${s.place} · ${kmTo(s.to)} km`,
+        homeSub: () => 'Origin · 23.81°N 90.41°E',
+        extraLabels() {
+          const t = sphereAnchor(globe, { lat: 23.44, lon: wrapLon(VIEW.lon - 42) }, 1.004);
+          furn.updateMatrixWorld();
+          return [
+            { id: 'tropic', world: t.world, opacity: t.opacity * 0.95, title: 'Tropic of Cancer', sub: '23.44°N · Dhaka sits just north', side: -1 },
+            { id: 'dia', world: new V3(0.733, 0.873, 0).applyMatrix4(furn.matrixWorld), opacity: 1, title: 'Ø 12,742 km', sub: 'Earth, mean diameter', side: 1 }
+          ];
+        }
+      };
+    }
+
+    // 5. Flat dotted map — tilted equirectangular map, routes rise off the surface.
+    function buildFlat(S) {
+      const P = S.pal, scene = new THREE.Scene(), map = new THREE.Group();
+      map.rotation.x = -0.85;
+      map.position.y = -0.3;
+      scene.add(map);
+      const SC = 1 / 90, CX = -15 * SC;
+      const xy = (lat, lon, z = 0) => new V3(lon * SC, lat * SC, z);
+      const land = [], sea = [];
+      GRID.rows.forEach((row, r) => {
+        for (let k = 0; ; k++) {
+          const lon = -170 + k * 1.6;
+          if (lon > 160) break;
+          if (isLand(row.lat, lon)) land.push({ p: xy(row.lat, lon), c: P.dot, s: 0.0155, a: P.dotAlpha[2] });
+          else if (r % 2 === 0 && k % 2 === 0) sea.push({ p: xy(row.lat, lon), c: P.dot, s: 0.008, a: 0.14 });
+        }
+      });
+      const fade = { flat: true, cx: CX, f0: 1.05, f1: 1.6 };
+      map.add(dots(sea, fade));
+      map.add(dots(land, fade));
+      const A = xy(DHAKA.lat, DHAKA.lon);
+      const list = S.stops.map((s, i) => {
+        if (!s.to) return null;
+        const B = xy(s.to.lat, s.to.lon), h = 0.22 + (0.4 * A.distanceTo(B)) / 2.5, pts = [];
+        for (let k = 0; k <= 64; k++) { const t = k / 64; pts.push(new V3().lerpVectors(A, B, t).setZ(4 * t * (1 - t) * h)); }
+        return { idx: i, pts };
+      }).filter(Boolean);
+      const arcs = arcSet(map, list, { radius: 0.0055, color: P.arc, idle: 0.5, opacity: 0.95, head: new C(1, 1, 1) });
+      const stick = (pos, color, h) => {
+        const g = new THREE.CylinderGeometry(0.0035, 0.0035, h, 8);
+        g.rotateX(Math.PI / 2); g.translate(0, 0, h / 2);
+        const m = new THREE.Mesh(g, new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.7 }));
+        m.position.copy(pos);
+        map.add(m);
+        const top = new THREE.Mesh(new THREE.SphereGeometry(0.014, 16, 12), new THREE.MeshBasicMaterial({ color }));
+        top.position.copy(pos).setZ(h);
+        map.add(top);
+      };
+      stick(A, P.red, 0.09);
+      const homeP = pulse(map, Z, P.red, { pos: A.clone().setZ(0.001), size: 0.11, alpha: 0.5 });
+      const pins = clientsOf(S).map(c => {
+        const B = xy(c.s.to.lat, c.s.to.lon);
+        stick(B, P.ink, 0.06);
+        return { i: c.i, ring: pulse(map, Z, P.red, { pos: B.clone().setZ(0.001), size: 0.08, on: false }) };
+      });
+      let camX = CX, targetX = CX, D = 4.6;
+      return {
+        scene, kind: 'flat',
+        onResize(aspect) { D = Math.max(4.1, 1.26 / (Math.tan(16 * DEG) * aspect)); },
+        update(now, dt) {
+          camX += (targetX - camX) * Math.min(1, dt * 0.003);
+          camera.position.set(camX, 0, D);
+          camera.lookAt(camX, 0, 0);
+          arcs.update(now, dt); homeP.update(now); pins.forEach(p => p.ring.update(now));
+        },
+        setStop(i, now) {
+          arcs.setActive(i, now);
+          pins.forEach(p => { p.ring.on = p.i === i; });
+          const s = S.stops[i];
+          const mid = s.to ? (xy(s.to.lat, s.to.lon).x + A.x) / 2 : A.x;
+          targetX = CX + 0.3 * (mid - CX);
+        },
+        anchor(ll) {
+          const h = ll === DHAKA ? 0.09 : 0.06;
+          map.updateMatrixWorld();
+          return { world: xy(ll.lat, ll.lon, h + 0.012).applyMatrix4(map.matrixWorld), opacity: 1 };
+        }
+      };
+    }
+
+    // 6. Data globe — dense dots, packets on every route, beams and an orbit.
+    function buildData(S) {
+      const { scene, globe } = base();
+      const TEAL = new C('#3ee6c3'), RED = new C('#ff4d6a'), WHITE = new C('#eafffa');
+      scene.add(halo(TEAL, 0.3, 0.36, true));
+      globe.add(sphereMesh(DATA_FS, { uBase: { value: new C('#050b10') }, uRim: { value: TEAL } }));
+      const sea = fib(6500).filter(v => { const ll = latLonOf(v); return !isLand(ll.lat, ll.lon); });
+      globe.add(dots(sea.map(v => ({ p: v.multiplyScalar(1.002), c: TEAL, s: 0.0075, a: 0.11 })), { shape: 1, faceMin: 0.1 }));
+      globe.add(dots(CELLS.map(c => ({ p: vec(c.lat, c.lon, 1.003), c: TEAL, s: 0.0125, a: 0.4 + 0.6 * hash(c.lat, c.lon) })), { shape: 1, faceMin: 0.15, twinkle: true }));
+      const arcs = arcsFrom(S, globe, { radius: 0.0034, color: RED, color2: TEAL, head: WHITE, idle: 0.35, opacity: 0.9, additive: true, packets: 3, speed: 0.3, tail: 0.1, packetAlpha: 0.35 });
+      const beam = (n, color, h) => {
+        const g = new THREE.CylinderGeometry(0.004, 0.004, h, 10, 1, true);
+        g.translate(0, h / 2, 0);
+        const m = new THREE.Mesh(g, new THREE.ShaderMaterial({ uniforms: { uC: { value: color }, uA: { value: 0.8 } }, vertexShader: ARC_VS, fragmentShader: BEAM_FS, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide }));
+        m.quaternion.setFromUnitVectors(new V3(0, 1, 0), n.clone().normalize());
+        m.position.copy(n).normalize();
+        globe.add(m);
+        return m;
+      };
+      beam(DHAKA_V, RED, 0.3);
+      const beams = clientsOf(S).map(c => ({ i: c.i, m: beam(c.n, TEAL, 0.16) }));
+      const orbit = new THREE.Group();
+      orbit.rotation.set(1.18, 0, 0.38);
+      scene.add(orbit);
+      const ring = [];
+      for (let k = 0; k < 240; k++) { const t = (k / 240) * TAU; ring.push({ p: new V3(Math.cos(t) * 1.34, 0, Math.sin(t) * 1.34), c: TEAL, s: 0.009, a: 0.4 }); }
+      orbit.add(dots(ring, { flat: true }));
+      const sat = new THREE.Group();
+      orbit.add(sat);
+      sat.add(dots([{ p: new V3(1.34, 0, 0), c: WHITE, s: 0.06, a: 1 }], { flat: true, shape: 2, additive: true }));
+      const V = withPins(S, globe, scene, arcs, { home: RED, pin: TEAL, additive: true, homeR: 0.012, pinR: 0.009 });
+      const baseUpdate = V.update, baseStop = V.setStop;
+      V.update = (now, dt) => {
+        baseUpdate(now, dt);
+        if (MOTION) { orbit.rotation.y += dt * 0.00005; sat.rotation.y += dt * 0.0004; }
+      };
+      V.setStop = (i, now) => {
+        baseStop(i, now);
+        V.pins.forEach(p => { p.ring.on = true; p.ring.offset = p.i * 0.23; p.ring.size = p.i === i ? 0.13 : 0.07; p.ring.alpha = p.i === i ? 0.9 : 0.4; });
+        beams.forEach(b => { b.m.material.uniforms.uA.value = b.i === i ? 1 : 0.5; });
+      };
+      V.homeSub = () => 'Origin node · Bangladesh';
+      return V;
+    }
+
+    // 7. Nakshi kantha — running stitches on cloth, red-thread routes, a stitched flower.
+    function buildKantha(S) {
+      const { scene, globe } = base();
+      const CLOTH = new C('#f6eedc'), SHADE = new C('#d8c7a3'), RED = new C('#b3261e'), INDIGO = new C('#27407e'), MUSTARD = new C('#d3961c'), GREEN = new C('#3d7a4a');
+      const SEA = CLOTH.clone().lerp(INDIGO, 0.3);
+      globe.add(sphereMesh(KANTHA_FS, { uCloth: { value: CLOTH }, uShade: { value: SHADE } }));
+      const mat = new THREE.MeshBasicMaterial({ map: threadTexture(), transparent: true, alphaTest: 0.35, depthWrite: false });
+      const stitches = [];
+      GRID.rows.forEach((row, r) => {
+        const lat = row.lat, cl = Math.cos(lat * DEG);
+        const n = Math.max(6, Math.floor((360 * cl) / 1.6)), step = 360 / n, off = (r % 2) * step * 0.5;
+        for (let k = 0; k < n; k++) {
+          const lon = -180 + off + (k + 0.5) * step;
+          if (isLand(lat, lon)) {
+            const coast = !isLand(lat, lon + step) || !isLand(lat, lon - step) || !isLand(lat + GRID.step, lon) || !isLand(lat - GRID.step, lon);
+            const h = hash(lat, lon);
+            const p = vec(lat, lon, 1.0035);
+            stitches.push({ p, n: p, ang: 0, len: step * 0.64 * DEG * cl, w: 0.0068, c: coast ? INDIGO : h < 0.06 ? MUSTARD : h < 0.13 ? GREEN : RED });
+          } else if (r % 2 === 0) {
+            // Kantha-style wavy rows across the sea.
+            const p = vec(lat + 0.55 * Math.sin(lon * DEG * 18), lon, 1.003);
+            const ang = Math.atan2(0.55 * 18 * DEG * Math.cos(lon * DEG * 18), cl);
+            stitches.push({ p, n: p, ang, len: step * 0.5 * DEG * cl, w: 0.0045, c: SEA });
+          }
+        }
+      });
+      globe.add(quads(stitches, mat));
+      const { e, n: north } = tangent(DHAKA_V);
+      const petals = [];
+      for (let k = 0; k < 8; k++) {
+        const t = (k / 8) * TAU, t2 = t + Math.PI / 8;
+        const d1 = e.clone().multiplyScalar(Math.cos(t)).addScaledVector(north, Math.sin(t));
+        const d2 = e.clone().multiplyScalar(Math.cos(t2)).addScaledVector(north, Math.sin(t2));
+        petals.push({ p: DHAKA_V.clone().addScaledVector(d1, 0.03).normalize().multiplyScalar(1.006), n: DHAKA_V, ang: t, len: 0.042, w: 0.017, c: RED });
+        petals.push({ p: DHAKA_V.clone().addScaledVector(d2, 0.017).normalize().multiplyScalar(1.007), n: DHAKA_V, ang: t2, len: 0.022, w: 0.01, c: MUSTARD });
+      }
+      globe.add(quads(petals, mat));
+      pinDot(globe, DHAKA_V, INDIGO, 0.007, 1.008);
+      const crosses = [];
+      const pins = clientsOf(S).map(c => {
+        [Math.PI / 4, -Math.PI / 4].forEach(a => crosses.push({ p: c.n.clone().multiplyScalar(1.006), n: c.n, ang: a, len: 0.04, w: 0.009, c: INDIGO }));
+        return { i: c.i, ring: pulse(globe, c.n, MUSTARD, { size: 0.07, alpha: 0.8, on: false, period: 2600 }) };
+      });
+      globe.add(quads(crosses, mat));
+      const arcs = arcsFrom(S, globe, { radius: 0.0052, color: RED, active: MUSTARD, head: MUSTARD, idle: 0.75, opacity: 1, dashDensity: 40, dashRatio: 0.6 });
+      const homeP = pulse(globe, DHAKA_V, RED, { size: 0.12, alpha: 0.35, period: 3000 });
+      return {
+        scene, globe,
+        update(now, dt) { arcs.update(now, dt); homeP.update(now); pins.forEach(p => p.ring.update(now)); },
+        setStop(i, now) { arcs.setActive(i, now); pins.forEach(p => { p.ring.on = p.i === i; }); },
+        homeTitle: 'ঢাকা · Dhaka',
+        homeSub: () => 'Home, Bangladesh'
+      };
+    }
+
+    const BUILDERS = { flag: buildFlag, night: buildNight, daynight: buildDayNight, blueprint: buildBlueprint, flat: buildFlat, data: buildData, kantha: buildKantha };
+
+    /* ======================================================================
+       Labels
+       ====================================================================== */
+    const chipMap = new Map();
+    function clearChips() { chipsEl.textContent = ''; chipMap.clear(); }
+    function renderChips(items) {
+      const w = stage.clientWidth, h = stage.clientHeight, seen = new Set();
+      items.forEach(it => {
+        seen.add(it.id);
+        let el = chipMap.get(it.id);
+        if (!el) {
+          el = document.createElement('div');
+          el.className = 'chip';
+          el.append(document.createElement('b'), document.createElement('span'));
+          chipsEl.appendChild(el);
+          chipMap.set(it.id, el);
+        }
+        if (el._t !== it.title) { el.firstChild.textContent = it.title; el._t = it.title; }
+        if (el._s !== it.sub) { el.lastChild.textContent = it.sub; el._s = it.sub; }
+        el.classList.toggle('is-active', !!it.active);
+        const v = it.world.clone().project(camera);
+        const x = (v.x * 0.5 + 0.5) * w, y = (-v.y * 0.5 + 0.5) * h;
+        const ew = el.offsetWidth, eh = el.offsetHeight;
+        let right = it.side ? it.side > 0 : x >= w * 0.5;
+        // Flip sides rather than let the chip slide back over its own pin.
+        if (right && x + 12 + ew > w - 8) right = false;
+        else if (!right && x - 12 - ew < 8) right = true;
+        const cx = clamp(right ? x + 12 : x - 12 - ew, 8, w - ew - 8);
+        const cy = clamp(y - eh - 8, 8, h - eh - 8);
+        el.style.transform = `translate(${cx.toFixed(1)}px, ${cy.toFixed(1)}px)`;
+        el.style.opacity = it.opacity.toFixed(2);
+      });
+      chipMap.forEach((el, id) => { if (!seen.has(id)) el.style.opacity = 0; });
+    }
+    function collectLabels() {
+      const list = stops(), act = list[tour.i];
+      const home = V.anchor(DHAKA);
+      const items = [{
+        id: 'home', world: home.world, opacity: home.opacity, active: !act.to,
+        title: V.homeTitle || 'Dhaka', sub: V.homeSub ? V.homeSub() : 'Home base, Bangladesh'
+      }];
+      if (act.to) {
+        const a = V.anchor(act.to);
+        items.push({ id: act.id, world: a.world, opacity: a.opacity, active: true, title: act.tag, sub: V.chipSub ? V.chipSub(act) : act.place });
+      }
+      if (V.extraLabels) items.push(...V.extraLabels());
+      return items;
+    }
+
+    /* ======================================================================
+       Tour, variants, UI
+       ====================================================================== */
+    let SET = 'full', VI = 0, V = null;
+    const stops = () => SETS[SET];
+    const tour = { i: 0, nextAt: 0, holdUntil: 0, paused: !MOTION };
+
+    function viewFor(to) {
+      if (!to) return { lon: DHAKA.lon, lat: 20 };
+      const m = DHAKA_V.clone().add(vec(to.lat, to.lon));
+      return { lon: Math.atan2(m.x, m.z) / DEG, lat: clamp(Math.asin(m.y / (m.length() || 1)) / DEG, -20, 56) };
+    }
+    function animateTo(to, now) {
+      viewAnim = { from: { ...VIEW }, dl: wrapLon(to.lon - VIEW.lon), dlat: to.lat - VIEW.lat, t0: now, dur: MOTION ? 1500 : 0 };
+    }
+    function stepView(now) {
+      if (!viewAnim) return;
+      const k = viewAnim.dur ? Math.min(1, (now - viewAnim.t0) / viewAnim.dur) : 1, e = easeInOut(k);
+      VIEW.lon = wrapLon(viewAnim.from.lon + viewAnim.dl * e);
+      VIEW.lat = viewAnim.from.lat + viewAnim.dlat * e;
+      if (k >= 1) viewAnim = null;
+    }
+
+    const ui = {
+      route: $('[data-route]'), count: $('[data-count]'), title: $('[data-title]'), sub: $('[data-sub]'),
+      text: $('[data-tour-text]'), ticks: $('[data-ticks]'), toggle: $('[data-toggle]'), tabs: $('[data-tabs]'),
+      extra: $('[data-extra]'), hint: $('[data-hint]')
+    };
+
+    function go(k, now) {
+      const list = stops();
+      tour.i = (k + list.length) % list.length;
+      const s = list[tour.i];
+      animateTo(viewFor(s.to), now);
+      if (V) V.setStop(tour.i, now);
+      ui.route.textContent = s.route;
+      ui.count.textContent = `${tour.i + 1} / ${list.length}`;
+      ui.title.textContent = s.title;
+      ui.sub.textContent = s.sub;
+      [...ui.ticks.children].forEach((t, j) => (j === tour.i ? t.setAttribute('aria-current', 'true') : t.removeAttribute('aria-current')));
+      if (MOTION) { ui.text.classList.remove('is-swapping'); void ui.text.offsetWidth; ui.text.classList.add('is-swapping'); }
+      tour.nextAt = now + 6800;
+    }
+    const hold = ms => { tour.holdUntil = performance.now() + ms; };
+
+    function buildTicks() {
+      ui.ticks.textContent = '';
+      stops().forEach((s, k) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.setAttribute('aria-label', `Show ${s.title}`);
+        b.addEventListener('click', () => { go(k, performance.now()); hold(9000); });
+        ui.ticks.appendChild(b);
+      });
+    }
+    function setPaused(p) {
+      tour.paused = p;
+      ui.toggle.setAttribute('aria-pressed', String(p));
+      ui.toggle.setAttribute('aria-label', p ? 'Play tour' : 'Pause tour');
+      if (!p) tour.nextAt = Math.min(tour.nextAt, performance.now() + 1200);
+    }
+
+    VARIANTS.forEach((d, i) => {
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'tab'; b.setAttribute('role', 'tab');
+      b.innerHTML = `<span class="n">${i + 1}</span>`;
+      b.append(d.name);
+      b.addEventListener('click', () => useVariant(i));
+      ui.tabs.appendChild(b);
+    });
+
+    function renderInfo() {
+      const d = VARIANTS[VI];
+      $('[data-eyebrow]').textContent = `Variant ${String(VI + 1).padStart(2, '0')} / ${String(VARIANTS.length).padStart(2, '0')}`;
+      $('[data-name]').textContent = d.name;
+      const badge = $('[data-badge]');
+      badge.hidden = !d.badge;
+      badge.textContent = d.badge || '';
+      $('[data-line]').textContent = d.line;
+      $('[data-desc]').textContent = d.desc;
+      $('[data-suits]').textContent = d.suits;
+      $('[data-effort]').textContent = d.effort;
+      $('[data-weight]').textContent = d.weight;
+      $('[data-themed]').textContent = d.themed ? 'Follows the Light / Dark / Claude theme' : 'Own palette, same in every theme';
+      [...ui.tabs.children].forEach((t, j) => { t.setAttribute('aria-selected', String(j === VI)); t.tabIndex = j === VI ? 0 : -1; });
+      ui.tabs.children[VI].scrollIntoView({ block: 'nearest', inline: 'nearest' });
+      ui.hint.textContent = d.key === 'flat' ? 'Map pans with the tour' : 'Drag to spin';
+      ui.extra.textContent = '';
+      if (d.key === 'daynight') buildTimePanel();
+    }
+
+    // Day / night: local clocks, working-hour overlap and a time scrubber.
+    let timeRows = null;
+    function buildTimePanel() {
+      ui.extra.innerHTML = `
+        <p class="extra-label">Local time · working-hour overlap with Dhaka</p>
+        <ul class="times" data-times></ul>
+        <label class="shift"><span>Shift time: <b data-shift-val>now</b></span>
+          <input type="range" min="-12" max="12" step="0.25" value="${DN_OFFSET}" data-shift /></label>`;
+      const input = ui.extra.querySelector('[data-shift]'), val = ui.extra.querySelector('[data-shift-val]');
+      const label = () => { val.textContent = DN_OFFSET === 0 ? 'now' : `${DN_OFFSET > 0 ? '+' : '−'}${Math.abs(DN_OFFSET)} h`; };
+      input.addEventListener('input', () => { DN_OFFSET = +input.value; label(); tickTimePanel(true); });
+      label();
+      timeRows = ui.extra.querySelector('[data-times]');
+      tickTimePanel(true);
+    }
+    let lastTimeTick = 0;
+    function tickTimePanel(force) {
+      if (!timeRows || !timeRows.isConnected) return;
+      const now = performance.now();
+      if (!force && now - lastTimeTick < 1000) return;
+      lastTimeTick = now;
+      const d = dnDate(), ss = subsolar(d), sunV = vec(ss.lat, ss.lon);
+      const dayAt = ll => (vec(ll.lat, ll.lon).dot(sunV) > 0 ? 'day' : 'night');
+      const zones = [...new Set(stops().filter(s => s.tz).map(s => s.tz))];
+      const rows = [`<li><b>Dhaka</b><span class="t">${fmtTime('Asia/Dhaka', d)}</span><span class="d">${dayAt(DHAKA)} · home</span></li>`];
+      zones.forEach(tz => {
+        const z = ZONES[tz], o = overlapHours('Asia/Dhaka', tz, d);
+        rows.push(`<li><b>${z.name}</b><span class="t">${fmtTime(tz, d)}</span><span class="d">${dayAt(z.ll)} · ${o > 0 ? `${o} h overlap` : 'async handover'}</span></li>`);
+      });
+      timeRows.innerHTML = rows.join('');
+    }
+
+    function disposeScene(scene) {
+      scene.traverse(o => {
+        if (o.geometry) o.geometry.dispose();
+        const mats = o.material ? (Array.isArray(o.material) ? o.material : [o.material]) : [];
+        mats.forEach(m => { if (m.map) m.map.dispose(); m.dispose(); });
+      });
+    }
+
+    function useVariant(i) {
+      VI = (i + VARIANTS.length) % VARIANTS.length;
+      const d = VARIANTS[VI];
+      stage.dataset.variant = d.key;
+      renderInfo();
+      try { history.replaceState(null, '', `#${d.key}`); } catch (e) {}
+      if (!renderer) return;
+      if (V) disposeScene(V.scene);
+      clearChips();
+      V = BUILDERS[d.key]({ stops: stops(), pal: themePalette() });
+      V.kind = V.kind || 'sphere';
+      if (!V.anchor) V.anchor = ll => sphereAnchor(V.globe, ll);
+      resize();
+      V.setStop(tour.i, performance.now());
+    }
+
+    function resize() {
+      if (!renderer) return;
+      const w = Math.max(1, stage.clientWidth), h = Math.max(1, stage.clientHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      renderer.setSize(w, h, false);
+      camera.aspect = w / h;
+      const t = Math.tan(16 * DEG);
+      CAM_D = Math.max(4.2, 1.22 / (t * camera.aspect));
+      camera.updateProjectionMatrix();
+      U.uScale.value = renderer.getDrawingBufferSize(new THREE.Vector2()).y / (2 * t);
+      U.uEdge.value = CAM_D / Math.sqrt(CAM_D * CAM_D - 1);
+      if (V && V.onResize) V.onResize(camera.aspect);
+    }
+    new ResizeObserver(resize).observe(stage);
+
+    // Theme switch (shares the portfolio's saved theme).
+    const themeButtons = [...document.querySelectorAll('[data-theme-value]')];
+    function markTheme() {
+      const t = document.documentElement.getAttribute('data-theme');
+      themeButtons.forEach(b => b.setAttribute('aria-checked', String(b.dataset.themeValue === t)));
+    }
+    themeButtons.forEach(b => b.addEventListener('click', () => {
+      document.documentElement.setAttribute('data-theme', b.dataset.themeValue);
+      try { localStorage.setItem('v3-theme', b.dataset.themeValue); } catch (e) {}
+      markTheme();
+      if (VARIANTS[VI].themed) useVariant(VI);
+    }));
+    markTheme();
+
+    // Full site / pro build client sets.
+    document.querySelectorAll('[data-set-value]').forEach(b => b.addEventListener('click', () => {
+      SET = b.dataset.setValue;
+      document.querySelectorAll('[data-set-value]').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+      tour.i = 0;
+      buildTicks();
+      useVariant(VI);
+      go(0, performance.now());
+      if (VARIANTS[VI].key === 'daynight') tickTimePanel(true);
+    }));
+
+    $('[data-prev]').addEventListener('click', () => { go(tour.i - 1, performance.now()); hold(9000); });
+    $('[data-next]').addEventListener('click', () => { go(tour.i + 1, performance.now()); hold(9000); });
+    ui.toggle.addEventListener('click', () => setPaused(!tour.paused));
+
+    document.addEventListener('keydown', e => {
+      if (e.target.closest && e.target.closest('input, textarea')) return;
+      if (e.key.length === 1 && e.key >= '1' && e.key <= String(VARIANTS.length)) useVariant(+e.key - 1);
+      else if (e.key === 'ArrowRight') { go(tour.i + 1, performance.now()); hold(9000); }
+      else if (e.key === 'ArrowLeft') { go(tour.i - 1, performance.now()); hold(9000); }
+    });
+
+    // Drag to spin (sphere variants).
+    let drag = null;
+    canvas.addEventListener('pointerdown', e => {
+      if (!V || V.kind !== 'sphere') return;
+      drag = { x: e.clientX, y: e.clientY };
+      canvas.setPointerCapture(e.pointerId);
+      stage.classList.add('is-dragging');
+    });
+    canvas.addEventListener('pointermove', e => {
+      if (!drag) return;
+      const k = 57.3 / (stage.clientHeight * 0.42);
+      VIEW.lon = wrapLon(VIEW.lon - (e.clientX - drag.x) * k);
+      VIEW.lat = clamp(VIEW.lat + (e.clientY - drag.y) * k, -60, 72);
+      drag.x = e.clientX; drag.y = e.clientY;
+      viewAnim = null;
+      hold(9000);
+    });
+    const endDrag = () => { drag = null; stage.classList.remove('is-dragging'); };
+    canvas.addEventListener('pointerup', endDrag);
+    canvas.addEventListener('pointercancel', endDrag);
+
+    /* ======================================================================
+       Start
+       ====================================================================== */
+    const fromHash = VARIANTS.findIndex(v => `#${v.key}` === location.hash);
+    if (new URLSearchParams(location.search).get('set') === 'pro') {
+      SET = 'pro';
+      document.querySelectorAll('[data-set-value]').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.setValue === 'pro')));
+    }
+    buildTicks();
+    setPaused(!MOTION);
+    useVariant(fromHash >= 0 ? fromHash : 0);
+    go(0, performance.now());
+
+    let last = performance.now();
+    function frame(now) {
+      // The first rAF timestamp can be earlier than performance.now(), so never step backwards.
+      const dt = clamp(now - last, 0, 64);
+      last = now;
+      if (renderer && V) {
+        U.uTime.value = now / 1000;
+        if (!tour.paused && now >= tour.nextAt && now >= tour.holdUntil) go(tour.i + 1, now);
+        stepView(now);
+        if (V.kind === 'sphere') {
+          camera.position.set(0, 0, CAM_D);
+          camera.lookAt(0, 0, 0);
+          V.globe.rotation.set(VIEW.lat * DEG, -VIEW.lon * DEG, 0);
+        }
+        V.update(now, dt);
+        V.scene.updateMatrixWorld();
+        renderer.render(V.scene, camera);
+        renderChips(collectLabels());
+        if (VARIANTS[VI].key === 'daynight') tickTimePanel(false);
+      }
+      requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+  </script>
+</body>
+</html>
