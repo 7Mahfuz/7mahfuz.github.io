@@ -175,9 +175,9 @@
 
         <figure class="hero-globe">
           <!-- personal -->
-          <div class="globe-stage" data-globe-stage role="img" aria-label="A globe styled after the Bangladesh flag. Arcs connect Dhaka to client locations in the United States, the United Kingdom and Bangladesh.">
+          <div class="globe-stage" data-globe-stage role="img" aria-label="A globe that cycles through three looks: the Bangladesh flag, day and night, and nakshi kantha stitching. Arcs connect Dhaka to client locations in the United States, the United Kingdom and Bangladesh.">
           <!-- /personal -->
-          <!-- pro: <div class="globe-stage" data-globe-stage role="img" aria-label="A globe styled after the Bangladesh flag. Arcs connect Dhaka to client locations in the United States and Bangladesh."> -->
+          <!-- pro: <div class="globe-stage" data-globe-stage role="img" aria-label="A globe that cycles through three looks: the Bangladesh flag, day and night, and nakshi kantha stitching. Arcs connect Dhaka to client locations in the United States and Bangladesh."> -->
             <canvas id="globe"></canvas>
             <span class="globe-coord" aria-hidden="true">Dhaka 23.81°N 90.41°E</span>
             <span class="globe-hint" aria-hidden="true">Drag to spin</span>
@@ -571,6 +571,7 @@
 
     <!-- Education -->
     <section class="section" id="education" aria-labelledby="education-title">
+      <canvas class="section-kites" data-kites aria-hidden="true"></canvas>
       <div class="wrap">
         <header class="section-head" data-reveal>
           <p class="eyebrow">Education</p>
@@ -656,7 +657,12 @@
           </div>
 
           <aside class="contact-card" data-reveal style="--i:1" aria-label="About me">
-            <img class="contact-portrait" src="assets/img/portrait.jpg" alt="Portrait of Al-Amin Mahfuzur Rahman" width="168" height="168" loading="lazy" />
+            <div class="portrait-flip" data-flip>
+              <div class="portrait-flip-inner">
+                <img class="contact-portrait" src="assets/img/portrait.jpg" alt="Portrait of Al-Amin Mahfuzur Rahman" width="168" height="168" loading="lazy" />
+                <canvas class="portrait-dots" data-dots aria-hidden="true"></canvas>
+              </div>
+            </div>
             <dl class="contact-meta">
               <div><dt>Based in</dt><dd>Uttara, Dhaka, Bangladesh</dd></div>
               <div><dt>Phone &amp; WhatsApp</dt><dd><a class="contact-phone" href="tel:+8801625632942">+880 1625-632942</a></dd></div>
@@ -729,5 +735,7 @@
 
   <script src="js/v3.js" defer></script>
   <script type="module" src="js/v3-backdrop.js"></script>
+  <script type="module" src="js/v3-globe-looks.js"></script>
+  <script type="module" src="js/v3-portrait.js"></script>
 </body>
 </html>

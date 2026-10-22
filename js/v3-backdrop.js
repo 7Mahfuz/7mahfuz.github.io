@@ -1,168 +1,333 @@
 /**
- * Portfolio v3 — section backdrop.
+ * Portfolio v3 — page backdrop.
  *
- * One fixed WebGL particle field behind the page. As you scroll, the same
- * points re-form into a shape for each section:
+ * One fixed WebGL canvas behind the page, with backgrounds ported from
+ * demo/backgrounds.html:
  *
- *   top        dust (hidden)        the hero globe owns the first screen
- *   work       river-delta surface  Dhaka's rivers / data flowing through systems
- *   live       five orbiting worlds the five live products
- *   stack      six stacked layers   the six skill groups — literally a stack
- *   education  rising steps         SSC, HSC, B.Sc., training
- *   contact    the red sun          the flag's sun, closing what the globe opened
+ *   Hero, Work, Live projects   Flock: birds over the Padma. They follow the
+ *                               cursor and wander when it leaves.
+ *   Stack                       Ilish school: fish that split around the cursor;
+ *                               frightened ones flash red.
+ *   Contact                     Constellation: drifting nodes that link when
+ *                               close; the cursor connects to everything nearby.
  *
- * Three.js is loaded lazily (after the hero), drawn as a single Points object
- * whose shader blends between two formations. Colours come from the theme's
- * CSS tokens. Respects reduced motion, pauses when hidden.
+ * Education has kites of its own (initKites in js/v3.js), so the backdrop steps
+ * aside there. The backgrounds crossfade as each section's top rises through
+ * the middle of the screen; nothing else is tied to scrolling. Colours come
+ * from the theme's CSS tokens. Three.js is shared with js/v3-globe-looks.js and loaded once the page
+ * is idle. Respects reduced motion (everything holds still), pauses when hidden.
  */
 
 const THREE_URL = 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.min.js';
 
-const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const MOTION = !(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
 const isSmall = () => window.innerWidth < 760;
+const aspect = () => window.innerWidth / window.innerHeight;
+const clamp = (v, lo, hi) => (v < lo ? lo : v > hi ? hi : v);
+const TAU = Math.PI * 2;
+
+// The mouse, in screen units (x and y in -1…1, y up); eased each frame.
+const M = { x: 0, y: 0, tx: 0, ty: 0, in: false };
 
 /* ------------------------------------------------------------------------
-   Formations — each returns N points as a flat Float32Array (x, y, z)
+   Shared pieces
    ------------------------------------------------------------------------ */
-function rand(seed) {
-  // Small deterministic PRNG so shapes are identical on every visit.
-  let s = seed >>> 0;
-  return () => {
-    s = (s * 1664525 + 1013904223) >>> 0;
-    return s / 4294967296;
+const LINE_VS = /* glsl */ `
+  attribute float aAlpha; attribute vec3 aColor; varying float vA; varying vec3 vC;
+  void main() { vA = aAlpha; vC = aColor; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`;
+const LINE_FS = /* glsl */ `
+  uniform float uFade; varying float vA; varying vec3 vC;
+  void main() { gl_FragColor = vec4(vC, vA * uFade); }`;
+const PT_VS = /* glsl */ `
+  uniform float uScale; attribute float aSize; attribute float aAlpha; attribute vec3 aColor; varying float vA; varying vec3 vC;
+  void main() { vA = aAlpha; vC = aColor; vec4 mv = modelViewMatrix * vec4(position, 1.0); gl_PointSize = aSize * uScale / -mv.z; gl_Position = projectionMatrix * mv; }`;
+const PT_FS = /* glsl */ `
+  uniform float uFade; varying float vA; varying vec3 vC;
+  void main() { float d = length(gl_PointCoord - 0.5); if (d > 0.5) discard; gl_FragColor = vec4(vC, vA * uFade * smoothstep(0.5, 0.35, d)); }`;
+
+const attr = (THREE, n, size) => new THREE.BufferAttribute(new Float32Array(n * size), size).setUsage(THREE.DynamicDrawUsage);
+
+// Line segments with per-vertex colour and alpha, rewritten every frame.
+// `fade` is the background's shared opacity uniform.
+function dynLines(THREE, maxSegs, fade) {
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', attr(THREE, maxSegs * 2, 3));
+  g.setAttribute('aColor', attr(THREE, maxSegs * 2, 3));
+  g.setAttribute('aAlpha', attr(THREE, maxSegs * 2, 1));
+  const m = new THREE.LineSegments(g, new THREE.ShaderMaterial({
+    uniforms: { uFade: fade },
+    vertexShader: LINE_VS, fragmentShader: LINE_FS, transparent: true, depthWrite: false
+  }));
+  m.frustumCulled = false;
+  return m;
+}
+
+// Round points with per-vertex colour, alpha and size (in world units).
+function dynPoints(THREE, n, fade, scale) {
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', attr(THREE, n, 3));
+  g.setAttribute('aColor', attr(THREE, n, 3));
+  g.setAttribute('aAlpha', attr(THREE, n, 1));
+  g.setAttribute('aSize', attr(THREE, n, 1));
+  const p = new THREE.Points(g, new THREE.ShaderMaterial({
+    uniforms: { uFade: fade, uScale: scale },
+    vertexShader: PT_VS, fragmentShader: PT_FS, transparent: true, depthWrite: false
+  }));
+  p.frustumCulled = false;
+  return p;
+}
+
+// Flocking (cohesion, alignment, separation) on a spatial grid, plus an optional
+// goal to swim towards, a predator to flee, and soft walls.
+function boids(B, o, step) {
+  const inv = 1 / o.r, r2 = o.r * o.r, s2 = o.sepR * o.sepR, map = new Map();
+  const cellKey = (x, y) => (x + 512) * 1024 + (y + 512);
+  for (let i = 0; i < B.length; i++) {
+    const k = cellKey(Math.floor(B[i].x * inv), Math.floor(B[i].y * inv));
+    let list = map.get(k);
+    if (!list) map.set(k, (list = []));
+    list.push(i);
+  }
+  for (let i = 0; i < B.length; i++) {
+    const b = B[i], gx = Math.floor(b.x * inv), gy = Math.floor(b.y * inv);
+    let n = 0, cx = 0, cy = 0, ax = 0, ay = 0, sx = 0, sy = 0;
+    for (let dx = -1; dx <= 1; dx++) for (let dy = -1; dy <= 1; dy++) {
+      const list = map.get(cellKey(gx + dx, gy + dy));
+      if (!list) continue;
+      for (const j of list) {
+        if (j === i) continue;
+        const q = B[j], ex = q.x - b.x, ey = q.y - b.y, d2 = ex * ex + ey * ey;
+        if (d2 > r2) continue;
+        n++; cx += q.x; cy += q.y; ax += q.vx; ay += q.vy;
+        if (d2 < s2) { const w = 1 / (d2 + 1e-5); sx -= ex * w; sy -= ey * w; }
+      }
+    }
+    let fx = sx * o.sep, fy = sy * o.sep;
+    if (n) {
+      fx += (cx / n - b.x) * o.coh + (ax / n - b.vx) * o.ali;
+      fy += (cy / n - b.y) * o.coh + (ay / n - b.vy) * o.ali;
+    }
+    const g = o.goal, ex = g.x - b.x, ey = g.y - b.y, gd = Math.hypot(ex, ey) || 1;
+    fx += (ex / gd) * g.w; fy += (ey / gd) * g.w;
+    b.fear = 0;
+    if (o.flee) {
+      const f = o.flee, px = b.x - f.x, py = b.y - f.y, d = Math.hypot(px, py) || 1;
+      if (d < f.r) { const k = (1 - d / f.r) * f.w; fx += (px / d) * k; fy += (py / d) * k; b.fear = 1 - d / f.r; }
+    }
+    const bd = o.bounds, e = o.edge;
+    if (b.x > bd.x) fx -= (b.x - bd.x) * e; else if (b.x < -bd.x) fx -= (b.x + bd.x) * e;
+    if (b.y > bd.y) fy -= (b.y - bd.y) * e; else if (b.y < -bd.y) fy -= (b.y + bd.y) * e;
+    b.vx += fx * step; b.vy += fy * step;
+    const sp = Math.hypot(b.vx, b.vy) || 1, k = sp > o.max ? o.max / sp : sp < o.min ? o.min / sp : 1;
+    b.vx *= k; b.vy *= k;
+  }
+  for (const b of B) { b.x += b.vx * step; b.y += b.vy * step; }
+}
+
+/* ------------------------------------------------------------------------
+   Flock — birds that follow the cursor
+   ------------------------------------------------------------------------ */
+function buildFlock(THREE, P, camera) {
+  const N = isSmall() ? 140 : 260;
+  const fade = { value: 0 }, scene = new THREE.Scene(), lines = dynLines(THREE, N * 2, fade);
+  scene.add(lines);
+  const pos = lines.geometry.getAttribute('position'), colA = lines.geometry.getAttribute('aColor'), alA = lines.geometry.getAttribute('aAlpha');
+  const birds = [];
+  // Start as a few loose flocks already flying together, so it reads as birds from the first frame.
+  const groups = [0, 1, 2].map(() => ({ x: (Math.random() - 0.5) * 1.4 * aspect(), y: Math.random() * 1.2 - 0.6, ang: Math.random() * TAU }));
+  for (let i = 0; i < N; i++) {
+    const g = groups[i % groups.length], ang = g.ang + (Math.random() - 0.5) * 0.5, r = Math.sqrt(Math.random()) * 0.28, a2 = Math.random() * TAU;
+    birds.push({ x: g.x + Math.cos(a2) * r * 1.6, y: g.y + Math.sin(a2) * r, vx: Math.cos(ang) * 0.25, vy: Math.sin(ang) * 0.25, ph: Math.random() * TAU, near: 0 });
+  }
+  const tmp = new THREE.Color();
+  return {
+    scene, camera, fade,
+    update(t, dt, step) {
+      const a = aspect(), alpha = P.dark ? 0.85 : 0.7;
+      // Follow the cursor; without it, chase a slow wandering point.
+      const gx = M.in ? M.x * a : Math.sin(t * 0.21) * a * 0.6;
+      const gy = M.in ? M.y : Math.cos(t * 0.29) * 0.5;
+      for (let i = 0; i < N; i++) {
+        const b = birds[i];
+        let cx = 0, cy = 0, ax = 0, ay = 0, sx = 0, sy = 0, n = 0;
+        for (let j = 0; j < N; j++) {
+          if (i === j) continue;
+          const o = birds[j], dx = o.x - b.x, dy = o.y - b.y, d2 = dx * dx + dy * dy;
+          if (d2 > 0.02) continue;
+          n++; cx += o.x; cy += o.y; ax += o.vx; ay += o.vy;
+          if (d2 < 0.0016) { sx -= dx / (d2 + 1e-4); sy -= dy / (d2 + 1e-4); }
+        }
+        let fx = sx * 0.0016, fy = sy * 0.0016;
+        if (n) {
+          fx += (cx / n - b.x) * 0.9 + (ax / n - b.vx) * 1.2;
+          fy += (cy / n - b.y) * 0.9 + (ay / n - b.vy) * 1.2;
+        }
+        const gdx = gx - b.x, gdy = gy - b.y, gd = Math.hypot(gdx, gdy) || 1;
+        fx += (gdx / gd) * 0.5;
+        fy += (gdy / gd) * 0.5;
+        b.vx += fx * step; b.vy += fy * step;
+        const sp = Math.hypot(b.vx, b.vy) || 1, k = sp > 0.45 ? 0.45 / sp : sp < 0.16 ? 0.16 / sp : 1;
+        b.vx *= k; b.vy *= k;
+        b.x += b.vx * step; b.y += b.vy * step;
+        if (b.x > a + 0.1) b.x = -a - 0.1; else if (b.x < -a - 0.1) b.x = a + 0.1;
+        if (b.y > 1.1) b.y = -1.1; else if (b.y < -1.1) b.y = 1.1;
+        // A flapping chevron pointing along the flight direction.
+        const ux = b.vx / (Math.hypot(b.vx, b.vy) || 1), uy = b.vy / (Math.hypot(b.vx, b.vy) || 1);
+        const flap = MOTION ? Math.sin(t * 11 + b.ph) : 0, w = 0.015, spread = w * (0.5 + flap * 0.3);
+        const bx = b.x - ux * w, by = b.y - uy * w;
+        pos.setXYZ(i * 4, bx - uy * spread, by + ux * spread, 0); pos.setXYZ(i * 4 + 1, b.x, b.y, 0);
+        pos.setXYZ(i * 4 + 2, bx + uy * spread, by - ux * spread, 0); pos.setXYZ(i * 4 + 3, b.x, b.y, 0);
+        // Birds near the cursor warm to red.
+        const near = M.in ? Math.exp(-((b.x - gx) ** 2 + (b.y - gy) ** 2) * 6) : 0;
+        b.near += (near - b.near) * Math.min(1, dt * 4);
+        tmp.copy(P.dot).lerp(P.red, b.near * 0.8);
+        for (let v = 0; v < 4; v++) { colA.setXYZ(i * 4 + v, tmp.r, tmp.g, tmp.b); alA.setX(i * 4 + v, alpha); }
+      }
+      pos.needsUpdate = colA.needsUpdate = alA.needsUpdate = true;
+    }
   };
 }
 
-function dust(n) {
-  const r = rand(7), out = new Float32Array(n * 3);
-  for (let i = 0; i < n; i++) {
-    out[i * 3] = (r() - 0.5) * 28;
-    out[i * 3 + 1] = (r() - 0.5) * 16;
-    out[i * 3 + 2] = -10 + r() * 12;
+/* ------------------------------------------------------------------------
+   Ilish school — fish that part around the cursor
+   ------------------------------------------------------------------------ */
+function buildFish(THREE, P, camera) {
+  const N = isSmall() ? 110 : 180;
+  const fade = { value: 0 }, scene = new THREE.Scene(), lines = dynLines(THREE, N * 5, fade);
+  scene.add(lines);
+  const pos = lines.geometry.getAttribute('position'), colA = lines.geometry.getAttribute('aColor'), alA = lines.geometry.getAttribute('aAlpha');
+  const fish = [];
+  for (let i = 0; i < N; i++) {
+    const a = (Math.random() - 0.5) * 0.6;
+    fish.push({ x: -0.6 + (Math.random() - 0.5) * 0.6, y: (Math.random() - 0.5) * 0.5, vx: Math.cos(a) * 0.2, vy: Math.sin(a) * 0.2, ph: Math.random() * TAU, red: 0, fear: 0 });
   }
-  return out;
-}
-
-function delta(n) {
-  // Fine lines receding into the distance — ledger lines that flow like rivers.
-  const out = new Float32Array(n * 3);
-  const rows = 24, cols = Math.ceil(n / rows);
-  for (let i = 0; i < n; i++) {
-    const c = i % cols, w = Math.floor(i / cols);
-    out[i * 3] = -17 + (34 * c) / Math.max(1, cols - 1);
-    out[i * 3 + 1] = -2.4;
-    out[i * 3 + 2] = -18 + (16 * w) / (rows - 1);
-  }
-  return out;
-}
-
-function five(n) {
-  // Five small worlds, each with a ring — five products and their users.
-  const r = rand(23), out = new Float32Array(n * 3);
-  const centers = [[-7, 0.9, -2.5], [-3.5, -0.5, -0.5], [0, 0.6, -1.8], [3.5, -0.6, -0.4], [7, 0.8, -2.2]];
-  for (let i = 0; i < n; i++) {
-    const k = i % 5, c = centers[k];
-    const radius = 1.05 + (k % 2) * 0.3;
-    let x, y, z;
-    if (r() < 0.32) {
-      const a = r() * Math.PI * 2, rr = radius * (1.55 + r() * 0.25);
-      x = Math.cos(a) * rr; y = (r() - 0.5) * 0.06; z = Math.sin(a) * rr;
-      const t = 0.42; // tilt the ring
-      const y2 = y * Math.cos(t) - z * Math.sin(t);
-      z = y * Math.sin(t) + z * Math.cos(t); y = y2;
-    } else {
-      const u = r() * 2 - 1, a = r() * Math.PI * 2, s = Math.sqrt(1 - u * u);
-      x = s * Math.cos(a) * radius; y = u * radius; z = s * Math.sin(a) * radius;
+  const tmp = new THREE.Color();
+  return {
+    scene, camera, fade,
+    update(t, dt, step) {
+      const a = aspect(), alpha = P.dark ? 0.85 : 0.7;
+      // The current: a slow drifting point the school follows.
+      const goal = { x: Math.sin(t * 0.13) * a * 0.55, y: Math.cos(t * 0.19) * 0.45, w: 0.28 };
+      // The cursor is a predator: the school splits around it.
+      const flee = M.in ? { x: M.x * a, y: M.y, r: 0.38, w: 3.2 } : null;
+      if (step) boids(fish, { r: 0.13, sepR: 0.035, coh: 0.5, ali: 1.0, sep: 0.0011, min: 0.12, max: 0.32, goal, flee, bounds: { x: a * 0.92, y: 0.88 }, edge: 1.5 }, step);
+      let s = 0;
+      const seg = (p, q, c, al) => {
+        pos.setXYZ(s * 2, p[0], p[1], 0); pos.setXYZ(s * 2 + 1, q[0], q[1], 0);
+        colA.setXYZ(s * 2, c.r, c.g, c.b); colA.setXYZ(s * 2 + 1, c.r, c.g, c.b);
+        alA.setX(s * 2, al); alA.setX(s * 2 + 1, al);
+        s++;
+      };
+      for (let i = 0; i < N; i++) {
+        const f = fish[i], sp = Math.hypot(f.vx, f.vy) || 1, ux = f.vx / sp, uy = f.vy / sp, nx = -uy, ny = ux;
+        f.ph += step * (6 + sp * 30);
+        f.red += (f.fear * 1.6 - f.red) * Math.min(1, dt * 5);
+        // Spine of 4 points; the wiggle grows toward the tail.
+        const L = 0.055, pts = [];
+        for (let k = 0; k < 4; k++) {
+          const back = (k / 3) * L, sway = Math.sin(f.ph - k * 1.1) * 0.0065 * (k / 3);
+          pts.push([f.x - ux * back + nx * sway, f.y - uy * back + ny * sway]);
+        }
+        const [tx, ty] = pts[3], fl = Math.sin(f.ph) * 0.004;
+        tmp.copy(P.dot).lerp(P.red, clamp(f.red, 0, 1));
+        seg(pts[0], pts[1], tmp, alpha);
+        seg(pts[1], pts[2], tmp, alpha);
+        seg(pts[2], pts[3], tmp, alpha);
+        seg([tx, ty], [tx - ux * 0.012 + nx * (0.009 + fl), ty - uy * 0.012 + ny * (0.009 + fl)], tmp, alpha * 0.7);
+        seg([tx, ty], [tx - ux * 0.012 - nx * (0.009 - fl), ty - uy * 0.012 - ny * (0.009 - fl)], tmp, alpha * 0.7);
+      }
+      pos.needsUpdate = colA.needsUpdate = alA.needsUpdate = true;
     }
-    out[i * 3] = c[0] + x; out[i * 3 + 1] = c[1] + y; out[i * 3 + 2] = c[2] + z;
-  }
-  return out;
+  };
 }
 
-function layers(n) {
-  // Six plates stacked vertically, each a little turned from the last.
-  const r = rand(31), out = new Float32Array(n * 3);
-  const per = Math.ceil(n / 6), side = Math.ceil(Math.sqrt(per * 0.62));
-  for (let i = 0; i < n; i++) {
-    const layer = Math.floor(i / per), j = i % per;
-    const cols = Math.ceil(side * 1.6), rowsPer = Math.ceil(per / cols);
-    const gx = (j % cols) / (cols - 1) - 0.5, gz = Math.floor(j / cols) / Math.max(1, rowsPer - 1) - 0.5;
-    const width = 4.8 - layer * 0.25, depth = 2.2, turn = layer * 0.12;
-    const x = gx * width, z = gz * depth;
-    out[i * 3] = x * Math.cos(turn) - z * Math.sin(turn) + (r() - 0.5) * 0.03;
-    out[i * 3 + 1] = -3.1 + layer * 1.24;
-    out[i * 3 + 2] = x * Math.sin(turn) + z * Math.cos(turn) + (r() - 0.5) * 0.03;
-  }
-  return out;
-}
-
-function steps(n) {
-  // Four rising steps — SSC, HSC, B.Sc. and professional training.
-  const r = rand(37), out = new Float32Array(n * 3);
-  const count = 4, w = 2.2, d = 1.6, rise = 0.95;
-  for (let i = 0; i < n; i++) {
-    const k = i % count;
-    const x0 = -3.3 + k * w, y0 = -1.8 + k * rise;
-    let x, y, z;
-    if (r() < 0.72) {            // the tread (top face)
-      x = x0 + r() * w; y = y0; z = (r() - 0.5) * d;
-    } else {                     // the riser (front face)
-      x = x0 + r() * w; y = y0 - r() * rise; z = d / 2;
+/* ------------------------------------------------------------------------
+   Constellation — nodes that link when close, and to the cursor
+   ------------------------------------------------------------------------ */
+function buildNetwork(THREE, P) {
+  const V3 = THREE.Vector3;
+  const fade = { value: 0 }, scale = { value: 800 };
+  const scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(45, aspect(), 0.1, 50);
+  camera.position.set(0, 0, 6);
+  const group = new THREE.Group();
+  scene.add(group);
+  const N = isSmall() ? 80 : 140, MAX = 1600, D = 1.25, D2 = D * D, LIM = [4.8, 3.2, 2.2];
+  const nodes = [];
+  for (let i = 0; i < N; i++) nodes.push({ p: new V3((Math.random() - 0.5) * 9, (Math.random() - 0.5) * 6, (Math.random() - 0.5) * 4), v: new V3((Math.random() - 0.5) * 0.15, (Math.random() - 0.5) * 0.15, (Math.random() - 0.5) * 0.1) });
+  const lines = dynLines(THREE, MAX, fade), dots = dynPoints(THREE, N, fade, scale);
+  group.add(lines, dots);
+  const lp = lines.geometry.getAttribute('position'), lc = lines.geometry.getAttribute('aColor'), la = lines.geometry.getAttribute('aAlpha');
+  const dp = dots.geometry.getAttribute('position'), dc = dots.geometry.getAttribute('aColor'), da = dots.geometry.getAttribute('aAlpha'), ds = dots.geometry.getAttribute('aSize');
+  const ray = new THREE.Raycaster(), plane = new THREE.Plane(new V3(0, 0, 1), 0), hit = new V3(), cursor = new V3(99, 99, 0), local = new V3(), ndc = new THREE.Vector2(), c = new THREE.Color();
+  return {
+    scene, camera, fade,
+    resize(bufferHeight) {
+      camera.aspect = aspect();
+      camera.updateProjectionMatrix();
+      scale.value = bufferHeight / (2 * Math.tan((camera.fov * Math.PI) / 360));
+    },
+    update(t, dt, step) {
+      // The mouse tilts the network a little.
+      group.rotation.y += (M.x * 0.25 - group.rotation.y) * 0.05;
+      group.rotation.x += (-M.y * 0.15 - group.rotation.x) * 0.05;
+      group.updateMatrixWorld();
+      if (M.in) {
+        ray.setFromCamera(ndc.set(M.x, M.y), camera);
+        if (ray.ray.intersectPlane(plane, hit)) { local.copy(hit); group.worldToLocal(local); cursor.lerp(local, 0.3); }
+      } else cursor.set(99, 99, 0);
+      nodes.forEach((n, i) => {
+        n.p.addScaledVector(n.v, step);
+        if (Math.abs(n.p.x) > LIM[0]) n.v.x *= -1;
+        if (Math.abs(n.p.y) > LIM[1]) n.v.y *= -1;
+        if (Math.abs(n.p.z) > LIM[2]) n.v.z *= -1;
+        // Nodes near the cursor drift towards it and warm to red.
+        const dx = cursor.x - n.p.x, dy = cursor.y - n.p.y, d2 = dx * dx + dy * dy;
+        if (d2 < 2.2 && step) { n.p.x += dx * 0.004; n.p.y += dy * 0.004; }
+        dp.setXYZ(i, n.p.x, n.p.y, n.p.z);
+        const near = Math.exp(-d2 * 1.2);
+        c.copy(P.dot).lerp(P.red, near);
+        dc.setXYZ(i, c.r, c.g, c.b); da.setX(i, 0.55 + near * 0.4); ds.setX(i, 0.05 + near * 0.06);
+      });
+      let s = 0;
+      for (let i = 0; i < N && s < MAX; i++) for (let j = i + 1; j < N && s < MAX; j++) {
+        const a = nodes[i].p, b = nodes[j].p, d2 = a.distanceToSquared(b);
+        if (d2 > D2) continue;
+        const al = (1 - Math.sqrt(d2) / D) * (P.dark ? 0.5 : 0.4);
+        lp.setXYZ(s * 2, a.x, a.y, a.z); lp.setXYZ(s * 2 + 1, b.x, b.y, b.z);
+        lc.setXYZ(s * 2, P.dot.r, P.dot.g, P.dot.b); lc.setXYZ(s * 2 + 1, P.dot.r, P.dot.g, P.dot.b);
+        la.setX(s * 2, al); la.setX(s * 2 + 1, al);
+        s++;
+      }
+      // Lines from the cursor to every nearby node.
+      for (let i = 0; i < N && s < MAX; i++) {
+        const a = nodes[i].p, d = Math.hypot(a.x - cursor.x, a.y - cursor.y);
+        if (d > 1.6) continue;
+        lp.setXYZ(s * 2, cursor.x, cursor.y, 0); lp.setXYZ(s * 2 + 1, a.x, a.y, a.z);
+        lc.setXYZ(s * 2, P.red.r, P.red.g, P.red.b); lc.setXYZ(s * 2 + 1, P.red.r, P.red.g, P.red.b);
+        la.setX(s * 2, 0.7 * (1 - d / 1.6)); la.setX(s * 2 + 1, 0.15);
+        s++;
+      }
+      lines.geometry.setDrawRange(0, s * 2);
+      lp.needsUpdate = lc.needsUpdate = la.needsUpdate = true;
+      dp.needsUpdate = dc.needsUpdate = da.needsUpdate = ds.needsUpdate = true;
     }
-    out[i * 3] = x; out[i * 3 + 1] = y; out[i * 3 + 2] = z;
-  }
-  return out;
+  };
 }
-
-function sun(n) {
-  // Fibonacci sphere plus a thin corona.
-  const r = rand(47), out = new Float32Array(n * 3);
-  const core = Math.floor(n * 0.82), golden = Math.PI * (3 - Math.sqrt(5));
-  for (let i = 0; i < n; i++) {
-    let x, y, z;
-    if (i < core) {
-      const t = core > 1 ? i / (core - 1) : 0, yy = 1 - 2 * t, rad = Math.sqrt(1 - yy * yy), a = i * golden;
-      x = Math.cos(a) * rad * 2.6; y = yy * 2.6; z = Math.sin(a) * rad * 2.6;
-    } else {
-      const a = r() * Math.PI * 2, rr = 3 + Math.pow(r(), 1.6) * 1.8;
-      x = Math.cos(a) * rr; y = Math.sin(a) * rr; z = (r() - 0.5) * 0.6;
-    }
-    out[i * 3] = x; out[i * 3 + 1] = y; out[i * 3 + 2] = z;
-  }
-  return out;
-}
-
-/* Per-section look: shape, colour token, opacity, flow, tilt, facing (yaw),
-   gentle sway amplitude, and offset. Shapes sway around their best angle
-   rather than spinning, so a staircase never turns edge-on. */
-const FORMS = {
-  top:       { make: dust,    color: 'dot',    alpha: 0,    wave: 0, tilt: 0,    yaw: 0,     sway: 0,    x: 0,   y: 0,   z: 0 },
-  work:      { make: delta,   color: 'dot',    alpha: 0.6,  wave: 1, tilt: 0,    yaw: 0,     sway: 0,    x: 0,   y: 0,   z: 0 },
-  live:      { make: five,    color: 'accent', alpha: 0.3,  wave: 0, tilt: 0.12, yaw: 0,     sway: 0.3,  x: 2.4, y: 1.5, z: -4 },
-  stack:     { make: layers,  color: 'dot',    alpha: 0.34, wave: 0, tilt: 0.18, yaw: 0.55,  sway: 0.25, x: 5.2, y: 0.2, z: -3 },
-  education: { make: steps,   color: 'accent', alpha: 0.32, wave: 0, tilt: 0.25, yaw: -0.45, sway: 0.12, x: 3.6, y: 0.2, z: -5 },
-  contact:   { make: sun,     color: 'red',    alpha: 0.62, wave: 0, tilt: 0.2,  yaw: 0,     sway: 0.6,  x: 4.6, y: 0.5, z: -2 }
-};
-const ORDER = ['top', 'work', 'live', 'stack', 'education', 'contact'];
 
 /* ------------------------------------------------------------------------
    Theme colours
    ------------------------------------------------------------------------ */
-function readColors(THREE) {
+function palette(THREE) {
   const cs = getComputedStyle(document.documentElement);
-  const triple = name => {
-    const parts = cs.getPropertyValue(name).split(',').map(v => parseFloat(v) / 255);
-    return new THREE.Color(parts[0] || 0, parts[1] || 0, parts[2] || 0);
+  // Colours go in and come out as written (the renderer outputs without conversion).
+  const col = name => {
+    const v = cs.getPropertyValue(name).trim();
+    if (v.startsWith('#')) return new THREE.Color().setStyle(v, THREE.LinearSRGBColorSpace);
+    const m = v.match(/[\d.]+/g) || [0, 0, 0];
+    return new THREE.Color(+m[0] / 255, +m[1] / 255, +m[2] / 255);
   };
-  return {
-    dot: triple('--globe-dot'),
-    accent: new THREE.Color(cs.getPropertyValue('--accent').trim() || '#2c7360'),
-    red: new THREE.Color(cs.getPropertyValue('--red').trim() || '#c93c4a')
-  };
+  return { dot: col('--globe-dot'), red: col('--red'), dark: document.documentElement.getAttribute('data-theme') === 'dark' };
 }
-
-const easeInOut = t => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
-const lerp = (a, b, t) => a + (b - a) * t;
 
 /* ------------------------------------------------------------------------
    Scene
@@ -182,168 +347,70 @@ async function start() {
 
   let renderer;
   try {
-    renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: false, powerPreference: 'low-power' });
+    renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true, powerPreference: 'low-power' });
   } catch (e) {
     canvas.remove();
     return;
   }
+  renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
   renderer.setClearColor(0x000000, 0);
+  renderer.autoClear = false;
 
-  const N = isSmall() ? 2200 : 4200;
-  const shapes = {};
-  ORDER.forEach(id => { shapes[id] = FORMS[id].make(N); });
+  // Flock and fish are flat (screen units); the constellation has its own 3D camera.
+  const flat = new THREE.OrthographicCamera(-1, 1, 1, -1, -1, 1);
+  const P = palette(THREE);
+  const BG = { flock: buildFlock(THREE, P, flat), fish: buildFish(THREE, P, flat), network: buildNetwork(THREE, P) };
 
-  const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 60);
-  camera.position.set(0, 2.2, 12);
-  camera.lookAt(0, 0, 0);
-
-  const from = new Float32Array(shapes.top);
-  const to = new Float32Array(shapes.top);
-  const seeds = new Float32Array(N);
-  const seedRand = rand(99);
-  for (let i = 0; i < N; i++) seeds[i] = seedRand();
-
-  const geometry = new THREE.BufferGeometry();
-  geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(N * 3), 3));
-  geometry.setAttribute('aFrom', new THREE.BufferAttribute(from, 3));
-  geometry.setAttribute('aTo', new THREE.BufferAttribute(to, 3));
-  geometry.setAttribute('aSeed', new THREE.BufferAttribute(seeds, 1));
-  geometry.boundingSphere = new THREE.Sphere(new THREE.Vector3(), 40);
-
-  const uniforms = {
-    uMix: { value: 1 },
-    uTime: { value: 0 },
-    uWaveFrom: { value: 0 },
-    uWaveTo: { value: 0 },
-    uSize: { value: 0.05 },
-    uScale: { value: 1 },
-    uColor: { value: new THREE.Color() },
-    uOpacity: { value: 0 }
+  // How far a section's top has risen through the screen: 0 until it reaches
+  // 70% of the height, 1 once it passes 30%.
+  const risen = id => {
+    const el = document.getElementById(id);
+    if (!el) return 0;
+    const top = el.getBoundingClientRect().top, h = window.innerHeight;
+    const k = clamp((h * 0.7 - top) / (h * 0.4), 0, 1);
+    return k * k * (3 - 2 * k);
   };
-
-  const material = new THREE.ShaderMaterial({
-    uniforms,
-    transparent: true,
-    depthWrite: false,
-    vertexShader: /* glsl */ `
-      attribute vec3 aFrom;
-      attribute vec3 aTo;
-      attribute float aSeed;
-      uniform float uMix, uTime, uWaveFrom, uWaveTo, uSize, uScale;
-      varying float vFade;
-      void main() {
-        vec3 p = mix(aFrom, aTo, uMix);
-        float w = mix(uWaveFrom, uWaveTo, uMix);
-        p.y += w * (0.5 * sin(p.x * 0.5 + uTime * 0.45) * cos(p.z * 0.55 + uTime * 0.32)
-                  + 0.2 * sin(p.x * 1.3 - uTime * 0.8 + p.z * 0.45));
-        p += 0.035 * vec3(sin(uTime * 0.7 + aSeed * 6.283), cos(uTime * 0.6 + aSeed * 12.0), sin(uTime * 0.5 + aSeed * 3.0));
-        vec4 mv = modelViewMatrix * vec4(p, 1.0);
-        gl_Position = projectionMatrix * mv;
-        gl_PointSize = uSize * uScale * (0.7 + 0.6 * aSeed) / -mv.z;
-        vFade = smoothstep(30.0, 8.0, -mv.z);
-      }`,
-    fragmentShader: /* glsl */ `
-      uniform vec3 uColor;
-      uniform float uOpacity;
-      varying float vFade;
-      void main() {
-        float d = length(gl_PointCoord - 0.5);
-        if (d > 0.5) discard;
-        float a = smoothstep(0.5, 0.15, d);
-        gl_FragColor = vec4(uColor, a * uOpacity * (0.35 + 0.65 * vFade));
-      }`
-  });
-
-  const points = new THREE.Points(geometry, material);
-  scene.add(points);
-
-  let colors = readColors(THREE);
-  const fromColor = new THREE.Color(), toColor = new THREE.Color();
-  let state = { id: 'top', alpha: 0, tilt: 0, yaw: 0, sway: 0, x: 0, y: 0, z: 0 };
-  let fromState = { ...state }, target = { ...state };
-  let mixT = 1, last = 0, raf = 0;
-
-  function look(id) {
-    const f = FORMS[id];
-    const small = isSmall();
-    return {
-      id,
-      alpha: f.alpha * (small ? 0.6 : 1),
-      tilt: f.tilt,
-      yaw: f.yaw,
-      sway: f.sway,
-      // On phones everything sits centred and further back, behind the text.
-      x: small ? 0 : f.x,
-      y: f.y,
-      z: small ? f.z - 3 : f.z
-    };
-  }
-
-  function current() {
-    const k = easeInOut(mixT);
-    return {
-      alpha: lerp(fromState.alpha, target.alpha, k),
-      tilt: lerp(fromState.tilt, target.tilt, k),
-      yaw: lerp(fromState.yaw, target.yaw, k),
-      sway: lerp(fromState.sway, target.sway, k),
-      x: lerp(fromState.x, target.x, k),
-      y: lerp(fromState.y, target.y, k),
-      z: lerp(fromState.z, target.z, k)
-    };
-  }
-
-  function go(id) {
-    if (id === target.id) return;
-    const k = easeInOut(mixT);
-    // Freeze where the points are now, then head for the new shape.
-    for (let i = 0; i < from.length; i++) from[i] = from[i] + (to[i] - from[i]) * k;
-    to.set(shapes[id]);
-    geometry.attributes.aFrom.needsUpdate = true;
-    geometry.attributes.aTo.needsUpdate = true;
-    uniforms.uWaveFrom.value = lerp(uniforms.uWaveFrom.value, uniforms.uWaveTo.value, k);
-    uniforms.uWaveTo.value = FORMS[id].wave;
-    fromColor.copy(uniforms.uColor.value);
-    toColor.copy(colors[FORMS[id].color]);
-    fromState = { ...current(), id: target.id };
-    target = look(id);
-    mixT = reduceMotion ? 1 : 0;
-    kick();
-  }
+  // Birds until Stack, fish for Stack, the constellation for Contact; nothing
+  // behind Education's kites.
+  const wanted = () => {
+    const s = risen('stack'), e = risen('education'), c = risen('contact');
+    return { flock: 1 - s, fish: s * (1 - e), network: c };
+  };
+  const first = wanted();
+  Object.keys(BG).forEach(k => { BG[k].fade.value = first[k]; });
+  let last = 0, raf = 0;
 
   function resize() {
-    const dpr = Math.min(window.devicePixelRatio || 1, isSmall() ? 1.5 : 1.75);
+    const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
     renderer.setPixelRatio(dpr);
     renderer.setSize(window.innerWidth, window.innerHeight, false);
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    uniforms.uScale.value = (window.innerHeight * dpr) / (2 * Math.tan((camera.fov * Math.PI) / 360));
-    target = look(target.id);
+    const a = aspect();
+    flat.left = -a; flat.right = a;
+    flat.updateProjectionMatrix();
+    BG.network.resize(renderer.getDrawingBufferSize(new THREE.Vector2()).y);
     kick();
   }
 
   function frame(now) {
     raf = 0;
-    const real = last ? (now - last) / 1000 : 0;
-    const dt = Math.min(0.05, real);   // motion step: capped so a stall does not jump
+    const dt = last ? Math.min(0.05, (now - last) / 1000) : 0.016;
     last = now;
-    // Shape changes run on wall-clock time, so slow devices still finish in ~1.6 s.
-    if (mixT < 1) mixT = Math.min(1, mixT + Math.min(real, 0.25) / 1.6);
-    const k = easeInOut(mixT);
-    const s = current();
-
-    if (!reduceMotion) uniforms.uTime.value += dt;
-    uniforms.uMix.value = k;
-    uniforms.uOpacity.value = s.alpha;
-    uniforms.uColor.value.copy(fromColor).lerp(toColor, k);
-    points.rotation.set(s.tilt, s.yaw + s.sway * Math.sin(uniforms.uTime.value * 0.12), 0);
-    points.position.set(s.x, s.y, s.z);
-
-    renderer.render(scene, camera);
-
-    // Keep animating while visible; with reduced motion, stop once settled.
-    const moving = !reduceMotion || mixT < 1;
-    if (moving && !document.hidden && (target.alpha > 0 || s.alpha > 0.001)) raf = requestAnimationFrame(frame);
+    const t = now / 1000, step = MOTION ? Math.min(dt, 0.033) : 0;
+    const e = Math.min(1, dt * 5);
+    M.x += (M.tx - M.x) * e;
+    M.y += (M.ty - M.y) * e;
+    const want = wanted(), ease = MOTION ? Math.min(1, dt * 6) : 1;
+    renderer.clear();
+    // Only the backgrounds that are showing move.
+    Object.keys(BG).forEach(k => {
+      const bg = BG[k];
+      bg.fade.value += (want[k] - bg.fade.value) * ease;
+      if (bg.fade.value <= 0.001) return;
+      bg.update(t, dt, step);
+      renderer.render(bg.scene, bg.camera);
+    });
+    // With reduced motion, draw only when something changed (scroll, resize, theme).
+    if (MOTION && !document.hidden) raf = requestAnimationFrame(frame);
   }
 
   function kick() {
@@ -353,49 +420,33 @@ async function start() {
     }
   }
 
-  // Which section is in the middle of the screen?
-  const io = new IntersectionObserver(entries => {
-    entries.forEach(e => {
-      if (e.isIntersecting && FORMS[e.target.id]) go(e.target.id);
-    });
-  }, { rootMargin: '-45% 0px -50% 0px' });
-  ORDER.forEach(id => {
-    const el = document.getElementById(id);
-    if (el) io.observe(el);
-  });
-
+  window.addEventListener('pointermove', ev => {
+    M.tx = (ev.clientX / window.innerWidth) * 2 - 1;
+    M.ty = -((ev.clientY / window.innerHeight) * 2 - 1);
+    M.in = true;
+  }, { passive: true });
+  document.addEventListener('pointerleave', () => { M.in = false; });
+  if (!MOTION) window.addEventListener('scroll', kick, { passive: true });
   document.addEventListener('themechange', () => {
-    colors = readColors(THREE);
-    toColor.copy(colors[FORMS[target.id].color]);
-    if (mixT >= 1) fromColor.copy(toColor);
+    Object.assign(P, palette(THREE));
     kick();
   });
   document.addEventListener('visibilitychange', () => { if (!document.hidden) kick(); });
   window.addEventListener('resize', resize);
 
-  uniforms.uColor.value.copy(colors.dot);
-  fromColor.copy(colors.dot);
-  toColor.copy(colors.dot);
   resize();
   canvas.classList.add('is-on');
 }
 
-/* Load only once the visitor heads past the hero (or the browser is idle). */
+/* Load once the page has settled, after the hero. */
 (function boot() {
-  const work = document.getElementById('work');
-  if (!work || !('IntersectionObserver' in window)) return;
   let started = false;
   const begin = () => {
     if (started) return;
     started = true;
     start();
   };
-  const near = new IntersectionObserver(entries => {
-    if (entries.some(e => e.isIntersecting)) {
-      near.disconnect();
-      begin();
-    }
-  }, { rootMargin: '0px 0px 60% 0px' });
-  near.observe(work);
-  if ('requestIdleCallback' in window) requestIdleCallback(begin, { timeout: 6000 });
+  const idle = () => ('requestIdleCallback' in window ? requestIdleCallback(begin, { timeout: 3000 }) : setTimeout(begin, 800));
+  if (document.readyState === 'complete') idle();
+  else window.addEventListener('load', idle, { once: true });
 })();

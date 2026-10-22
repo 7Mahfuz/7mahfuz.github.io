@@ -180,6 +180,7 @@
     this.focus = null;
     this.burst = 0;
     this.showHome = this.style === 'disc';
+    this.bodyAlpha = 1;
     this.homeV = vec(DHAKA.lat, DHAKA.lon);
     this.homeLabel = {};
     this.sx = new Float32Array(DOT_COUNT);
@@ -262,17 +263,51 @@
     return out;
   };
 
+  // bodyAlpha fades this globe out (labels included) while another look from
+  // js/v3-globe-looks.js takes over the drawing.
   Globe.prototype.render = function (now) {
     if (!this.w) return;
     this.lastNow = now;
-    var ctx = this.ctx;
+    var ctx = this.ctx, a = this.bodyAlpha == null ? 1 : this.bodyAlpha, labels;
     ctx.clearRect(0, 0, this.w, this.h);
     this.setRotation();
+    if (a >= 0.999) {
+      labels = this.drawBody(now);
+    } else if (a > 0.001) {
+      var off = this.offscreen();
+      off.clearRect(0, 0, this.w, this.h);
+      this.ctx = off;
+      labels = this.drawBody(now);
+      this.ctx = ctx;
+      ctx.globalAlpha = a;
+      ctx.drawImage(off.canvas, 0, 0, this.w, this.h);
+      ctx.globalAlpha = 1;
+    } else {
+      return;
+    }
+    if (labels.length) this.drawLabels(labels, a);
+  };
+
+  Globe.prototype.drawBody = function (now) {
     if (this.style === 'disc') this.drawDisc();
     else this.drawHorizon();
     this.drawDots();
     for (var i = 0; i < this.arcs.length; i++) this.drawArc(this.arcs[i], now);
-    this.drawPins(now);
+    return this.drawPins(now);
+  };
+
+  Globe.prototype.offscreen = function () {
+    var c = this.off && this.off.canvas;
+    if (!c) {
+      c = document.createElement('canvas');
+      this.off = c.getContext('2d');
+    }
+    if (c.width !== this.canvas.width || c.height !== this.canvas.height) {
+      c.width = this.canvas.width;
+      c.height = this.canvas.height;
+    }
+    this.off.setTransform(this.canvas.width / this.w, 0, 0, this.canvas.height / this.h, 0, 0);
+    return this.off;
   };
 
   Globe.prototype.drawDisc = function () {
@@ -496,7 +531,7 @@
     }
 
     this.drawHome(now, labels);
-    if (labels.length) this.drawLabels(labels);
+    return labels;
   };
 
   Globe.prototype.drawHome = function (now, labels) {
@@ -555,8 +590,9 @@
     return ox > 0 && oy > 0 ? ox * oy : 0;
   }
 
-  Globe.prototype.drawLabels = function (labels) {
+  Globe.prototype.drawLabels = function (labels, fade) {
     var ctx = this.ctx;
+    fade = fade == null ? 1 : fade;
     var compact = this.R < 175;              // phone-sized globe: one line for quiet chips
     // Keep chips inside the visible stage: the hero canvas overhangs its box
     // (labelInset is the overhang as a fraction of the canvas size).
@@ -623,7 +659,7 @@
       var a = labels[i], rc = a.rect;
       var nx = clamp(a.x, rc[0], rc[0] + rc[2]), ny = clamp(a.y, rc[1], rc[1] + rc[3]);
       if (Math.hypot(nx - a.x, ny - a.y) < 5) continue;
-      ctx.globalAlpha = Math.min(1, (a.depth - 0.02) / 0.18);
+      ctx.globalAlpha = Math.min(1, (a.depth - 0.02) / 0.18) * fade;
       ctx.strokeStyle = a.active ? PAL.red : rgba(PAL.ink, 0.38);
       ctx.lineWidth = 1;
       ctx.beginPath();
@@ -634,7 +670,7 @@
 
     for (i = labels.length - 1; i >= 0; i--) {
       var b = labels[i], rr = b.rect;
-      ctx.globalAlpha = Math.min(1, (b.depth - 0.02) / 0.18) * (b.active ? 1 : 0.92);
+      ctx.globalAlpha = Math.min(1, (b.depth - 0.02) / 0.18) * (b.active ? 1 : 0.92) * fade;
       ctx.fillStyle = PAL.labelBg;
       ctx.strokeStyle = b.active ? PAL.red : rgba(PAL.ink, 0.16);
       ctx.lineWidth = b.active ? 1.3 : 1;
@@ -880,12 +916,12 @@
 
   // Hero tour: one stop per client region, in order of significance.
   var STOPS = [
-    { project: 'western-digital', to: { lat: 37.34, lon: -121.89 }, tag: 'Western Digital', place: 'San Jose, USA', route: 'Dhaka → USA', title: 'Western Digital', sub: 'CIO Management Application, in progress via Altios' },
-    { project: 'bc-localization', to: { lat: 47.67, lon: -122.12 }, tag: 'Microsoft', place: 'Redmond, USA', route: 'Dhaka → USA', title: 'Microsoft', sub: 'Business Central localization for the Bangladesh market' },
-    { project: 'piramids', to: { lat: 34.17, lon: -118.61 }, tag: 'PIRAMIDS', place: 'Woodland Hills, USA', route: 'Dhaka → USA', title: 'PIRAMIDS', sub: 'Real estate portfolio management suite' },
+    { project: 'western-digital', to: { lat: 37.34, lon: -121.89 }, tag: 'Western Digital', place: 'San Jose, USA', tz: 'America/Los_Angeles', route: 'Dhaka → USA', title: 'Western Digital', sub: 'CIO Management Application, in progress via Altios' },
+    { project: 'bc-localization', to: { lat: 47.67, lon: -122.12 }, tag: 'Microsoft', place: 'Redmond, USA', tz: 'America/Los_Angeles', route: 'Dhaka → USA', title: 'Microsoft', sub: 'Business Central localization for the Bangladesh market' },
+    { project: 'piramids', to: { lat: 34.17, lon: -118.61 }, tag: 'PIRAMIDS', place: 'Woodland Hills, USA', tz: 'America/Los_Angeles', route: 'Dhaka → USA', title: 'PIRAMIDS', sub: 'Real estate portfolio management suite' },
     // personal
-    { project: 'mapcars', to: { lat: 50.84, lon: -0.78 }, tag: 'MapCars', place: 'Chichester, UK', route: 'Dhaka → Chichester, UK', title: 'MapCars UK', sub: 'Ride-hailing apps on Google Play and the App Store' },
-    { project: 'motorshut', to: { lat: 51.52, lon: 0.19 }, tag: 'Motorshut', place: 'Rainham, UK', route: 'Dhaka → Rainham, UK', title: 'Motorshut', sub: 'Used-car marketplace' },
+    { project: 'mapcars', to: { lat: 50.84, lon: -0.78 }, tag: 'MapCars', place: 'Chichester, UK', tz: 'Europe/London', route: 'Dhaka → Chichester, UK', title: 'MapCars UK', sub: 'Ride-hailing apps on Google Play and the App Store' },
+    { project: 'motorshut', to: { lat: 51.52, lon: 0.19 }, tag: 'Motorshut', place: 'Rainham, UK', tz: 'Europe/London', route: 'Dhaka → Rainham, UK', title: 'Motorshut', sub: 'Used-car marketplace' },
     { project: null, to: null, tag: 'Dhaka', route: 'Dhaka → Bangladesh', title: 'Home market', sub: 'VetMart BD, AykorGPT, Cumilla Resort and four enterprise systems' }
     // /personal
     // pro: { project: null, to: null, tag: 'Dhaka', route: 'Dhaka → Bangladesh', title: 'Home market', sub: 'Factory ERP, POS, task management and biometric payroll' }
@@ -934,6 +970,19 @@
     var holdUntil = 0;
     var paused = !g.motion;
     var ticks = [];
+
+    // js/v3-globe-looks.js draws the other globe looks under this canvas and
+    // follows the tour through these callbacks.
+    var hook = window.v3Hero = {
+      globe: g,
+      stops: STOPS,
+      land: LAND,
+      motion: g.motion,
+      index: function () { return index; },
+      onStop: null,
+      onAdvance: null,
+      onFrame: null
+    };
 
     STOPS.forEach(function (s, k) {
       var b = document.createElement('button');
@@ -993,6 +1042,7 @@
       }
 
       nextAt = now + 6800;
+      if (hook.onStop) hook.onStop(index, now);
       if (!g.motion) g.render(now);
     }
 
@@ -1050,8 +1100,12 @@
     stage.addEventListener('pointercancel', endDrag);
 
     function tick(now) {
-      if (!paused && now >= holdUntil && now >= nextAt) go(index + 1, now);
+      if (!paused && now >= holdUntil && now >= nextAt) {
+        go(index + 1, now);
+        if (hook.onAdvance) hook.onAdvance(now);
+      }
       g.frame(now);
+      if (hook.onFrame) hook.onFrame(now);
     }
 
     if ('ResizeObserver' in window) {
@@ -1090,6 +1144,7 @@
     requestAnimationFrame(function () {
       stage.classList.add('is-ready');
     });
+    document.dispatchEvent(new CustomEvent('v3hero'));
   }
 
   /* ------------------------------------------------------------------------
@@ -1117,6 +1172,181 @@
       if ('ResizeObserver' in window) new ResizeObserver(draw).observe(canvas);
       else draw();
     });
+  }
+
+  /* ------------------------------------------------------------------------
+     Kites — Shakrain kites behind Degree and training, flown from the bottom
+     of the section, after the Kites background in demo/backgrounds.html. The
+     wind follows the mouse; nothing is tied to scrolling.
+     ------------------------------------------------------------------------ */
+  function initKites() {
+    var canvas = document.querySelector('[data-kites]');
+    if (!canvas || !canvas.getContext) return;
+    var ctx = canvas.getContext('2d');
+    var motion = motionOK();
+    var TAIL = 9;
+    var W = 0, H = 0, kites = [], colours = [], ink = [0, 0, 0];
+    var wind = 0, windTarget = 0, last = 0;
+
+    function rgbOf(v) {
+      v = v.trim();
+      if (v.charAt(0) === '#') {
+        if (v.length === 4) v = '#' + v[1] + v[1] + v[2] + v[2] + v[3] + v[3];
+        return [parseInt(v.substr(1, 2), 16), parseInt(v.substr(3, 2), 16), parseInt(v.substr(5, 2), 16)];
+      }
+      var m = v.match(/[\d.]+/g) || [0, 0, 0];
+      return [+m[0], +m[1], +m[2]];
+    }
+
+    function css(rgb, a) {
+      return 'rgba(' + Math.round(rgb[0]) + ', ' + Math.round(rgb[1]) + ', ' + Math.round(rgb[2]) + ', ' + a + ')';
+    }
+
+    // The demo's kite colours, taken from the active theme.
+    function readColours() {
+      var cs = getComputedStyle(document.documentElement);
+      function v(name) { return rgbOf(cs.getPropertyValue(name)); }
+      var red = v('--red'), bg = v('--bg');
+      var mustard = document.documentElement.getAttribute('data-theme') === 'dark' ? [231, 183, 95] : [211, 150, 28];
+      ink = v('--ink');
+      colours = [red, v('--accent'), mustard, ink, red.map(function (c, i) { return c + (bg[i] - c) * 0.3; }), v('--globe-dot')];
+    }
+
+    function layout() {
+      var n = W < 760 ? 5 : 8, seed = 11;
+      function r() {
+        seed = (seed * 1664525 + 1013904223) >>> 0;
+        return seed / 4294967296;
+      }
+      kites = [];
+      for (var i = 0; i < n; i++) {
+        kites.push({ ax: (i + 0.5) / n, len: 0.55 + r() * 0.3, s: 0.75 + r() * 0.5, lean: (r() - 0.5) * 0.5, seed: r() * 50, colour: i % 6, ang: 0, x: 0, y: 0, tail: null });
+      }
+    }
+
+    function resize() {
+      var rect = canvas.getBoundingClientRect();
+      if (!rect.width || !rect.height) return false;
+      var dpr = Math.min(window.devicePixelRatio || 1, 2);
+      W = rect.width;
+      H = rect.height;
+      canvas.width = Math.round(W * dpr);
+      canvas.height = Math.round(H * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      layout();
+      return true;
+    }
+
+    // step is the frame time in seconds; 0 draws a still frame.
+    function draw(t, step) {
+      if (!W) return;
+      ctx.clearRect(0, 0, W, H);
+      ctx.lineCap = 'round';
+      // Kites keep their size and stay in the lower part of a tall section.
+      var ay = H, sky = Math.min(H, 820), unit = Math.min(H, 300) * 0.9;
+      kites.forEach(function (k) {
+        var us = unit * k.s;                // pixels per unit of the kite's shape
+        var ax = k.ax * W, j;
+        var wobble = (Math.sin(t * 0.4 + k.seed) * 0.6 + Math.sin(t * 0.93 + k.seed * 1.7) * 0.4) * 0.25;
+        var target = k.lean + wind * 0.55 + wobble;
+        k.ang += (target - k.ang) * (step ? Math.min(1, step * 2) : 1);
+        var L = k.len * sky;
+        k.x = ax + Math.sin(k.ang) * L;
+        k.y = ay - Math.cos(k.ang) * L;
+        var rot = k.ang * 0.8 + (step ? Math.sin(t * 1.3 + k.seed) * 0.12 : 0);
+        var col = colours[k.colour];
+
+        // String: a sagging curve from the bottom of the section up to the kite.
+        ctx.strokeStyle = css(ink, 0.22);
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(ax, ay);
+        ctx.quadraticCurveTo((ax + k.x) / 2 + Math.sin(k.ang) * 0.07 * L, (ay + k.y) / 2 + 0.1 * L, k.x, k.y);
+        ctx.stroke();
+
+        // Tail: each knot follows the one above it, pulled down and blown by the wind.
+        var d = 0.085 * us, gap = 0.028 * us;
+        var px = k.x - Math.sin(rot) * d, py = k.y + Math.cos(rot) * d;
+        if (!k.tail) {
+          k.tail = [];
+          for (j = 0; j < TAIL; j++) k.tail.push([px, py + (j + 1) * gap]);
+        }
+        var e = step ? Math.min(1, step * 9) : 1;
+        ctx.lineWidth = 1.2;
+        for (j = 0; j < TAIL; j++) {
+          var p = k.tail[j];
+          p[0] += (px - wind * 0.02 * us + Math.sin(t * 3 + j * 0.8 + k.seed) * 0.008 * us - p[0]) * e;
+          p[1] += (py + gap - p[1]) * e;
+          ctx.strokeStyle = css(col, 0.75 * (1 - j / TAIL));
+          ctx.beginPath();
+          ctx.moveTo(px, py);
+          ctx.lineTo(p[0], p[1]);
+          ctx.stroke();
+          px = p[0];
+          py = p[1];
+        }
+
+        // The kite, then its spars (the path is built in kite space, stroked in page space).
+        ctx.save();
+        ctx.translate(k.x, k.y);
+        ctx.rotate(rot);
+        ctx.scale(us, us);
+        ctx.beginPath();
+        ctx.moveTo(0, -0.075);
+        ctx.lineTo(0.052, -0.012);
+        ctx.lineTo(0, 0.085);
+        ctx.lineTo(-0.052, -0.012);
+        ctx.closePath();
+        ctx.fillStyle = css(col, 0.92);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(0, -0.075);
+        ctx.lineTo(0, 0.085);
+        ctx.moveTo(-0.052, -0.012);
+        ctx.lineTo(0.052, -0.012);
+        ctx.restore();
+        ctx.strokeStyle = css(ink, 0.45);
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      });
+    }
+
+    function tick(now) {
+      var dt = last ? Math.min(0.05, (now - last) / 1000) : 0.016;
+      last = now;
+      wind += (windTarget - wind) * Math.min(1, dt * 1.5);
+      draw(now / 1000, dt);
+    }
+
+    readColours();
+    resize();
+    document.addEventListener('themechange', function () {
+      readColours();
+      if (!motion) draw(0, 0);
+    });
+
+    if (!motion) {
+      // Reduced motion: the kites hang still.
+      draw(0, 0);
+      if ('ResizeObserver' in window) new ResizeObserver(function () { if (resize()) draw(0, 0); }).observe(canvas);
+      return;
+    }
+
+    if ('ResizeObserver' in window) new ResizeObserver(resize).observe(canvas);
+    window.addEventListener('pointermove', function (e) {
+      windTarget = clamp((e.clientX / window.innerWidth) * 2 - 1, -1, 1);
+    }, { passive: true });
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(function (entries) {
+        if (entries[0].isIntersecting) startLoop(tick);
+        else {
+          stopLoop(tick);
+          last = 0;
+        }
+      }).observe(canvas);
+    } else {
+      startLoop(tick);
+    }
   }
 
   /* ------------------------------------------------------------------------
@@ -1460,6 +1690,7 @@
     initDrawer();
     initHero();
     initHorizons();
+    initKites();
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);

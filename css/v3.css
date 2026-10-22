@@ -751,6 +751,72 @@ svg.i-phone {
   transform: none;
 }
 
+/* The other globe looks (js/v3-globe-looks.js) set their own opacity each frame,
+   and label Dhaka and the active stop with chips styled per look (as in demo/globes.html). */
+.js .globe-stage canvas.globe-look {
+  transition: transform 1.6s var(--ease);
+}
+
+.globe-chips {
+  position: absolute;
+  inset: -18%;
+  width: 136%;
+  height: 136%;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.globe-chip {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  background: var(--chip-bg);
+  color: var(--ink);
+  box-shadow: 0 0 0 1px var(--line), 0 6px 18px rgba(0, 0, 0, 0.08);
+  font: 600 12.5px/1.15 var(--f-body);
+  white-space: nowrap;
+  opacity: 0;
+  will-change: transform;
+}
+
+.globe-chip b {
+  font: inherit;
+}
+
+.globe-chip span {
+  font: 500 9.5px/1.3 var(--f-mono);
+  letter-spacing: 0.02em;
+  color: var(--muted);
+}
+
+.globe-chip.is-active {
+  box-shadow: 0 0 0 1.5px var(--red), 0 6px 18px rgba(0, 0, 0, 0.1);
+}
+
+.globe-chips[data-look="kantha"] .globe-chip {
+  padding: 8px 13px;
+  border-radius: 14px;
+  background: #fbf5e8;
+  color: #3a2a1a;
+  box-shadow: none;
+  outline: 1.5px dashed #b3261e;
+  outline-offset: -4px;
+  font: 650 13px/1.15 "Bricolage Grotesque", "Tiro Bangla", sans-serif;
+}
+
+.globe-chips[data-look="kantha"] .globe-chip span {
+  color: #7a5a3a;
+}
+
+.globe-chips[data-look="kantha"] .globe-chip.is-active {
+  outline-color: #d3961c;
+}
+
 /* Tour caption */
 .tour {
   max-width: 480px;
@@ -907,6 +973,25 @@ svg.i-phone {
   position: relative;
   padding-block: clamp(5rem, 10vw, 9rem);
   border-top: 1px solid var(--line);
+}
+
+/* Kites behind Degree and training (initKites in js/v3.js), flown from the
+   section's bottom edge; the content stays above them. */
+.section-kites {
+  display: none;
+}
+
+.js .section-kites {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.section:has(.section-kites) > .wrap {
+  position: relative;
 }
 
 .section-head {
@@ -1346,9 +1431,9 @@ h2 {
 }
 
 /* --------------------------------------------------------------------------
-   Section backdrop (js/v3-backdrop.js): a fixed WebGL particle field behind
-   the content. It fades in once loaded; Contact turns translucent so the
-   red sun formation shows through.
+   Page backdrop (js/v3-backdrop.js): a fixed WebGL canvas behind the content
+   (birds up top, an ilish school behind Stack, a constellation behind Contact).
+   It fades in once loaded; Contact turns translucent so it shows through.
    -------------------------------------------------------------------------- */
 .backdrop {
   position: fixed;
@@ -1413,14 +1498,60 @@ body:has(.backdrop.is-on) .contact {
   width: 260px;
 }
 
-.contact-portrait {
+/* The photo flips over to a dot portrait of the same face (js/v3-portrait.js)
+   and back. The dot side keeps a light ground in every theme, so the halftone
+   never reads as a negative. */
+.portrait-flip {
+  flex: none;
   width: 168px;
   height: 168px;
+  margin: 0 0 1.75rem 7px;
+  perspective: 900px;
+}
+
+.portrait-flip-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.9s var(--ease);
+}
+
+.portrait-flip.is-flipped .portrait-flip-inner {
+  transform: rotateY(180deg);
+}
+
+.contact-portrait,
+.portrait-dots {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   border-radius: 50%;
+  box-shadow: 0 0 0 5px var(--bg-alt), 0 0 0 7px var(--red);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+.contact-portrait {
   object-fit: cover;
   object-position: 50% 30%;
-  box-shadow: 0 0 0 5px var(--bg-alt), 0 0 0 7px var(--red);
-  margin: 0 0 1.75rem 7px;
+}
+
+.portrait-dots {
+  display: none;
+  --dots: var(--globe-dot);
+  background: var(--surface);
+  transform: rotateY(180deg);
+}
+
+.js .portrait-dots {
+  display: block;
+}
+
+[data-theme="dark"] .portrait-dots {
+  --dots: 34, 82, 64;
+  background: #eef2ee;
 }
 
 .contact-meta {
@@ -1906,11 +2037,10 @@ body:has(.backdrop.is-on) .contact {
     gap: 2rem;
   }
 
-  .contact-portrait {
+  .portrait-flip {
     width: 120px;
     height: 120px;
     margin-bottom: 0;
-    flex: none;
   }
 }
 

@@ -105,15 +105,16 @@ const waLinks = html.split('href="https://wa.me/8801625632942').length - 1;
 const telLinks = html.split('href="tel:+8801625632942"').length - 1;
 check(waLinks >= 2 && telLinks >= 2, `${waLinks} WhatsApp and ${telLinks} phone links`, "phone/WhatsApp links missing from index.html");
 
-console.log('\n--- 10. Section backdrop (Three.js) ---');
+console.log('\n--- 10. Page backdrop (Three.js) ---');
 const backdrop = fs.existsSync('js/v3-backdrop.js') ? fs.readFileSync('js/v3-backdrop.js', 'utf8') : '';
 check(html.includes('<script type="module" src="js/v3-backdrop.js">'), 'backdrop module loaded by index.html', 'index.html does not load js/v3-backdrop.js');
 check(/three@\d+\.\d+\.\d+\//.test(backdrop), 'Three.js pinned to an exact version', 'Three.js URL must pin an exact version');
 check(backdrop.includes('prefers-reduced-motion'), 'backdrop respects reduced motion', 'backdrop ignores prefers-reduced-motion');
-['work', 'live', 'stack', 'education', 'contact'].forEach(id => {
-  const hasForm = new RegExp('\\b' + id + ':\\s*\\{ make:').test(backdrop);
-  check(hasForm && html.includes('id="' + id + '"'), `formation for #${id}`, `no backdrop formation or section for #${id}`);
-});
+check(['buildFlock', 'buildFish', 'buildNetwork'].every(f => backdrop.includes('function ' + f)), 'flock, ilish school and constellation backgrounds', 'backdrop is missing the flock, the ilish school or the constellation');
+check(backdrop.includes("risen('contact')") && html.includes('id="contact"'), 'constellation behind #contact', 'backdrop needs the #contact section for the constellation');
+check(backdrop.includes("risen('stack')") && html.includes('id="stack"'), 'backgrounds hand over at #stack', 'backdrop crossfade needs the #stack section');
+check(html.includes('<script type="module" src="js/v3-portrait.js">') && /class="contact-card"[\s\S]*data-flip[\s\S]*class="contact-portrait"[\s\S]*data-dots/.test(html), 'photo flips to the dot portrait in #contact', 'flip card, photo or dot canvas missing from the contact card, or js/v3-portrait.js not loaded');
+check(html.includes('class="section-kites" data-kites') && /id="education"[^>]*>\s*<canvas class="section-kites"/.test(html), 'kites behind #education', 'kites canvas missing from the education section');
 
 if (!allPassed) {
   process.exit(1);

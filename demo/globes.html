@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Globe Lab</title>
-  <meta name="description" content="Seven Three.js variants of the portfolio hero globe, side by side." />
+  <meta name="description" content="Eight Three.js variants of the portfolio hero globe, side by side." />
   <meta name="robots" content="noindex" />
   <link rel="icon" type="image/x-icon" href="../assets/img/favicon.ico" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -138,6 +138,10 @@
       background: radial-gradient(circle at 50% 45%, #0b1b20 0%, #04080b 70%);
       border-color: transparent;
     }
+    .stage[data-variant="nightdata"] {
+      background: radial-gradient(circle at 50% 42%, #0c1d33 0%, #050a16 55%, #020409 100%);
+      border-color: transparent;
+    }
     .stage[data-variant="blueprint"] {
       background-color: #103d7a;
       background-image:
@@ -168,6 +172,7 @@
     }
     .stage[data-variant="night"] .stage-hint,
     .stage[data-variant="data"] .stage-hint,
+    .stage[data-variant="nightdata"] .stage-hint,
     .stage[data-variant="blueprint"] .stage-hint { color: rgba(235, 242, 255, 0.6); }
     .stage[data-variant="kantha"] .stage-hint { color: #7a5a3a; left: 26px; bottom: 24px; }
     .stage-fallback {
@@ -215,6 +220,15 @@
     }
     .stage[data-variant="data"] .chip span { color: #6fbfae; }
     .stage[data-variant="data"] .chip.is-active { box-shadow: 0 0 0 1.5px #ff4d6a, 0 0 20px rgba(255, 77, 106, 0.3); }
+
+    .stage[data-variant="nightdata"] .chip {
+      background: rgba(5, 12, 26, 0.76); color: #f6e7c6; border-radius: 6px;
+      box-shadow: 0 0 0 1px rgba(62, 230, 195, 0.35);
+      backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+      font: 500 11px/1.2 "Martian Mono", monospace; text-transform: uppercase; letter-spacing: 0.04em;
+    }
+    .stage[data-variant="nightdata"] .chip span { color: #7fcfbf; text-transform: none; }
+    .stage[data-variant="nightdata"] .chip.is-active { box-shadow: 0 0 0 1.5px #ffd27a, 0 0 22px rgba(255, 200, 110, 0.28); }
 
     .stage[data-variant="blueprint"] .chip {
       background: rgba(16, 61, 122, 0.88); color: #fff; border-radius: 0;
@@ -336,7 +350,7 @@
           <div><dt>Project</dt><dd>Client reach</dd></div>
           <div><dt>Origin</dt><dd>Dhaka 23.81°N 90.41°E</dd></div>
           <div><dt>Drawn</dt><dd>A. M. Rahman</dd></div>
-          <div><dt>Sheet</dt><dd>04 / 07</dd></div>
+          <div><dt>Sheet</dt><dd>04 / 08</dd></div>
         </dl>
         <p class="stage-hint" data-hint>Drag to spin</p>
         <p class="stage-fallback" data-fallback hidden>This browser could not start WebGL, so the 3D previews can't run here.</p>
@@ -379,7 +393,7 @@
         <button type="button" data-set-value="full" aria-pressed="true">Full site</button>
         <button type="button" data-set-value="pro" aria-pressed="false">Pro build</button>
       </div>
-      <p class="keys"><kbd>1</kbd>–<kbd>7</kbd> switch variant · <kbd>←</kbd> <kbd>→</kbd> tour stops</p>
+      <p class="keys"><kbd>1</kbd>–<kbd>8</kbd> switch variant · <kbd>←</kbd> <kbd>→</kbd> tour stops</p>
     </aside>
   </main>
 
@@ -462,11 +476,15 @@
       { key: 'data', name: 'Data globe', themed: false,
         line: 'Systems talking to each other.',
         desc: 'A dark, dense dot sphere with glowing routes, packets flowing out of Dhaka, light beams over each client and a satellite on an orbit ring. The statement piece.',
-        suits: 'Dark theme · full site', effort: 'High', weight: 'Heaviest of the seven on the GPU' },
+        suits: 'Dark theme · full site', effort: 'High', weight: 'Heavy on the GPU' },
       { key: 'kantha', name: 'Nakshi kantha', themed: false,
         line: 'Hand-stitched in Bangladesh.',
         desc: 'Land sewn as rows of running stitches, coastlines in indigo, the sea in wavy kantha rows, routes stitched in red thread and an embroidered flower over Dhaka.',
-        suits: 'Claude theme · signature look', effort: 'Medium', weight: 'Light' }
+        suits: 'Claude theme · signature look', effort: 'Medium', weight: 'Light' },
+      { key: 'nightdata', name: 'Night network', themed: false,
+        line: 'The world asleep, your systems still talking.',
+        desc: 'Night lights and Data globe in one. A starfield and a navy Earth drawn in dense dots, amber city lights, routes that run amber to teal with packets flowing out of Dhaka, light beams over each client and a satellite circling on an orbit ring.',
+        suits: 'Dark theme · full site', effort: 'High: both builders, one palette', weight: 'Heaviest of the eight on the GPU' }
     ];
 
     /* ======================================================================
@@ -1326,7 +1344,62 @@
       };
     }
 
-    const BUILDERS = { flag: buildFlag, night: buildNight, daynight: buildDayNight, blueprint: buildBlueprint, flat: buildFlat, data: buildData, kantha: buildKantha };
+    // 8. Night network — night lights on a data globe: stars, city lights, packets, beams and an orbit.
+    function buildNightData(S) {
+      const { scene, globe } = base();
+      const NAVY = new C('#2f5592'), TEAL = new C('#3ee6c3'), AMBER = new C('#ffb84d'), GOLD = new C('#ffe3a3'), CORAL = new C('#ff7a59'), WHITE = new C('#fff6e0');
+      const r = rng(7), stars = [];
+      for (let k = 0; k < 900; k++) {
+        const z = -6 - r() * 14, reach = Math.tan(17 * DEG) * (4.2 - z) * 1.4;
+        stars.push({ p: new V3((r() * 2 - 1) * reach, (r() * 2 - 1) * reach, z), c: new C(0.86, 0.9, 1), s: 0.02 + r() * 0.035, a: 0.2 + r() * 0.6 });
+      }
+      scene.add(dots(stars, { flat: true, twinkle: true, additive: true }));
+      scene.add(halo(new C('#3d8bff'), 0.45, 0.34, true));
+      globe.add(sphereMesh(DATA_FS, { uBase: { value: new C('#050c1a') }, uRim: { value: new C('#3d8bff') } }));
+      const sea = fib(6500).filter(v => { const ll = latLonOf(v); return !isLand(ll.lat, ll.lon); });
+      globe.add(dots(sea.map(v => ({ p: v.multiplyScalar(1.002), c: TEAL, s: 0.0068, a: 0.05 })), { shape: 1, faceMin: 0.1 }));
+      globe.add(dots(CELLS.map(c => ({ p: vec(c.lat, c.lon, 1.003), c: NAVY, s: 0.0125, a: 0.55 + 0.45 * hash(c.lat, c.lon) })), { shape: 1, faceMin: 0.15 }));
+      globe.add(dots(cityLights().map(l => ({ p: vec(l.lat, l.lon, 1.004), c: new C(l.core ? '#fff1cf' : '#ffc56e'), s: l.s, a: l.a })), { shape: 2, additive: true, twinkle: true }));
+      const glows = clientsOf(S).map(c => ({ p: c.n.clone().multiplyScalar(1.006), c: GOLD, s: 0.1, a: 0.85 }));
+      glows.push({ p: DHAKA_V.clone().multiplyScalar(1.006), c: CORAL, s: 0.16, a: 1 });
+      globe.add(dots(glows, { shape: 2, additive: true }));
+      const arcs = arcsFrom(S, globe, { radius: 0.0034, color: AMBER, color2: TEAL, active: GOLD, head: WHITE, idle: 0.35, opacity: 0.88, additive: true, packets: 3, speed: 0.3, tail: 0.1, packetAlpha: 0.35 });
+      const beam = (n, color, h) => {
+        const g = new THREE.CylinderGeometry(0.004, 0.004, h, 10, 1, true);
+        g.translate(0, h / 2, 0);
+        const m = new THREE.Mesh(g, new THREE.ShaderMaterial({ uniforms: { uC: { value: color }, uA: { value: 0.8 } }, vertexShader: ARC_VS, fragmentShader: BEAM_FS, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide }));
+        m.quaternion.setFromUnitVectors(new V3(0, 1, 0), n.clone().normalize());
+        m.position.copy(n).normalize();
+        globe.add(m);
+        return m;
+      };
+      beam(DHAKA_V, CORAL, 0.3);
+      const beams = clientsOf(S).map(c => ({ i: c.i, m: beam(c.n, TEAL, 0.16) }));
+      const orbit = new THREE.Group();
+      orbit.rotation.set(1.18, 0, 0.38);
+      scene.add(orbit);
+      const ring = [];
+      for (let k = 0; k < 240; k++) { const t = (k / 240) * TAU; ring.push({ p: new V3(Math.cos(t) * 1.34, 0, Math.sin(t) * 1.34), c: new C('#6fa8ff'), s: 0.009, a: 0.35 }); }
+      orbit.add(dots(ring, { flat: true }));
+      const sat = new THREE.Group();
+      orbit.add(sat);
+      sat.add(dots([{ p: new V3(1.34, 0, 0), c: WHITE, s: 0.06, a: 1 }], { flat: true, shape: 2, additive: true }));
+      const V = withPins(S, globe, scene, arcs, { home: CORAL, pin: GOLD, additive: true, homeR: 0.012, pinR: 0.009 });
+      const baseUpdate = V.update, baseStop = V.setStop;
+      V.update = (now, dt) => {
+        baseUpdate(now, dt);
+        if (MOTION) { orbit.rotation.y += dt * 0.00005; sat.rotation.y += dt * 0.0004; }
+      };
+      V.setStop = (i, now) => {
+        baseStop(i, now);
+        V.pins.forEach(p => { p.ring.on = true; p.ring.offset = p.i * 0.23; p.ring.size = p.i === i ? 0.13 : 0.07; p.ring.alpha = p.i === i ? 0.9 : 0.35; });
+        beams.forEach(b => { b.m.material.uniforms.uA.value = b.i === i ? 1 : 0.45; });
+      };
+      V.homeSub = () => 'Origin node · lights on';
+      return V;
+    }
+
+    const BUILDERS = { flag: buildFlag, night: buildNight, daynight: buildDayNight, blueprint: buildBlueprint, flat: buildFlat, data: buildData, kantha: buildKantha, nightdata: buildNightData };
 
     /* ======================================================================
        Labels
